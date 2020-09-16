@@ -1,1 +1,1 @@
-# infrastructure-and-programming-models-for-stream-data-analysis
+# Infrastructure and Programming Models for Stream Data Analysis
