@@ -1,0 +1,8 @@
+kafka{
+    stream {
+        bootstrap_servers = "{{ kafka_bootstrap_server }}"
+        application {
+            id = "gira-topology"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+storm.zookeeper.servers:
+    - "zookeeper"
+
+nimbus.seeds: ["nimbus"]
+
+storm.local.hostname: "nimbus"
+
+nimbus.childopts: "-XX:+UseG1GC"

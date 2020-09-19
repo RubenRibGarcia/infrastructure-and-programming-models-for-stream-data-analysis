@@ -1,0 +1,54 @@
+version: "3.7"
+
+services:
+
+     #Set Zookeeper
+      zookeeper:
+        image: zookeeper:3.5.8
+        container_name: zookeeper
+        ports:
+          - "2181:2181"
+      #Set Kafka
+      kafka:
+        image: impads/kafka:2.13-2.6.0
+        ports:
+          - "9092-9094:9092"
+        container_name: kafka
+        environment:
+          HOSTNAME_COMMAND:
+            "echo $$HOSTNAME"
+          PORT_COMMAND:
+            "docker port $$(hostname) 9092/tcp | cut -d: -f2"
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT"
+          KAFKA_ADVERTISED_LISTENERS: "INSIDE://_{HOSTNAME_COMMAND}:9090,OUTSIDE://kafka:_{PORT_COMMAND}"
+          KAFKA_LISTENERS: "INSIDE://_{HOSTNAME_COMMAND}:9090,OUTSIDE://:9092"
+          KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+          - "zookeeper"
+        links:
+          - "zookeeper:zookeeper"
+      kafka-connect-standalone:
+        build:
+            context: .
+            dockerfile: Dockerfile-kafka-connect
+        container_name: kafka-connect-standalone
+        ports:
+            - 8083:8083
+        volumes:
+            - /tmp:/tmp
+
+      kafkadrop:
+        image: obsidiandynamics/kafdrop:3.27.0
+        container_name: kafka-web-ui
+        ports:
+          - "9000:9000"
+        environment:
+          - KAFKA_BROKERCONNECT=kafka:9092
+
+networks:
+  default:
+    external:
+      name: spds-network

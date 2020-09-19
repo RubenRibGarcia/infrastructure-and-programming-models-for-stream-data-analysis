@@ -1,0 +1,44 @@
+generator {
+    thread_pool {
+        size = 50
+    }
+    gira_travels {
+        enabled = true
+        data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv
+        threads = 1
+        workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
+        queue_name = gira_travels
+    }
+    waze {
+        irregularities {
+            enabled = true
+            data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv
+            threads = 1
+            workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
+            queue_name = waze_irregularities
+        }
+        jams {
+            enabled = true
+            data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv
+            threads = 1
+            workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
+            queue_name = waze_jams
+        }
+    }
+}
+rabbitmq {
+    enabled = false
+    host = "rabbitmq"
+    port = 5672
+    connection_timeout_ms = 5000
+    handshake_timeout_ms = 5000
+    username = "admin"
+    password = "admin"
+}
+metrics {
+    statsd {
+        host = localhost
+        port = 8125
+        agent = TELEGRAF
+    }
+}

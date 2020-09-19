@@ -1,0 +1,21 @@
+name=rabbit-mq-connector-{{ item.name }}
+connector.class={{ item.connector_class }}
+tasks.max={{ item.max_tasks }}
+
+# the file from where the connector should read lines and publish to kafka, this is inside the docker container so we have this
+# mount in the compose file mapping this to an external file where we have rights to read and write and use that as input.
+rabbitmq.host={{ hostvars['spds-misc-infra-0']['networkInterfaces'][0]['networkIP'] }}
+rabbitmq.port=5672
+rabbitmq.username=admin
+rabbitmq.password=admin
+rabbitmq.queue={{ item.from }}
+
+kafka.topic={{ item.to }}
+
+# We override the defaults for this connector example as we want to quickly just validate it for now.
+key.converter=org.apache.kafka.connect.storage.StringConverter
+value.converter=org.apache.kafka.connect.storage.StringConverter
+
+# We don't need converters for the simple example
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false

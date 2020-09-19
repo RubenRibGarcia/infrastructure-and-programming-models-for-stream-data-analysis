@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>spds-storm</artifactId>
+    <groupId>org.isel.thesis.impads</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>spds-storm-gira-topology</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer />
+                <transformer />
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.sf</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.dsa</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+                <exclude>META-INF/*.rsa</exclude>
+                <exclude>META-INF/*.EC</exclude>
+                <exclude>META-INF/*.ec</exclude>
+                <exclude>META-INF/MSFTSIG.SF</exclude>
+                <exclude>META-INF/MSFTSIG.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.storm</groupId>
+      <artifactId>storm-client</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>

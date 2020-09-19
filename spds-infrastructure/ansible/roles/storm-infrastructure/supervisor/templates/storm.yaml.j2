@@ -1,0 +1,14 @@
+storm.zookeeper.servers:
+    - "{{ hostvars['storm-zookeeper-0']['networkInterfaces'][0]['networkIP'] }}"
+
+nimbus.seeds: ["{{ hostvars['storm-nimbus-0']['networkInterfaces'][0]['networkIP'] }}"]
+
+storm.local.hostname: {{ hostvars[ansible_hostname]['networkInterfaces'][0]['networkIP'] }}
+
+supervisor.slots.ports:
+    - 6700
+    - 6701
+    - 6702
+    - 6703
+
+worker.childopts: "-Xmx8g"

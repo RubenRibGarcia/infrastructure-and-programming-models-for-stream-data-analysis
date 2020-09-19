@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+
+  kafka-stream-topology:
+    build:
+      context: .
+      dockerfile: Dockerfile-kafka-stream
+    container_name: spds-kafka-stream-gira-topology
+    volumes:
+      - <path/to/topology.conf>:/opt/isel/thesis/impads/spds-kafka/topology/conf/topology.conf
+
+networks:
+  default:
+    external:
+      name: spds-network

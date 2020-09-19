@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  telegraf:
+    image: telegraf:1.14-alpine
+    container_name: telegraf_agent
+    restart: always
+    ports:
+      - "8125:8125/udp"
+    volumes:
+      - "./telegraf.conf:/etc/telegraf/telegraf.conf:ro"
+{% if agent.docker.enabled %}
+      - "/var/run/docker.sock:/var/run/docker.sock"
+{% endif %}
+
+networks:
+  default:
+    external:
+      name: spds-network

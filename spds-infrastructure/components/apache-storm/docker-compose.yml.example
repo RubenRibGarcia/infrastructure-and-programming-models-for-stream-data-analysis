@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  zookeeper:
+    image: zookeeper:3.5.5
+    container_name: zookeeper
+    restart: always
+
+  nimbus:
+    image: impads/storm:2.2.0
+    container_name: nimbus
+    command: storm nimbus
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    ports:
+      - 6627:6627
+
+  nimbus-ui:
+    image: impads/storm:2.2.0
+    container_name: nimbus-ui
+    command: storm ui
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    ports:
+      - 8080:8080
+
+  supervisor:
+    image: impads/storm:2.2.0
+    container_name: supervisor
+    command: storm supervisor
+    depends_on:
+      - nimbus
+      - nimbus-ui
+      - zookeeper
+    links:
+      - nimbus
+      - nimbus-ui
+      - zookeeper
+    restart: always
+
+networks:
+  default:
+    external:
+      name: spds-network

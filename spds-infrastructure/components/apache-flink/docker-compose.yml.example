@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  jobmanager:
+    image: flink:1.11.1-scala_2.12-java11
+    container_name: jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    volumes:
+      - "<path/to/flink-conf.yaml>:/opt/flink/conf/flink-conf.yaml"
+
+  taskmanager:
+    image: flink:1.11.1-scala_2.12-java11
+    container_name: taskmanager
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    volumes:
+      - "<path/to/flink-conf.yaml>:/opt/flink/conf/flink-conf.yaml"
+
+networks:
+  default:
+    external:
+      name: spds-network

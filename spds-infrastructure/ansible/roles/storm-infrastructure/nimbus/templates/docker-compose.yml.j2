@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+
+    nimbus:
+        image: storm:2.2.0
+        container_name: nimbus
+        command: storm nimbus
+        restart: always
+        volumes:
+            - "./storm.yaml:/conf/storm.yaml"
+            - "/var/log/apache/storm:/apache-storm-2.1.0/logs"
+        ports:
+            - "6627:6627"
+            - "8000:8000"
+
+    nimbus-ui:
+        image: storm:2.2.0
+        container_name: nimbus-ui
+        command: storm ui
+        restart: always
+        volumes:
+            - "./storm.yaml:/conf/storm.yaml"
+        ports:
+            - 8080:8080

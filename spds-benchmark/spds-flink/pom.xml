@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.isel.thesis.impads</groupId>
+        <artifactId>spds-benchmark</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>spds-flink</artifactId>
+    <packaging>pom</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <name>IMPADS - SPDS - Apache Flink - Benchmark project</name>
+
+    <modules>
+        <module>spds-flink-rabbitmq-connector</module>
+        <module>spds-flink-gira-topology</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.isel.thesis.impads</groupId>
+            <artifactId>spds-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-java</artifactId>
+                <version>${apache.flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java_2.12</artifactId>
+                <version>${apache.flink.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

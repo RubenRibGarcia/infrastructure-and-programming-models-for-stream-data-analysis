@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+
+    supervisor:
+        image: storm:2.2.0
+        container_name: supervisor
+        command: storm supervisor
+        restart: always
+        volumes:
+            - "./storm.yaml:/conf/storm.yaml"
+            - "/var/log/apache/storm:/apache-storm-2.1.0/logs"
+        ports:
+            - "8000:8000"
+            - "6700:6700"
+            - "6701:6701"
+            - "6702:6702"
+            - "6703:6703"

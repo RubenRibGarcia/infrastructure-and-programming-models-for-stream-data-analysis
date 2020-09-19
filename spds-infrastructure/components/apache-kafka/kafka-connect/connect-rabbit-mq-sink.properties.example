@@ -1,0 +1,21 @@
+name=
+connector.class=RabbitMQSinkConnector
+tasks.max=1
+
+# the file from where the connector should read lines and publish to kafka, this is inside the docker container so we have this
+# mount in the compose file mapping this to an external file where we have rights to read and write and use that as input.
+rabbitmq.host=rabbitmq
+rabbitmq.port=5672
+rabbitmq.username=admin
+rabbitmq.password=admin
+rabbitmq.queue=<rabbitmq_queue>
+
+kafka.topic=<kafka_topic>
+
+# We override the defaults for this connector example as we want to quickly just validate it for now.
+key.converter=org.apache.kafka.connect.storage.StringConverter
+value.converter=org.apache.kafka.connect.storage.StringConverter
+
+# We don't need converters for the simple example
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false
