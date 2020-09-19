@@ -1,11 +1,11 @@
-# Infrastructure and Programming Models for Stream Data Analysis
+# *Infrastructure and Programming Models for Stream Data Analysis*
 
 Infraestruturas e Modelos de Programação para Análise de Dados em Stream 
-(or Infrastructure and Programming Models for Stream Data Analysis, with acronym IMPADS)
+(or *Infrastructure and Programming Models for Stream Data Analysis*, with acronym **IMPADS**)
 is an thesis theme which the main objective is to evaluate,
 test and benchmark various Streaming Processing Data Systems.
 
-Some Sistemas de Processamento de Dados em Stream (or Streaming Data Processing Systems, with acronym SPDS) 
+Some Sistemas de Processamento de Dados em Stream (or *Streaming Data Processing Systems*, with acronym **SPDS**) 
 that have significant popularities are:
 
 * [Apache Flink](https://flink.apache.org/) | [Github](https://github.com/apache/flink)
