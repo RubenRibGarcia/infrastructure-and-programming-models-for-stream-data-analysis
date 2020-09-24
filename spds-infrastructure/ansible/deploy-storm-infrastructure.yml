@@ -1,0 +1,21 @@
+---
+- hosts: storm-zookeeper
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - storm-infrastructure/zookeeper
+    - storm-infrastructure/nimbus
+  tags:
+    - storm-zookeeper
+
+- hosts: storm_supervisor
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - storm-infrastructure/supervisor
+  tags:
+    - storm-supervisor
+
+

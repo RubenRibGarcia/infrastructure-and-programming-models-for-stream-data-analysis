@@ -1,0 +1,37 @@
+---
+- hosts: flink_job_manager
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - flink-infrastructure/job-manager
+  tags:
+    - flink-job-manager
+
+- hosts: flink_task_manager
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - flink-infrastructure/task-manager
+  vars:
+    agent:
+      statsd:
+        enabled: true
+  tags:
+    - flink-task-manager
+
+- hosts: flink_task_manager
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - metrics-monitor/agent
+  vars:
+    agent:
+      statsd:
+        enabled: true
+      docker:
+        enabled: true
+  tags:
+    - flink-task-manager-agent

@@ -1,0 +1,9 @@
+---
+- hosts: kafka_stream
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+      - topology-submitter/kafka-stream-job-submitter
+  tags:
+      - kafka-stream-job-submit-gira-topology

@@ -1,0 +1,8 @@
+---
+- hosts: metrics_dashboard
+  become: yes
+  gather_facts: yes
+  roles:
+    - metrics-monitor/dashboard
+  tags:
+    - metrics-dashboard

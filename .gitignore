@@ -1,5 +1,5 @@
 **/target/**
-
+**/.idea/**
 .properties
 ### STS ###
 .apt_generated
@@ -49,3 +49,5 @@ log4j2.xml
 */grafana/*
 */influxdb/*
 
+!spds-infrastructure/ansible/*
+spds-infrastructure/ansible/files/**

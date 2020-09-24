@@ -1,0 +1,15 @@
+---
+- hosts: storm_nimbus
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - topology-submitter/storm-job-submitter
+  vars:
+    storm_job_jar: spds-storm-gira-topology-shaded.jar
+    storm_job_main_classpath: org.isel.thesis.impads.storm.topology.MainStormGiraTopology
+    storm_job_arguments: /opt/impads/storm/jobs/storm-gira-topology.conf
+    storm_job_config_files:
+      - { from: "{{ playbook_dir }}/files/spds-storm/jobs/storm-gira-topology.conf", to: "/opt/impads/storm/jobs/storm-gira-topology.conf"}
+  tags:
+    - storm-job-submit-gira-topology
