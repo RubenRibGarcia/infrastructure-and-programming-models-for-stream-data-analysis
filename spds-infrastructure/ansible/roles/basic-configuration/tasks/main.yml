@@ -1,0 +1,23 @@
+---
+- name: update package cache
+  tags:
+    - basic-configuration
+  become: yes
+  apt: update_cache=yes
+
+- name: install required packages
+  tags:
+    - basic-configuration
+  become: yes
+  apt:
+    name: ['htop', 'bash-completion', 'less', 'rsync', 'curl', 'screen', nmap, 'python-pip', 'python3-pip']
+    state: present
+
+- name: install required pip 
+  become: yes
+  pip:
+    name:
+      - docker
+      - docker-compose
+      - requests
+      - boto

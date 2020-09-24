@@ -1,0 +1,44 @@
+---
+- name: Directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "/opt/impads/storm/jobs"
+
+- name: Storm Nimbus Container directory creation
+  command:
+    cmd: "docker exec nimbus mkdir -p {{ item }}"
+  with_items:
+    - "/opt/impads"
+    - "/opt/impads/storm"
+    - "/opt/impads/storm/jobs"
+
+- name: Transfer Storm job jar to Nimbus Instance
+  synchronize:
+    src: "{{ playbook_dir }}/files/spds-storm/jobs/{{ storm_job_jar }}"
+    dest: "/opt/impads/storm/jobs/{{ storm_job_jar }}"
+
+- name: Trasnfer Storm job configuration files to Nimbus Instance
+  template:
+    src: "{{ item.from }}"
+    dest: "{{ item.to }}"
+  with_items:
+    - "{{ storm_job_config_files }}"
+
+- name: Copy Storm job jar to Nimbus Container
+  command:
+    cmd: "docker cp /opt/impads/storm/jobs/{{ storm_job_jar }} nimbus:/opt/impads/storm/jobs/{{ storm_job_jar }}"
+
+- name : Copy Flink Job Configuration to Nimbus Container
+  command:
+    cmd: "docker cp {{ item.to }} nimbus:{{ item.to }}"
+  with_items:
+    - "{{ storm_job_config_files }}"
+
+- name: Execute Storm Job to Nimbus Container
+  command:
+    cmd: "docker exec nimbus storm jar /opt/impads/storm/jobs/{{ storm_job_jar }} {{ storm_job_main_classpath }} {{ storm_job_arguments | default() }}"

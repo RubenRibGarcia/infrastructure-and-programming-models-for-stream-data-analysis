@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { become: yes, role: basic-configuration}
+  - { become: yes, role: docker }

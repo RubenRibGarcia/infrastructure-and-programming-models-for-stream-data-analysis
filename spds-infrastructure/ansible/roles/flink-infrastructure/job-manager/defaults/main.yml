@@ -1,0 +1,2 @@
+flink_services:
+  flink_job_manager_address: "{{ hostvars['flink-job-manager-0']['networkInterfaces'][0]['networkIP'] }}"

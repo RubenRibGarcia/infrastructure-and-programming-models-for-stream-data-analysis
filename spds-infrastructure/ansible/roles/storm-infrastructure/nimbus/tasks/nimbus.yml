@@ -1,0 +1,55 @@
+---
+- name: create group
+  group:
+    name: "impads"
+
+- name: create user
+  user:
+    name: "impads"
+    group: "impads"
+    shell: "/bin/false"
+    createhome: no
+
+- name: adding user 'impads' to group 'docker''
+  user:
+    name: 'impads'
+    groups: docker
+    append: yes
+
+- name: directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+      - "/opt/impads/containers/nimbus"
+
+- name: put docker compose file
+  template:
+    src: "{{ item.src }}"
+    dest: "/opt/impads/containers/nimbus/{{ item.dest }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
+    - { src: "storm.yaml.j2", dest: "storm.yaml"}
+
+- name : stop services
+  docker_compose:
+    project_src: "/opt/impads/containers/nimbus"
+    build: no
+    pull: yes
+    state: present
+    stopped: true
+  register: output
+
+- name: start services
+  docker_compose:
+    project_src: "/opt/impads/containers/nimbus"
+    build: no
+    pull: yes
+    state: present
+    restarted: true
+  register: output

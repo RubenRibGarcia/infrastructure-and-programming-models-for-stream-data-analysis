@@ -1,0 +1,44 @@
+---
+- name: Directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "/opt/impads/flink/jobs"
+
+- name: Flink Job Manager Container directory creation
+  command:
+    cmd: "docker exec job-manager mkdir -p {{ item }}"
+  with_items:
+    - "/opt/impads"
+    - "/opt/impads/flink"
+    - "/opt/impads/flink/jobs"
+
+- name: Transfer Flink job jar to Job Manager Instance
+  synchronize:
+    src: "{{ playbook_dir }}/files/spds-flink/jobs/{{ flink_job_jar }}"
+    dest: "/opt/impads/flink/jobs/{{ flink_job_jar }}"
+
+- name: Transfer Flink job configuration files to Job Manager Instance
+  template:
+    src: "{{ item.from }}"
+    dest: "{{ item.to }}"
+  with_items:
+    - "{{ flink_job_config_files }}"
+
+- name: Copy Flink job jar to Job Manager Container
+  command:
+    cmd: "docker cp /opt/impads/flink/jobs/{{ flink_job_jar }} job-manager:/opt/impads/flink/jobs/{{ flink_job_jar }}"
+
+- name : Copy Flink Job Configuration to Job Manager Container
+  command:
+    cmd: "docker cp {{ item.to }} job-manager:{{ item.to }}"
+  with_items:
+    - "{{ flink_job_config_files }}"
+
+- name: Execute Flink Job to Job Manager Container
+  command:
+    cmd: "docker exec job-manager flink run -d /opt/impads/flink/jobs/{{ flink_job_jar }} {{ flink_job_arguments | default() }}"

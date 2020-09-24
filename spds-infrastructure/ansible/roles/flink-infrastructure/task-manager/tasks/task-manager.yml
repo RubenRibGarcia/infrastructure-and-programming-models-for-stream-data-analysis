@@ -1,0 +1,55 @@
+---
+- name: create group
+  group:
+    name: "impads"
+
+- name: create user
+  user:
+    name: "impads"
+    group: "impads"
+    shell: "/bin/false"
+    createhome: no
+
+- name: adding user 'impads' to group 'docker'
+  user:
+    name: 'impads'
+    groups: docker
+    append: yes
+
+- name: directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+      - "/opt/impads/containers/task-manager"
+
+- name: put docker compose file
+  template:
+    src: "{{ item.src }}"
+    dest: "/opt/impads/containers/task-manager/{{ item.dest }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - { src: "flink-conf.yaml.j2", dest: "flink-conf.yaml" }
+    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
+
+- name : stop services
+  docker_compose:
+    project_src: "/opt/impads/containers/task-manager"
+    build: no
+    pull: yes
+    state: present
+    stopped: true
+  register: output
+
+- name: start services
+  docker_compose:
+    project_src: "/opt/impads/containers/task-manager"
+    build: no
+    pull: yes
+    state: present
+    restarted: true
+  register: output

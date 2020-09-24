@@ -1,0 +1,119 @@
+---
+- name: create group
+  group:
+    name: "impads"
+
+- name: create user
+  user:
+    name: "impads"
+    group: "impads"
+    shell: "/bin/false"
+    createhome: no
+
+- name: adding user 'impads' to group 'docker''
+  user:
+    name: 'impads'
+    groups: docker
+    append: yes
+
+- name: directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+      - "/opt/impads/containers/kafka-connect"
+      - "/opt/impads/containers/kafka-connect/connectors"
+
+- name: set kafka server list
+  set_fact:
+    kafka_server_list: "{{ kafka_server_list | default([]) + [ hostvars[item]['networkInterfaces'][0]['networkIP'] + ':' + '9092' ] }}"
+  with_items:
+    - "{{ groups['kafka_node'] }}"
+
+- name: set kafka boostrap server
+  set_fact:
+    kafka_bootstrap_server: "{{ kafka_server_list | join(',')}}"
+
+- name: kafka connectors directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: put Dockerfile
+  template:
+    src: Dockerfile-kafka-connect.j2
+    dest: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}/Dockerfile-kafka-connect"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: put connect standalone properties
+  template:
+    src: connect-standalone.properties.j2
+    dest: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}/connect-standalone.properties"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: put connect rabbit mq source properties
+  template:
+    src: connect-rabbit-mq.properties.j2
+    dest: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}/connect-rabbit-mq.properties"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: put docker compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}/docker-compose.yml"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: put start-kafka.sh
+  copy:
+    src: "{{ role_path }}/files/start-kafka.sh"
+    dest: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}/start-kafka.sh"
+  with_items:
+    - "{{ kafka_connectors_config }}"
+
+- name: transfer connectors
+  copy:
+    src: "{{ playbook_dir }}/files/spds-kafka/connect/{{ item }}"
+    dest: "/opt/impads/containers/kafka-connect/connectors/{{ item }}"
+  with_items:
+    - "{{ kafka_connectors }}"
+
+- name : stop services
+  docker_compose:
+    project_src: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}"
+    build: no
+    pull: yes
+    state: absent
+  register: output
+  with_items:
+    - "{{ kafka_connectors_config }}"
+  
+- name: start services
+  docker_compose:
+    project_src: "/opt/impads/containers/kafka-connect/rabbit-mq-connect-{{ item.name }}"
+    build: yes
+    pull: yes
+    recreate: always
+    state: present
+  register: output
+  with_items:
+    - "{{ kafka_connectors_config }}"

@@ -49,5 +49,5 @@ log4j2.xml
 */grafana/*
 */influxdb/*
 
-!spds-infrastructure/ansible/*
+!spds-infrastructure/ansible/**
 spds-infrastructure/ansible/files/**

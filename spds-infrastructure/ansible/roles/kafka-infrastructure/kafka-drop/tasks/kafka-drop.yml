@@ -1,0 +1,64 @@
+---
+- name: create group
+  group:
+    name: "impads"
+
+- name: create user
+  user:
+    name: "impads"
+    group: "impads"
+    shell: "/bin/false"
+    createhome: no
+
+- name: adding user 'impads' to group 'docker''
+  user:
+    name: 'impads'
+    groups: docker
+    append: yes
+
+- name: directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ item }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+      - "/opt/impads/containers/kafka-drop"
+
+- name: set kafka server list
+  set_fact:
+    kafka_server_list: "{{ kafka_server_list | default([]) + [ hostvars[item]['networkInterfaces'][0]['networkIP'] + ':' + '9092' ] }}"
+  with_items:
+    - "{{ groups['kafka_node'] }}"
+
+- name: set kafka boostrap server
+  set_fact:
+    kafka_bootstrap_server: "{{ kafka_server_list | join(',')}}"
+
+- name: put docker compose file and .env
+  template:
+    src: "{{ item.src }}"
+    dest: "/opt/impads/containers/kafka-drop/{{ item.dest }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
+
+- name : stop services
+  docker_compose:
+    project_src: "/opt/impads/containers/kafka-drop"
+    build: no
+    pull: yes
+    state: present
+    stopped: true
+  register: output
+
+- name: start services
+  docker_compose:
+    project_src: "/opt/impads/containers/kafka-drop"
+    build: no
+    pull: yes
+    state: present
+    restarted: true
+  register: output
