@@ -1,27 +1,21 @@
 generator {
-    thread_pool {
-        size = 50
+    throughput {
+        events_per_second = 100000
     }
     gira_travels {
         enabled = true
         data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv
-        threads = 1
-        workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
         queue_name = gira_travels
     }
     waze {
         irregularities {
             enabled = true
             data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv
-            threads = 1
-            workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
             queue_name = waze_irregularities
         }
         jams {
             enabled = true
             data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv
-            threads = 1
-            workspace_path = /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/giragen-project/
             queue_name = waze_jams
         }
     }

@@ -43,7 +43,7 @@ install-giragen-data-adapters:
 
 GIRAGEN_GENERATOR_PATH := $(DATA_GENERATOR_PATH)/giragen-generator
 
-build-giragen-project:
+build-giragen-generator:
 	mvn clean compile package -f $(GIRAGEN_GENERATOR_PATH)/pom.xml
 
 docker-run-giragen-generator: ## Run Docker Container for Giragen Generator (Giragen Generator + RabbitMQ)
@@ -96,10 +96,10 @@ docker-stop-flink-infrastructure:
 
 docker-execute-flink-topology:
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
-	jobmanager:/opt/flink/topology.jar
+	job-manager:/opt/flink/topology.jar
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/src/main/resources/application.conf \
-	jobmanager:/opt/flink/topology.conf
-	docker exec jobmanager flink run \
+	job-manager:/opt/flink/topology.conf
+	docker exec job-manager flink run \
 	-d /opt/flink/topology.jar \
 	--config.file.path /opt/flink/topology.conf
 

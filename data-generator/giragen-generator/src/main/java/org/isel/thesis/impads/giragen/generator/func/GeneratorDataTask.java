@@ -1,6 +1,7 @@
 package org.isel.thesis.impads.giragen.generator.func;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.RateLimiter;
 import io.vavr.control.Either;
 import org.apache.commons.csv.CSVRecord;
 import org.isel.thesis.impads.giragen.connector.rabbitmq.api.IRabbitMQClient;
@@ -12,7 +13,7 @@ import org.isel.thesis.impads.giragen.generator.base.AbstractGeneratorConfigurat
 import org.isel.thesis.impads.giragen.generator.data.JsonDataModel;
 import org.isel.thesis.impads.giragen.generator.error.GeneratorIOError;
 import org.isel.thesis.impads.giragen.metrics.api.IServicesMetrics;
-import org.isel.thesis.impads.giragen.metrics.func.RegisterCounterMetric;
+import org.isel.thesis.impads.giragen.metrics.func.ServicesMetrics.MetricsCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,30 +27,34 @@ public class GeneratorDataTask implements Runnable {
     protected final IRabbitMQClient rabbitMQClient;
     private final AbstractGeneratorConfiguration config;
     private final ObjectMapper mapper;
-    private final IServicesMetrics servicesMetrics;
+    private final MetricsCounter metricsCounter;
     protected final ICSVDataReader csvDataReader;
     private final Function<CSVRecord, Either<GeneratorError, JsonDataModel>> generatorFunction;
+    private final RateLimiter rateLimiter;
 
     protected int index;
 
     public GeneratorDataTask(final AbstractGeneratorConfiguration config
             , final IRabbitMQClient rabbitMQClient
             , final ObjectMapper mapper
-            , final IServicesMetrics servicesMetrics
+            , final MetricsCounter metricsCounter
             , final ICSVDataReader csvDataReader
-            , final Function<CSVRecord, Either<GeneratorError, JsonDataModel>> generatorFunction) {
+            , final Function<CSVRecord, Either<GeneratorError, JsonDataModel>> generatorFunction
+            , final RateLimiter rateLimiter) {
         this.config = config;
         this.rabbitMQClient = rabbitMQClient;
         this.mapper = mapper;
-        this.servicesMetrics = servicesMetrics;
+        this.metricsCounter = metricsCounter;
         this.csvDataReader = csvDataReader;
         this.generatorFunction = generatorFunction;
+        this.rateLimiter = rateLimiter;
         this.index = 0;
     }
 
     @Override
     public void run() {
         while(true) {
+            rateLimiter.acquire();
             Either<GeneratorError, JsonDataModel> data = generatorFunction
                     .apply(csvDataReader.get(index).get());
 
@@ -62,26 +67,26 @@ public class GeneratorDataTask implements Runnable {
                 }
                 nextIndex();
             }
+
+            metricsCounter.getCounter().increment();
         }
     }
 
     private Either<GeneratorError, Void> doSend(final JsonDataModel data
             , final IRabbitMQClient rabbitMQClient) {
-        return servicesMetrics.withMetricCounter(RegisterCounterMetric.newCounterMetric("giragen.messages.generated.count"), () -> {
-            Either<GeneratorError, Void> rvalue;
-            try {
-                IRabbitMQQueue queue = IRabbitMQQueue.RabbitMQQueueNaming.withName(config.getGeneratorQueueName());
-                IRabbitMQMessage message = IRabbitMQMessage.RabbitMQMessaging.withMessage(data.toJson(mapper));
-                rabbitMQClient.publishMessage(queue, message);
+        Either<GeneratorError, Void> rvalue;
+        try {
+            IRabbitMQQueue queue = IRabbitMQQueue.RabbitMQQueueNaming.withName(config.getGeneratorQueueName());
+            IRabbitMQMessage message = IRabbitMQMessage.RabbitMQMessaging.withMessage(data.toJson(mapper));
+            rabbitMQClient.publishMessage(queue, message);
 
-                rvalue = Either.right(null);
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-                rvalue = Either.left(GeneratorIOError.error(e.getMessage()));
-            }
+            rvalue = Either.right(null);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            rvalue = Either.left(GeneratorIOError.error(e.getMessage()));
+        }
 
-            return rvalue;
-        }).get();
+        return rvalue;
     }
 
     private void nextIndex() {

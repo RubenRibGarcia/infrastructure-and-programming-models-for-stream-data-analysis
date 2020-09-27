@@ -9,7 +9,6 @@ import static org.isel.thesis.impads.giragen.generator.base.GeneratorConfigurati
 import static org.isel.thesis.impads.giragen.generator.base.GeneratorConfigurationModuleFields.buildGeneratorEnabled;
 import static org.isel.thesis.impads.giragen.generator.base.GeneratorConfigurationModuleFields.buildGeneratorQueueName;
 import static org.isel.thesis.impads.giragen.generator.base.GeneratorConfigurationModuleFields.buildGeneratorThreadsProperty;
-import static org.isel.thesis.impads.giragen.generator.base.GeneratorConfigurationModuleFields.buildGeneratorWorkspacePathProperty;
 
 public abstract class AbstractGeneratorConfiguration {
 
@@ -21,16 +20,13 @@ public abstract class AbstractGeneratorConfiguration {
         this.suffix = suffix;
     }
 
+    @Deprecated
     public int getGeneratorThreads() {
         return config.getInt(buildGeneratorThreadsProperty(suffix));
     }
 
     public Path getGeneratorDataFilePath() {
         return Paths.get(config.getString(buildGeneratorDataFilePathProperty(suffix)));
-    }
-
-    public Path getGeneratorWorkspacePath() {
-        return Paths.get(config.getString(buildGeneratorWorkspacePathProperty(suffix)));
     }
 
     public String getGeneratorQueueName() {

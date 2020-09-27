@@ -1,8 +1,9 @@
 package org.isel.thesis.impads.giragen.metrics.api;
 
-import java.util.function.Supplier;
+import org.isel.thesis.impads.giragen.metrics.func.ServicesMetrics.MetricsCounter;
 
 public interface IServicesMetrics {
 
-    <R> Supplier<R> withMetricCounter(IRegisterCounterMetric registerCounterMetric, WithCounterMetric<R> fn);
+    MetricsCounter withMetricCounter(String name);
+
 }

@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 @Singleton
 public class GeneratorConfiguration {
 
-    private static final String GENERATOR_THREAD_POOL_SIZE = "generator.thread_pool.size";
+    private static final String GENERATOR_THROUGHPUT_EVENT_PER_SECOND = "generator.throughput.events_per_second";
 
     private final Config config;
 
@@ -17,8 +17,8 @@ public class GeneratorConfiguration {
         this.config = config;
     }
 
-    public int getGeneratorThreadPoolSize() {
-        return config.getInt(GENERATOR_THREAD_POOL_SIZE);
+    public long getGeneratorThroughtputEventsPerSecond() {
+        return config.getLong(GENERATOR_THROUGHPUT_EVENT_PER_SECOND);
     }
 
 }

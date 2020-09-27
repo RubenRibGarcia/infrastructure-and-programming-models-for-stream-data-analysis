@@ -29,10 +29,6 @@
 *.yml
 *.ini
 
-spds-benchmark/spds-metrics-monitorization/metrics-monitor/grafana/
-spds-benchmark/spds-metrics-monitorization/metrics-monitor/influxdb/
-spds-benchmark/spds-infrastructure/ansible/files/
-
 *.jar
 
 log4j2.xml
@@ -46,8 +42,8 @@ log4j2.xml
 
 *.env
 
-*/grafana/*
-*/influxdb/*
+**/grafana/**
+**/influxdb/**
 
 !spds-infrastructure/ansible/**
 spds-infrastructure/ansible/files/**

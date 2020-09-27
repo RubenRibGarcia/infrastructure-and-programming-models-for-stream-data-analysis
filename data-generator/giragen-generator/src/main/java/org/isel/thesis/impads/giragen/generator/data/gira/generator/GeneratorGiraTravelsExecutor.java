@@ -1,6 +1,7 @@
 package org.isel.thesis.impads.giragen.generator.data.gira.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.RateLimiter;
 import io.vavr.control.Either;
 import org.isel.thesis.impads.giragen.connector.rabbitmq.api.IRabbitMQQueue;
 import org.isel.thesis.impads.giragen.connector.rabbitmq.api.IServicesRabbitMQ;
@@ -13,14 +14,13 @@ import org.isel.thesis.impads.giragen.generator.api.IGeneratorExecutor;
 import org.isel.thesis.impads.giragen.generator.data.gira.conf.GeneratorGiraTravelsConfiguration;
 import org.isel.thesis.impads.giragen.generator.data.gira.model.GiraTravelsDataModel;
 import org.isel.thesis.impads.giragen.generator.func.GeneratorDataTask;
-import org.isel.thesis.impads.giragen.metrics.api.IServicesMetrics;
+import org.isel.thesis.impads.giragen.metrics.func.ServicesMetrics.MetricsCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 
 public class GeneratorGiraTravelsExecutor implements IGeneratorExecutor {
 
@@ -30,41 +30,44 @@ public class GeneratorGiraTravelsExecutor implements IGeneratorExecutor {
             = FactoryEventTimestampGenerator.newCurrentEventTimestampSynthesizer();
 
     private GeneratorGiraTravelsConfiguration configuration;
-    private final ExecutorService executorService;
     private final IServicesRabbitMQ servicesRabbitMQ;
     private final ObjectMapper mapper;
-    private final IServicesMetrics servicesMetrics;
+    private final MetricsCounter metricsCounter;
+    private final RateLimiter rateLimiter;
 
     @Inject
     public GeneratorGiraTravelsExecutor(GeneratorGiraTravelsConfiguration configuration
-            , ExecutorService executorService
             , IServicesRabbitMQ servicesRabbitMQ
             , ObjectMapper mapper
-            , IServicesMetrics servicesMetrics) {
+            , MetricsCounter metricsCounter
+            , RateLimiter rateLimiter) {
         this.configuration = configuration;
-        this.executorService = executorService;
         this.servicesRabbitMQ = servicesRabbitMQ;
         this.mapper = mapper;
-        this.servicesMetrics = servicesMetrics;
+        this.metricsCounter = metricsCounter;
+        this.rateLimiter = rateLimiter;
     }
 
     @Override
     public void submitGenerator() {
         if (configuration.isGeneratorEnabled()) {
             logger.info("Submitting {}", GeneratorGiraTravelsExecutor.class.getSimpleName());
-            submitTasks();
+            submitTask();
         }
         else {
             logger.info("{} disabled", GeneratorGiraTravelsExecutor.class.getSimpleName());
         }
     }
 
-    private void submitTasks() {
-        logger.info("Submiting {} with {} threads by reading file from {}"
+    private void submitTask() {
+        logger.info("Submiting {} by reading file from {}"
                 , "Gira Travel Task"
-                , configuration.getGeneratorThreads()
-                , configuration.getGeneratorDataFilePath().toString());
+                , configuration.getGeneratorDataFilePath());
 
+        new Thread(this::doSubmitTask).start();
+    }
+
+    private void doSubmitTask() {
         declareQueue();
 
         final Either<CSVDataReaderError, ICSVDataReader> csvDataReader =
@@ -74,16 +77,15 @@ public class GeneratorGiraTravelsExecutor implements IGeneratorExecutor {
             logger.error(csvDataReader.getLeft().getMessage());
         }
         else {
-            for (int i = 0; i < configuration.getGeneratorThreads(); i++) {
-                GeneratorDataTask task = new GeneratorDataTask(configuration
-                        , servicesRabbitMQ.createRabbitMQClient()
-                        , mapper
-                        , servicesMetrics
-                        , csvDataReader.get()
-                        , record -> GiraTravelsDataModel.fromCSV(record, eventTimestampSynthesizer).map(x -> x));
+            GeneratorDataTask task = new GeneratorDataTask(configuration
+                    , servicesRabbitMQ.createRabbitMQClient()
+                    , mapper
+                    , metricsCounter
+                    , csvDataReader.get()
+                    , record -> GiraTravelsDataModel.fromCSV(record, eventTimestampSynthesizer).map(x -> x)
+                    , rateLimiter);
 
-                executorService.submit(task);
-            }
+            task.run();
         }
     }
 

@@ -1,9 +1,8 @@
 package org.isel.thesis.impads.giragen.metrics.func;
 
+import io.micrometer.core.instrument.Counter;
 import org.isel.thesis.impads.giragen.metrics.api.IMetrics;
-import org.isel.thesis.impads.giragen.metrics.api.IRegisterCounterMetric;
 import org.isel.thesis.impads.giragen.metrics.api.IServicesMetrics;
-import org.isel.thesis.impads.giragen.metrics.api.WithCounterMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +20,29 @@ public class ServicesMetrics implements IServicesMetrics {
         this.metrics = metrics;
     }
 
-    @Override
-    public <R> Supplier<R> withMetricCounter(IRegisterCounterMetric registerCounterMetric, WithCounterMetric<R> fn) {
-        return () -> {
-            R rvalue = fn.apply();
-            metrics.registerCounter(registerCounterMetric);
+    public MetricsCounter withMetricCounter(String name) {
+        return MetricsCounter.newMetricsCounter(metrics.registerCounter(name));
+    }
+
+    public static final class MetricsCounter {
+        private final Counter counter;
+
+        MetricsCounter(Counter counter) {
+            this.counter = counter;
+        }
+
+        static MetricsCounter newMetricsCounter(Counter counter) {
+            return new MetricsCounter(counter);
+        }
+
+        public Counter getCounter() {
+            return counter;
+        }
+
+        public <R> R execute(Supplier<R> supplier) {
+            R rvalue = supplier.get();
+            counter.increment();
             return rvalue;
-        };
+        }
     }
 }

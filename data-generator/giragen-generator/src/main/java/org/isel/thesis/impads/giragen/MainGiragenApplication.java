@@ -17,15 +17,20 @@ public class MainGiragenApplication
     {
         Config conf = ConfigFactory.load();
 
-        GiragenApplication app = DaggerGiragenApplicationComponent.builder()
-                .typesafeConfigModule(TypesafeConfigModule.install(conf))
-                .jacksonModule(JacksonModule.install())
-                .metricsModule(MetricsModule.install())
-                .generatorModule(GeneratorModule.install())
-                .rabbitMQModule(new RabbitMQModule(RabbitMQConfiguration.load(conf)))
-                .build()
-                .app();
+        try {
+            GiragenApplication app = DaggerGiragenApplicationComponent.builder()
+                    .typesafeConfigModule(TypesafeConfigModule.install(conf))
+                    .jacksonModule(JacksonModule.install())
+                    .metricsModule(MetricsModule.install())
+                    .generatorModule(GeneratorModule.install())
+                    .rabbitMQModule(new RabbitMQModule(RabbitMQConfiguration.load(conf)))
+                    .build()
+                    .app();
 
-        app.run();
+            app.run();
+        } catch(Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }
