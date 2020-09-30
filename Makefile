@@ -83,7 +83,7 @@ install-spds-common:
 # ------------- SPDS FLINK -----------------
 
 build-flink-topology: ## Maven build SPDS Flink
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-flink,spds-common
+	mvn clean compile package -f $(SPDS_FLINK_PATH)/pom.xml
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs
 	cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs/

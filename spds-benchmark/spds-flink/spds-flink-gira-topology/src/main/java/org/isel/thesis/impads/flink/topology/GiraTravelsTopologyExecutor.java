@@ -89,7 +89,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                                         , model.getEventTimestamp()));
                             }
                         });
-        
+
         DataStream<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazeJams =
                 giraTravelsDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
                         .intervalJoin(wazeJamsDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
@@ -108,7 +108,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                             }
                         });
 
-        DataStream<Observable<GiraTravelsWithWazeResult>> result =
+        DataStream<Observable<GiraTravelsWithWazeResult>> joinedGiraTravelsWithWaze =
                 joinedGiraTravelsWithWazeJams.keyBy(k -> Instant.ofEpochMilli(k.getData().f0.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
                         .intervalJoin(wazeIrregularitiesDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
                         .between(Time.milliseconds(-5), Time.milliseconds(5))
@@ -149,8 +149,11 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                             }
                         });
 
-        result.addSink(ObservableSinkFunction.observe(config, DataStreamRMQSink.newRabbitMQSink(config
-                        , IRMQQueue.RMQQueueNaming.withName("flink_output")
-                        , JsonSerializationSchema.newJsonSerializationSchema(mapper))));
+//        joinedGiraTravelsWithWaze.addSink(ObservableSinkFunction.observe(config, DataStreamRMQSink.newRabbitMQSink(config
+//                        , IRMQQueue.RMQQueueNaming.withName("flink_output")
+//                        , JsonSerializationSchema.newJsonSerializationSchema(mapper))));
+
+        joinedGiraTravelsWithWaze.addSink(ObservableSinkFunction.observe(config));
     }
 }
+
