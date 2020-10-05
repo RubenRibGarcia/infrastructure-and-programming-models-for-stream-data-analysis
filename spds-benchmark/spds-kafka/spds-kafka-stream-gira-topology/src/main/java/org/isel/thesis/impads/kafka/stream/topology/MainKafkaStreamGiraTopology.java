@@ -13,7 +13,6 @@ import org.apache.kafka.streams.Topology;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.giragen.datamodel.api.ipma.api.IpmaStationValue;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.InstanteDeserializer;
-import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.IpmaStationValueDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSerializer;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -86,7 +85,6 @@ public class MainKafkaStreamGiraTopology {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Instant.class, new InstanteDeserializer());
-        module.addDeserializer(IpmaStationValue.class, new IpmaStationValueDeserializer());
         module.addSerializer(Observable.class, new ObservableSerializer());
         mapper.registerModule(module);
 
