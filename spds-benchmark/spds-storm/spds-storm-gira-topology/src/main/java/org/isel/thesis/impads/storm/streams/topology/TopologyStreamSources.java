@@ -4,15 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.streams.Stream;
 import org.apache.storm.streams.StreamBuilder;
 import org.isel.thesis.impads.metrics.api.Observable;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.RabbitMQSpout;
+import org.isel.thesis.impads.storm.spouts.rabbitmq.RMQSpout;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.func.JsonToTupleProducer;
-import org.isel.thesis.impads.storm.sourcemodel.gira.GiraTravelsSourceModel;
-import org.isel.thesis.impads.storm.sourcemodel.gira.GiraTravelsSourceModel.GiraTravelsTupleMapper;
-import org.isel.thesis.impads.storm.sourcemodel.waze.WazeIrregularitiesSourceModel;
-import org.isel.thesis.impads.storm.sourcemodel.waze.WazeIrregularitiesSourceModel.WazeIrregularitiesTupleMapper;
-import org.isel.thesis.impads.storm.sourcemodel.waze.WazeJamsSourceModel;
-import org.isel.thesis.impads.storm.sourcemodel.waze.WazeJamsSourceModel.WazeJamsTupleMapper;
+import org.isel.thesis.impads.storm.streams.topology.models.GiraTravelsSourceModel;
+import org.isel.thesis.impads.storm.streams.topology.models.GiraTravelsSourceModel.GiraTravelsTupleMapper;
+import org.isel.thesis.impads.storm.streams.topology.models.WazeIrregularitiesSourceModel;
+import org.isel.thesis.impads.storm.streams.topology.models.WazeIrregularitiesSourceModel.WazeIrregularitiesTupleMapper;
+import org.isel.thesis.impads.storm.streams.topology.models.WazeJamsSourceModel;
+import org.isel.thesis.impads.storm.streams.topology.models.WazeJamsSourceModel.WazeJamsTupleMapper;
 
 public final class TopologyStreamSources {
 
@@ -33,22 +33,22 @@ public final class TopologyStreamSources {
             , ObjectMapper mapper
             , StreamBuilder streamBuilder) {
 
-        final Stream<Observable<GiraTravelsSourceModel>> giraTravelStream = streamBuilder.newStream(RabbitMQSpout.newRabbitMQSpout(rabbitMQConfiguration
-                , GiraTravelsSourceModel.QUEUE
+        final Stream<Observable<GiraTravelsSourceModel>> giraTravelStream = streamBuilder.newStream(RMQSpout.newRabbitMQSpout(rabbitMQConfiguration
+                , "gira_travels"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
                         , GiraTravelsSourceModel.class
                         , GiraTravelsSourceModel.getTupleField())), GiraTravelsTupleMapper.map());
 
-        final Stream<Observable<WazeIrregularitiesSourceModel>> wazeIrregularitiesStream = streamBuilder.newStream(RabbitMQSpout.newRabbitMQSpout(rabbitMQConfiguration
-                , WazeIrregularitiesSourceModel.QUEUE
+        final Stream<Observable<WazeIrregularitiesSourceModel>> wazeIrregularitiesStream = streamBuilder.newStream(RMQSpout.newRabbitMQSpout(rabbitMQConfiguration
+                , "waze_irregularities"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
                         , WazeIrregularitiesSourceModel.class
                         , WazeIrregularitiesSourceModel.getTupleField())), WazeIrregularitiesTupleMapper.map());
 
-        final Stream<Observable<WazeJamsSourceModel>> wazeJamsStream = streamBuilder.newStream(RabbitMQSpout.newRabbitMQSpout(rabbitMQConfiguration
-                , WazeJamsSourceModel.QUEUE
+        final Stream<Observable<WazeJamsSourceModel>> wazeJamsStream = streamBuilder.newStream(RMQSpout.newRabbitMQSpout(rabbitMQConfiguration
+                , "waze_jams"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
                         , WazeJamsSourceModel.class

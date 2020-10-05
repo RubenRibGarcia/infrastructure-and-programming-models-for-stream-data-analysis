@@ -22,7 +22,8 @@ public class ObservableSerializer extends StdSerializer<Observable> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("event_timestamp", iMeasureWrapper.getEventTimestamp());
         jsonGenerator.writeNumberField("ingestion_timestamp", iMeasureWrapper.getIngestionTimestamp());
-        jsonGenerator.writeNumberField("procedd_timestamp", iMeasureWrapper.getProcessedTimestamp());
+        jsonGenerator.writeNumberField("processed_timestamp", iMeasureWrapper.getProcessedTimestamp());
+        jsonGenerator.writeFieldName("data");
         jsonGenerator.writeObject(iMeasureWrapper.getData());
         jsonGenerator.writeEndObject();
     }

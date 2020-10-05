@@ -12,7 +12,6 @@ import org.apache.storm.streams.StreamBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.giragen.datamodel.api.ipma.api.IpmaStationValue;
 import org.isel.thesis.impads.storm.fasterxml.jackson.deserializers.InstanteDeserializer;
-import org.isel.thesis.impads.storm.fasterxml.jackson.deserializers.IpmaStationValueDeserializer;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
@@ -48,10 +47,10 @@ public class MainStormStreamsGiraTopology {
                         , streamBuilder);
 
             Config stormConfig = new Config();
-            stormConfig.setNumWorkers(24);
             stormConfig.setMaxSpoutPending(5000);
+            stormConfig.setDebug(true);
 
-            StormSubmitter.submitTopology("gira-travel"
+            StormSubmitter.submitTopology("gira-travel-patterns"
                     , stormConfig
                     , GiraTravelsStreamTopologyBuilder.build(streamBuilder
                             , topologySources
@@ -64,7 +63,6 @@ public class MainStormStreamsGiraTopology {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Instant.class, new InstanteDeserializer());
-        module.addDeserializer(IpmaStationValue.class, new IpmaStationValueDeserializer());
         mapper.registerModule(module);
 
         return mapper;

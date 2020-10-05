@@ -117,9 +117,6 @@ build-storm-topology: ## Maven build SPDS Storm
 	cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
  	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
 
-build-storm-stream-topology:
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-storm -amd -Pstorm-streams-api-topology
-
 docker-run-storm-infrastructure:
 	docker-compose -f $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
 
@@ -131,18 +128,8 @@ docker-execute-storm-topology:
 	nimbus:/apache-storm-2.2.0/topology.jar
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
 	nimbus:/apache-storm-2.2.0/topology.conf
-	docker exec storm-nimbus storm jar \
+	docker exec nimbus storm jar \
 	/apache-storm-2.2.0/topology.jar \
-	org.isel.thesis.impads.storm.topology.MainStormGiraTopology \
-	/apache-storm-2.2.0/topology.conf
-
-docker-execute-storm-stream-topology:
-	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-streams-shaded.jar \
-	nimbus:/apache-storm-2.2.0/topology-streams.jar
-	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
-	nimbus:/apache-storm-2.2.0/topology.conf
-	docker exec storm-nimbus storm jar \
-	/apache-storm-2.2.0/topology-streams.jar \
 	org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology \
 	/apache-storm-2.2.0/topology.conf
 

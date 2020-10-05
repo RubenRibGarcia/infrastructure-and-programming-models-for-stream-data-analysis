@@ -1,17 +1,21 @@
 package org.isel.thesis.impads.storm.spouts.rabbitmq.func;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.storm.shade.com.google.common.base.Optional;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.ITupleProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Optional;
 
 public class JsonToTupleProducer<T extends IJsonTuple> implements ITupleProducer, Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JsonToTupleProducer.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -40,6 +44,7 @@ public class JsonToTupleProducer<T extends IJsonTuple> implements ITupleProducer
             T data = mapper.readValue(message, klass);
             return data.getTupleValues();
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }

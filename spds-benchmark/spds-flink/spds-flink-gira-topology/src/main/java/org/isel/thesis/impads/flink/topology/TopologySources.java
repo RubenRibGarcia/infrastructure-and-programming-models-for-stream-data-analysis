@@ -10,9 +10,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.isel.thesis.impads.flink.rabbitmq.connector.DataStreamRMQSource;
 import org.isel.thesis.impads.flink.rabbitmq.connector.serdes.JsonDeserializationSchema;
 import org.isel.thesis.impads.flink.metrics.ObservableSourceDeserializer;
-import org.isel.thesis.impads.flink.topology.sourcemodel.gira.GiraTravelsSourceModel;
-import org.isel.thesis.impads.flink.topology.sourcemodel.waze.WazeIrregularitiesSourceModel;
-import org.isel.thesis.impads.flink.topology.sourcemodel.waze.WazeJamsSourceModel;
+import org.isel.thesis.impads.flink.topology.models.GiraTravelsSourceModel;
+import org.isel.thesis.impads.flink.topology.models.WazeIrregularitiesSourceModel;
+import org.isel.thesis.impads.flink.topology.models.WazeJamsSourceModel;
 import org.isel.thesis.impads.metrics.api.Observable;
 
 import java.io.Serializable;

@@ -6,12 +6,10 @@ import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.InstanteDeserializer;
-import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.IpmaStationValueDeserializer;
 import org.isel.thesis.impads.flink.fasterxml.jackson.serializers.ObservableSerializer;
 import org.isel.thesis.impads.giragen.datamodel.api.ipma.api.IpmaStationValue;
 import org.isel.thesis.impads.metrics.api.Observable;
@@ -70,7 +68,6 @@ public class MainFlinkGiraTopology {
         final ObjectMapper mapper = new ObjectMapper();
         final SimpleModule module = new SimpleModule();
         module.addDeserializer(Instant.class, new InstanteDeserializer());
-        module.addDeserializer(IpmaStationValue.class, new IpmaStationValueDeserializer());
         module.addSerializer(Observable.class, new ObservableSerializer());
         mapper.registerModule(module);
 

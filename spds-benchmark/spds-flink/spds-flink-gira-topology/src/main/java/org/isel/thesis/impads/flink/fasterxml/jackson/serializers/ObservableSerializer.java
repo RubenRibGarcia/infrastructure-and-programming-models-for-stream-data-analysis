@@ -21,7 +21,7 @@ public class ObservableSerializer extends StdSerializer<Observable> {
     public void serialize(Observable iMeasureWrapper, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("event_timestamp", iMeasureWrapper.getEventTimestamp());
-        jsonGenerator.writeNumberField("ingestion_timestamp", iMeasureWrapper.getEventTimestamp());
+        jsonGenerator.writeNumberField("ingestion_timestamp", iMeasureWrapper.getIngestionTimestamp());
         jsonGenerator.writeNumberField("processed_timestamp", iMeasureWrapper.getProcessedTimestamp());
         jsonGenerator.writeFieldName("data");
         jsonGenerator.writeObject(iMeasureWrapper.getData());
