@@ -47,3 +47,4 @@ log4j2.xml
 
 !spds-infrastructure/ansible/**
 spds-infrastructure/ansible/files/**
+!.travis.yml
