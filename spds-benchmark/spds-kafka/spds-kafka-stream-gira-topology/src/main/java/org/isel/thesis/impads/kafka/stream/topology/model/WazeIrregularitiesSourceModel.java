@@ -7,8 +7,6 @@ import java.time.Instant;
 
 public class WazeIrregularitiesSourceModel implements WazeIrregularitiesDataAdapter {
 
-    public static final String KAFKA_TOPIC = "waze_irregularities";
-
     private Long id;
     private Integer nThumbsUp;
     private Instant updateDate;

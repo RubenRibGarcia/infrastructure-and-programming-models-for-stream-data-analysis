@@ -8,9 +8,10 @@ import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.isel.thesis.impads.metrics.ObservableImpl;
 import org.isel.thesis.impads.metrics.ObservableUtils;
+import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.metrics.collector.Metrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetricsCollectorConfiguration;
@@ -98,20 +99,20 @@ public class ObservableBolt implements IRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        input.getFields().forEach(field -> LOG.info("Observable Field: {}", field));
+        LOG.info("Sending latency metrics");
 
-        registerTimers(input);
+        registerTimers((Observable<?>) input.getValueByField("value"));
 
         if (richBolt != null) {
             richBolt.execute(input);
         }
     }
 
-    private void registerTimers(Tuple input) {
+    private void registerTimers(Observable<?> input) {
         if (this.eventLatencyTimer != null && this.processingLatencyTimer != null) {
             long nowTimestamp = Instant.now().toEpochMilli();
-            this.eventLatencyTimer.record(ObservableUtils.eventTimeLatencyInMillis(nowTimestamp, input.getLongByField("event_timestamp")), TimeUnit.MILLISECONDS);
-            this.processingLatencyTimer.record(ObservableUtils.processingTimeLatencyInMillis(nowTimestamp, input.getLongByField("ingestion_timestamp")), TimeUnit.MILLISECONDS);
+            this.eventLatencyTimer.record(ObservableUtils.eventTimeLatencyInMillis(nowTimestamp, input.getEventTimestamp()), TimeUnit.MILLISECONDS);
+            this.processingLatencyTimer.record(ObservableUtils.processingTimeLatencyInMillis(nowTimestamp, input.getIngestionTimestamp()), TimeUnit.MILLISECONDS);
         }
     }
 

@@ -3,7 +3,6 @@ package org.isel.thesis.impads.kafka.stream.topology;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsSourceModel;
 import org.locationtech.jts.geom.GeometryFactory;
 
 public final class GiraTravelsTopologyBuilder {
@@ -15,8 +14,6 @@ public final class GiraTravelsTopologyBuilder {
             , final GeometryFactory geoFactory
             , final ObjectMapper mapper) {
 
-        streamsBuilder.<Void, String>stream(GiraTravelsSourceModel.KAFKA_TOPIC)
-            .peek((k, v) -> System.out.println(v));
 //        topologySources.getGiraTravelsStream()
 //                .peek((k, v) -> System.out.println("Gira id: " + v.getData().getId()));
 

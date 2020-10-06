@@ -48,14 +48,15 @@ public class MainStormStreamsGiraTopology {
 
             Config stormConfig = new Config();
             stormConfig.setMaxSpoutPending(5000);
-            stormConfig.setDebug(true);
+            stormConfig.setDebug(false);
 
             StormSubmitter.submitTopology("gira-travel-patterns"
                     , stormConfig
                     , GiraTravelsStreamTopologyBuilder.build(streamBuilder
                             , topologySources
                             , geoFactory
-                            , rabbitMQConfiguration));
+                            , rabbitMQConfiguration
+                            , config));
         }
     }
 

@@ -1,6 +1,5 @@
 package org.isel.thesis.impads.kafka.stream.serdes;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
@@ -8,27 +7,30 @@ import org.isel.thesis.impads.kafka.stream.serdes.deserializer.ObservableDeseria
 import org.isel.thesis.impads.kafka.stream.serdes.serializer.ObservableSerializer;
 import org.isel.thesis.impads.metrics.api.Observable;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 public class ObservableSerdes<T> implements Serde<Observable<T>> {
 
-    private final ObjectMapper mapper;
-    private final Class<T> klass;
+    private final Serde<T> serde;
 
-    private ObservableSerdes(ObjectMapper mapper, Class<T> klass) {
-        this.mapper = mapper;
-        this.klass = klass;
+    private ObservableSerdes(Serde<T> serde) {
+        this.serde = serde;
     }
 
-    public static <T> ObservableSerdes<T> newMeasureWrapperSerdes(ObjectMapper mapper, Class<T> klass) {
-        return new ObservableSerdes<>(mapper, klass);
+    public static <T> ObservableSerdes<T> newObservableSerdes(Serde<T> serde
+            , Function<T, Long> eventTimestampSupplier
+            , Function<T, Long> ingestionTimestampSupplier) {
+        return new ObservableSerdes<>(serde);
     }
 
     @Override
     public Serializer<Observable<T>> serializer() {
-        return ObservableSerializer.newJsonSerializer(mapper);
+        return ObservableSerializer.newObservableSerializer(serde.serializer());
     }
 
     @Override
     public Deserializer<Observable<T>> deserializer() {
-        return ObservableDeserializer.newMeasureWrapperDeserializer(mapper, klass);
+        return ObservableDeserializer.newObservableDeserializer(serde.deserializer());
     }
 }

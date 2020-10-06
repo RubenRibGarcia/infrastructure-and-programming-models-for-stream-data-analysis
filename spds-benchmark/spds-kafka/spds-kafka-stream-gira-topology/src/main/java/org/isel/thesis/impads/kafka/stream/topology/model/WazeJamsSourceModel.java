@@ -7,8 +7,6 @@ import java.time.Instant;
 
 public class WazeJamsSourceModel implements WazeJamsDataAdapter {
 
-    public static final String KAFKA_TOPIC = "waze_jams";
-
     private Long id;
     private String city;
     private Integer level;

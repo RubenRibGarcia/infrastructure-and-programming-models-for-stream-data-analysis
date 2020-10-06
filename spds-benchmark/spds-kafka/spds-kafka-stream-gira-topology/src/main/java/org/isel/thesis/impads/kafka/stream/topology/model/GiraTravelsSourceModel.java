@@ -7,8 +7,6 @@ import java.time.Instant;
 
 public class GiraTravelsSourceModel implements GiraTravelsDataAdapter {
 
-    public static final String KAFKA_TOPIC = "gira_travels";
-
     private Long id;
     private Instant dateStart;
     private Instant dateEnd;
