@@ -7,19 +7,18 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.isel.thesis.impads.kafka.stream.serdes.JsonSerdes;
-import org.isel.thesis.impads.kafka.stream.serdes.ObservableSerdes;
 import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsSourceModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.WazeIrregularitiesSourceModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.WazeJamsSourceModel;
+import org.isel.thesis.impads.kafka.stream.topology.utils.GiraTravelsTimestampExtractor;
+import org.isel.thesis.impads.kafka.stream.topology.utils.WazeIrregularitiesTimestampExtractor;
+import org.isel.thesis.impads.kafka.stream.topology.utils.WazeJamsTimestampExtractor;
+import org.isel.thesis.impads.metrics.ObservableImpl;
 import org.isel.thesis.impads.metrics.api.Observable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
 public class TopologySources {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TopologySources.class);
 
     private final KStream<Void, Observable<GiraTravelsSourceModel>> giraTravelsStream;
     private final KStream<Void, Observable<WazeIrregularitiesSourceModel>> wazeIrregularitiesStream;
@@ -46,39 +45,36 @@ public class TopologySources {
             , final Config config
             , final ObjectMapper mapper) {
 
-        ObservableSerdes<GiraTravelsSourceModel> observableSerdes =
-                ObservableSerdes.newObservableSerdes(JsonSerdes.newJsonSerders(mapper, GiraTravelsSourceModel.class)
-                        , model -> model.getDateStart().toEpochMilli()
-                        , model -> Instant.now().toEpochMilli());
-
         return builder.stream("gira_travels"
-                , Consumed.with(Serdes.Void(), observableSerdes));
+                , Consumed.with(Serdes.Void()
+                        , JsonSerdes.newJsonSerders(mapper, GiraTravelsSourceModel.class)
+                        , new GiraTravelsTimestampExtractor()
+                        , null))
+                .mapValues((k, v) -> ObservableImpl.of(v, v.getDateStart().toEpochMilli(), Instant.now().toEpochMilli()));
     }
 
     private static KStream<Void, Observable<WazeJamsSourceModel>> initializeWazeJamsSource(final StreamsBuilder builder
             , final Config config
             , final ObjectMapper mapper) {
 
-        ObservableSerdes<WazeJamsSourceModel> observableSerdes =
-                ObservableSerdes.newObservableSerdes(JsonSerdes.newJsonSerders(mapper, WazeJamsSourceModel.class)
-                        , model -> model.getPubMillis()
-                        , model -> Instant.now().toEpochMilli());
-
         return builder.stream("waze_jams"
-                , Consumed.with(Serdes.Void(), observableSerdes));
+                , Consumed.with(Serdes.Void()
+                        , JsonSerdes.newJsonSerders(mapper, WazeJamsSourceModel.class)
+                        , new WazeJamsTimestampExtractor()
+                        , null))
+                .mapValues((k ,v) -> ObservableImpl.of(v, v.getPubMillis(), Instant.now().toEpochMilli()));
     }
 
     private static KStream<Void, Observable<WazeIrregularitiesSourceModel>> initializeWazeIrregularitiesSource(final StreamsBuilder builder
             , final Config config
             , final ObjectMapper mapper) {
 
-        ObservableSerdes<WazeIrregularitiesSourceModel> observableSerdes =
-                ObservableSerdes.newObservableSerdes(JsonSerdes.newJsonSerders(mapper, WazeIrregularitiesSourceModel.class)
-                        , model -> model.getDetectionDateMillis()
-                        , model -> Instant.now().toEpochMilli());
-
         return builder.stream("waze_jams"
-                , Consumed.with(Serdes.Void(), observableSerdes));
+                , Consumed.with(Serdes.Void()
+                        , JsonSerdes.newJsonSerders(mapper, WazeIrregularitiesSourceModel.class)
+                        , new WazeIrregularitiesTimestampExtractor()
+                        , null))
+                .mapValues((k, v) -> ObservableImpl.of(v, v.getDetectionDateMillis(), Instant.now().toEpochMilli()));
     }
 
     public KStream<Void, Observable<GiraTravelsSourceModel>> getGiraTravelsStream() {

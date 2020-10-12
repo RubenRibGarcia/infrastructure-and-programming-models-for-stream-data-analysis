@@ -1,13 +1,12 @@
 package org.isel.thesis.impads.kafka.stream.topology.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.isel.thesis.impads.metrics.api.Observable;
 
 public class GiraTravelsWithWazeResult {
 
-    private final Observable<SimplifiedGiraTravelsModel> giraData;
-    private final Observable<SimplifiedWazeJamsModel> wazeJamData;
-    private final Observable<SimplifiedWazeIrregularitiesModel> wazeIrregularityData;
+    private final SimplifiedGiraTravelsModel giraData;
+    private final SimplifiedWazeJamsModel wazeJamData;
+    private final SimplifiedWazeIrregularitiesModel wazeIrregularityData;
     private final boolean giraTravelIntersectsWazeJam;
     private final boolean giraTravelIntersectsWazeIrregularity;
     private final boolean wazeJamAndWazeIrregularityMatches;
@@ -19,9 +18,9 @@ public class GiraTravelsWithWazeResult {
     private final float solarRadiation;
     private final float totalPrecipitation;
 
-    public GiraTravelsWithWazeResult(Observable<SimplifiedGiraTravelsModel> giraData
-            , Observable<SimplifiedWazeJamsModel> wazeJamData
-            , Observable<SimplifiedWazeIrregularitiesModel> wazeIrregularityData
+    public GiraTravelsWithWazeResult(SimplifiedGiraTravelsModel giraData
+            , SimplifiedWazeJamsModel wazeJamData
+            , SimplifiedWazeIrregularitiesModel wazeIrregularityData
             , boolean giraTravelIntersectsWazeJam
             , boolean giraTravelIntersectsWazeIrregularity
             , boolean wazeJamAndWazeIrregularityMatches) {
@@ -40,17 +39,17 @@ public class GiraTravelsWithWazeResult {
     }
 
     @JsonProperty("gira_data")
-    public Observable<SimplifiedGiraTravelsModel> getGiraData() {
+    public SimplifiedGiraTravelsModel getGiraData() {
         return giraData;
     }
 
     @JsonProperty("waze_jam_data")
-    public Observable<SimplifiedWazeJamsModel> getWazeJamData() {
+    public SimplifiedWazeJamsModel getWazeJamData() {
         return wazeJamData;
     }
 
     @JsonProperty("waze_irregularity_data")
-    public Observable<SimplifiedWazeIrregularitiesModel> getWazeIrregularityData() {
+    public SimplifiedWazeIrregularitiesModel getWazeIrregularityData() {
         return wazeIrregularityData;
     }
 

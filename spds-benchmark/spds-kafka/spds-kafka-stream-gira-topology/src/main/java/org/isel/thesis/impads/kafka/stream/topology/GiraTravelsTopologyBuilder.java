@@ -1,9 +1,24 @@
 package org.isel.thesis.impads.kafka.stream.topology;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.JoinWindows;
+import org.apache.kafka.streams.kstream.KStream;
+import org.geotools.geometry.jts.WKBReader;
+import org.isel.thesis.impads.kafka.stream.data.structures.Tuple2;
+import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsWithWazeResult;
+import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
+import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
+import org.isel.thesis.impads.kafka.stream.topology.utils.ObservableMeasure;
+import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.api.Observable;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+
+import java.time.Duration;
 
 public final class GiraTravelsTopologyBuilder {
 
@@ -12,108 +27,72 @@ public final class GiraTravelsTopologyBuilder {
     public static Topology build(final StreamsBuilder streamsBuilder
             , final TopologySources topologySources
             , final GeometryFactory geoFactory
-            , final ObjectMapper mapper) {
+            , final ObjectMapper mapper
+            , final ObservableMeasure observableMeasure) {
 
-//        topologySources.getGiraTravelsStream()
-//                .peek((k, v) -> System.out.println("Gira id: " + v.getData().getId()));
+        KStream<Void, Observable<SimplifiedGiraTravelsModel>> giraTravelsKStream =
+                topologySources.getGiraTravelsStream()
+                        .filter((k, v) ->
+                                (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty())
+                                        || v.getData().getNumberOfVertices() != null && v.getData().getNumberOfVertices() > 1
+                                        || v.getData().getDistance() != null && v.getData().getDistance() > 0)
+                        .map((k, v) -> KeyValue.pair(null, ObservableImpl.map(v, new SimplifiedGiraTravelsModel(String.valueOf(v.getData().getId())
+                                    , v.getData().getGeometry()
+                                    , v.getEventTimestamp()))));
 
-//        topologySources.getGiraTravelsStream()
-//                .peek((k,v) -> System.out.println("Gira id: " + v.getData().getId()))
-//                .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty())
-//                        || v.getData().getNumberOfVertices() != null && v.getData().getNumberOfVertices() > 1
-//                        || v.getData().getDistance() != null && v.getData().getDistance() > 0)
-//                .map((k, v) -> {
-//                    long keyedTimestamp = Instant
-//                            .ofEpochMilli(v.getEventTime())
-//                            .truncatedTo(ChronoUnit.HOURS).toEpochMilli();
-//
-//                    return KeyValue.pair(keyedTimestamp
-//                            , MeasureWrapper.convert(FactoryDataModel.from(v.getData()), v));
-//                }).to("simplified_gira_travels_model", Produced.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedGiraTravelsModel.class)));
-//
-//        topologySources.getWazeJamsStream()
-//                .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-//                .map((k, v) -> {
-//                    long keyedTimestamp = Instant
-//                            .ofEpochMilli(v.getEventTime())
-//                            .truncatedTo(ChronoUnit.HOURS).toEpochMilli();
-//
-//                    return KeyValue.pair(keyedTimestamp
-//                            , MeasureWrapper.convert(FactoryDataModel.from(v.getData()), v));
-//                }).to("simplified_waze_jams_model", Produced.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedWazeJamsModel.class)));
-//
-//        topologySources.getWazeIrregularitiesStream()
-//                .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-//                .map((k, v) -> {
-//                    long keyedTimestamp = Instant
-//                            .ofEpochMilli(v.getEventTime())
-//                            .truncatedTo(ChronoUnit.HOURS).toEpochMilli();
-//
-//                    return KeyValue.pair(keyedTimestamp
-//                            , MeasureWrapper.convert(FactoryDataModel.from(v.getData()), v));
-//                }).to("simplified_waze_irregularities_model", Produced.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedWazeIrregularitiesModel.class)));
-//
-//        KStream<Long, Tuple2<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>>> joinedGiraWithWazeJams =
-//                streamsBuilder.stream("simplified_gira_travels_model", Consumed.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedGiraTravelsModel.class)))
-//                        .join(streamsBuilder.stream("simplified_waze_jams_model", Consumed.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedWazeJamsModel.class)))
-//                                , Tuple2::of
-//                                , JoinWindows.of(Duration.ofMillis(5)));
-//
-//        KStream<Long, Tuple3<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>, IMeasureWrapper<SimplifiedWazeIrregularitiesModel>>> joinedGiraWithWazeStream =
-//                joinedGiraWithWazeJams
-//                        .join(streamsBuilder.stream("simplified_waze_irregularities_model", Consumed.with(Serdes.Long(), MeasureWrapperSerdes.newMeasureWrapperSerdes(mapper, SimplifiedWazeIrregularitiesModel.class)))
-//                                , new ValueJoiner<Tuple2<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>>, IMeasureWrapper<SimplifiedWazeIrregularitiesModel>, Tuple3<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>, IMeasureWrapper<SimplifiedWazeIrregularitiesModel>>>() {
-//                                    @Override
-//                                    public Tuple3<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>, IMeasureWrapper<SimplifiedWazeIrregularitiesModel>> apply(
-//                                            Tuple2<IMeasureWrapper<SimplifiedGiraTravelsModel>, IMeasureWrapper<SimplifiedWazeJamsModel>> joinedTuple
-//                                            , IMeasureWrapper<SimplifiedWazeIrregularitiesModel> tuple) {
-//
-//                                        return Tuple3.of(joinedTuple.getFirst(), joinedTuple.getSecond(), tuple);
-//                                    }
-//                                }
-//                                , JoinWindows.of(Duration.ofMillis(5)));
-//
-//        KStream<Void, GiraTravelsWithWazeResult> resultStream =
-//                joinedGiraWithWazeStream
-//                        .map((k, v) -> {
-//                            try {
-//                                boolean jamAndIrrMatches = false;
-//
-//                                WKBReader reader = new WKBReader(geoFactory);
-//                                final Geometry giraGeo
-//                                        = reader.read(WKBReader.hexToBytes(v.getFirst().getData().getGeometry()));
-//                                final Geometry wazeJamGeo
-//                                        = reader.read(WKBReader.hexToBytes(v.getSecond().getData().getGeometry()));
-//                                final Geometry wazeIrrGeo
-//                                        = reader.read(WKBReader.hexToBytes(v.getThird().getData().getGeometry()));
-//
-//                                final Geometry giraTravelStartingPoint =
-//                                        ((LineString) giraGeo.getGeometryN(0))
-//                                                .getStartPoint()
-//                                                .buffer(GEOMETRY_BUFFER);
-//
-//                                if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
-//                                    jamAndIrrMatches = true;
-//                                }
-//
-//                                long nowTimestamp = Instant.now().toEpochMilli();
-//                                v.getFirst().setProcessingTime(nowTimestamp);
-//                                v.getSecond().setProcessingTime(nowTimestamp);
-//                                v.getThird().setProcessingTime(nowTimestamp);
-//
-//                                return KeyValue.pair(null, new GiraTravelsWithWazeResult(v.getFirst()
-//                                        , v.getSecond()
-//                                        , v.getThird()
-//                                        , giraTravelStartingPoint.intersects(wazeJamGeo)
-//                                        , giraTravelStartingPoint.intersects(wazeIrrGeo)
-//                                        , jamAndIrrMatches));
-//                            } catch (Exception e) {
-//                                throw new RuntimeException(e.getMessage(), e);
-//                            }
-//                        });
-//
-//        resultStream.to("kafka_result"
-//                , Produced.with(Serdes.Void(), JsonSerdes.newJsonSerders(mapper, GiraTravelsWithWazeResult.class)));
+        KStream<Void, Observable<SimplifiedWazeJamsModel>> wazeJamsKStream =
+                topologySources.getWazeJamsStream()
+                        .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
+                        .map((k, v) -> KeyValue.pair(null, ObservableImpl.map(v, new SimplifiedWazeJamsModel(String.valueOf(v.getData().getId())
+                                   , v.getData().getGeometry()
+                                   , v.getEventTimestamp()))));
+
+        KStream<Void, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazeJams =
+                giraTravelsKStream.join(wazeJamsKStream
+                        , (left, right) -> ObservableImpl.join(Tuple2.of(left.getData(), right.getData()), left, right)
+                        , JoinWindows.of(Duration.ofMillis(5)));
+
+        KStream<Void, Observable<GiraTravelsWithWazeResult>> joinedGiraTravelsWithWaze =
+                joinedGiraTravelsWithWazeJams.map((k, v) -> {
+                    try {
+                        boolean jamAndIrrMatches = false;
+
+                        WKBReader reader = new WKBReader(geoFactory);
+                        final Geometry giraGeo
+                                = reader.read(WKBReader.hexToBytes(v.getData().getFirst().getGeometry()));
+//                    final Geometry wazeIrrGeo
+//                            = reader.read(WKBReader.hexToBytes(tuple2Observable.getData().f1.getGeometry()));
+                        final Geometry wazeJamGeo
+                                = reader.read(WKBReader.hexToBytes(v.getData().getSecond().getGeometry()));
+
+                        final Geometry giraTravelStartingPoint =
+                                ((LineString) giraGeo.getGeometryN(0))
+                                        .getStartPoint()
+                                        .buffer(GEOMETRY_BUFFER);
+
+//                        if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
+//                            jamAndIrrMatches = true;
+//                        }
+
+                        GiraTravelsWithWazeResult rvalue = new GiraTravelsWithWazeResult(v.getData().getFirst()
+                                , v.getData().getSecond()
+                                , null
+                                , giraTravelStartingPoint.intersects(wazeJamGeo)
+//                                , giraTravelStartingPoint.intersects(wazeIrrGeo)
+                                , false
+                                , jamAndIrrMatches);
+
+                        return KeyValue.pair(null, ObservableImpl.map(v, rvalue));
+                    }
+                    catch(Exception e) {
+                        throw new RuntimeException(e.getMessage(), e);
+                    }
+                });
+
+        joinedGiraTravelsWithWaze
+                .peek((k, v) -> observableMeasure.measure(v));
+
+        joinedGiraTravelsWithWaze.to("kafka_result");
 
         return streamsBuilder.build();
     }

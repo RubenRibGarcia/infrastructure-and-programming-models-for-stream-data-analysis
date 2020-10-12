@@ -72,7 +72,6 @@ public final class GiraTravelsStreamTopologyBuilder {
                                     Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel> pair
                                             = Tuple2.of(value1.getData(), value2.getData());
 
-
                                     return ObservableImpl.join(pair, value1, value2);
                                 });
 

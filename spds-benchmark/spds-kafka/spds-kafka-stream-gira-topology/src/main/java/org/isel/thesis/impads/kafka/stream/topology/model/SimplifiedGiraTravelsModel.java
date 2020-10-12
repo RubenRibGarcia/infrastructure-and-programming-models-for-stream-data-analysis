@@ -8,10 +8,12 @@ public class SimplifiedGiraTravelsModel implements Serializable {
 
     private final String identifier;
     private final String geometry;
+    private final long eventTimestamp;
 
-    public SimplifiedGiraTravelsModel(String identifier, String geometry) {
+    public SimplifiedGiraTravelsModel(String identifier, String geometry, long eventTimestamp) {
         this.identifier = identifier;
         this.geometry = geometry;
+        this.eventTimestamp = eventTimestamp;
     }
 
     public String getIdentifier() {
@@ -20,5 +22,9 @@ public class SimplifiedGiraTravelsModel implements Serializable {
 
     public String getGeometry() {
         return geometry;
+    }
+
+    public long getEventTimestamp() {
+        return eventTimestamp;
     }
 }
