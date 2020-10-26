@@ -14,14 +14,14 @@ public class ObservableImpl<T> implements Observable<T>, Serializable {
 
     private final long processedTimestamp;
 
-    private ObservableImpl(T data, long eventTimestamp, long ingestionTimestamp, long processedTimestamp) {
+    public ObservableImpl(T data, long eventTimestamp, long ingestionTimestamp, long processedTimestamp) {
         this.data = data;
         this.eventTimestamp = eventTimestamp;
         this.ingestionTimestamp = ingestionTimestamp;
         this.processedTimestamp = processedTimestamp;
     }
 
-    private ObservableImpl(T data, long eventTimestamp, long ingestionTimestamp) {
+    public ObservableImpl(T data, long eventTimestamp, long ingestionTimestamp) {
         this(data, eventTimestamp, ingestionTimestamp, 0L);
     }
 
@@ -33,18 +33,18 @@ public class ObservableImpl<T> implements Observable<T>, Serializable {
         return new ObservableImpl<>(data, eventTimestamp, ingestionTimestamp, processedTimestamp);
     }
 
-    public static <T> Observable<T> join(T data, Observable<?> right, Observable<?> left) {
-        long joinedEventTimestamp = Math.max(right.getEventTimestamp(), left.getEventTimestamp());
-        long joinedIngestionTimestamp = Math.max(right.getIngestionTimestamp(), left.getIngestionTimestamp());
+    public static <T> Observable<T> join(T data, Observable<?> left, Observable<?> right) {
+        long joinedEventTimestamp = Math.max(left.getEventTimestamp(), right.getEventTimestamp());
+        long joinedIngestionTimestamp = Math.max(left.getIngestionTimestamp(), right.getIngestionTimestamp());
 
         return new ObservableImpl<>(data
                 , joinedEventTimestamp
                 , joinedIngestionTimestamp);
     }
 
-    public static <T> Observable<T> join(T data, Observable<?> right, Observable<?> left, long processedTimestamp) {
-        long joinedEventTimestamp = Math.max(right.getEventTimestamp(), left.getEventTimestamp());
-        long joinedIngestionTimestamp = Math.max(right.getIngestionTimestamp(), left.getIngestionTimestamp());
+    public static <T> Observable<T> join(T data, Observable<?> left, Observable<?> right, long processedTimestamp) {
+        long joinedEventTimestamp = Math.max(left.getEventTimestamp(), right.getEventTimestamp());
+        long joinedIngestionTimestamp = Math.max(left.getIngestionTimestamp(), right.getIngestionTimestamp());
 
         return new ObservableImpl<>(data
                 , joinedEventTimestamp

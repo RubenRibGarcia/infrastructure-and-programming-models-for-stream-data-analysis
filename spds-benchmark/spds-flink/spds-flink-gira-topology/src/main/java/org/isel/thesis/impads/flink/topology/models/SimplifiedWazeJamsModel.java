@@ -8,12 +8,12 @@ public class SimplifiedWazeJamsModel implements Serializable {
 
     private final String identifier;
     private final String geometry;
-    private final long evenTimestamp;
+    private final long eventTimestamp;
 
-    public SimplifiedWazeJamsModel(String identifier, String geometry, long evenTimestamp) {
+    public SimplifiedWazeJamsModel(String identifier, String geometry, long eventTimestamp) {
         this.identifier = identifier;
         this.geometry = geometry;
-        this.evenTimestamp = evenTimestamp;
+        this.eventTimestamp = eventTimestamp;
     }
 
     public String getIdentifier() {
@@ -24,7 +24,7 @@ public class SimplifiedWazeJamsModel implements Serializable {
         return geometry;
     }
 
-    public long getEvenTimestamp() {
-        return evenTimestamp;
+    public long getEventTimestamp() {
+        return eventTimestamp;
     }
 }

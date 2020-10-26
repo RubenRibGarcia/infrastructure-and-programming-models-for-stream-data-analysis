@@ -11,11 +11,15 @@ import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.api.MetricStatsDAgent;
 import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 public final class ObservableMeasure {
+
+    private static final Logger logger = LoggerFactory.getLogger(ObservableMeasure.class);
 
     private Timer eventLatencyTimer;
     private Timer processingLatencyTimer;

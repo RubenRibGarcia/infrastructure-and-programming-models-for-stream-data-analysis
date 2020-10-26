@@ -1,0 +1,14 @@
+
+# Reset Kafka Stream Application
+./kafka-streams-application-reset.sh --bootstrap-servers kafka:9092 --application-id gira-travels-pattern
+
+# Restart automatic offsets
+./kafka-consumer-groups.sh --bootstrap-server kafka:9092 --all-groups --all-topics --reset-offsets --to-earliest --execute
+
+# Create Observable Topics for Gira Travels, Waze Jams and Waze Irregularities
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic gira_travels
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic waze_jams
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic waze_irregularities
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_gira_travels
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_waze_jams
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_waze_irregularities

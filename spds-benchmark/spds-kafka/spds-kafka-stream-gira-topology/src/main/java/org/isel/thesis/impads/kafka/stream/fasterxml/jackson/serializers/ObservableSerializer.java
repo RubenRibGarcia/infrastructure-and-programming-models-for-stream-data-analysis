@@ -7,14 +7,14 @@ import org.isel.thesis.impads.metrics.api.Observable;
 
 import java.io.IOException;
 
-public class ObservableSerializer extends StdSerializer<Observable> {
+public abstract class ObservableSerializer<T> extends StdSerializer<Observable<T>> {
 
     public ObservableSerializer() {
         this(null);
     }
 
-    public ObservableSerializer(Class<Observable> vc) {
-        super(vc);
+    public ObservableSerializer(Class<T> vc) {
+        super((Class<Observable<T>>) vc);
     }
 
     @Override

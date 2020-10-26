@@ -4,6 +4,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.Delivery;
+import com.rabbitmq.client.impl.AMQImpl;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
@@ -31,8 +33,7 @@ public class RabbitMQSourceTask extends SourceTask {
     private Connection connection;
     private Channel channel;
 
-    private BlockingQueue<Delivery> queue;
-    private Map<Long, Delivery> cache;
+    private QueueingConsumer consumer;
 
     @Override
     public String version() {
@@ -46,13 +47,12 @@ public class RabbitMQSourceTask extends SourceTask {
             this.connection = RabbitMQConnectionFactory.createNewConnection(this.config);
             this.channel = this.connection.createChannel();
 
-            this.queue = new LinkedBlockingQueue<>();
-            this.cache = new HashMap<>();
+            channel.queueDeclare(this.config.getRabbitMQQueue(), true, false, false, null);
+            this.consumer = new QueueingConsumer(channel);
 
             this.channel.basicConsume(this.config.getRabbitMQQueue()
                     , true
-                    , deliverCallback()
-                    , consumerTag -> {});
+                    , consumer);
 
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
@@ -60,18 +60,11 @@ public class RabbitMQSourceTask extends SourceTask {
         }
     }
 
-    private DeliverCallback deliverCallback() {
-        return (consumerTag, delivery) -> {
-            this.queue.add(delivery);
-            this.cache.put(delivery.getEnvelope().getDeliveryTag(), delivery);
-        };
-    }
-
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
         List<SourceRecord> records = new LinkedList<>();
 
-        Optional<Delivery> delivery = Optional.ofNullable(this.queue.poll());
+        Optional<Delivery> delivery = Optional.ofNullable(this.consumer.nextDelivery());
 
         delivery.ifPresent(d -> {
             SourceRecord record = new SourceRecord(null
@@ -99,15 +92,11 @@ public class RabbitMQSourceTask extends SourceTask {
     }
 
     @Override
-    public void commitRecord(SourceRecord record) throws InterruptedException {
+    public void commitRecord(SourceRecord record, RecordMetadata recordMetadata) throws InterruptedException {
         Optional.ofNullable(record).ifPresent(rec -> {
             LOG.debug("Committing record on RabbitMQ");
             long deliveryTag = Long.parseLong(record.sourceOffset().get("deliveryTag").toString());
             LOG.debug("Committing record with delivery tag {} on RabbitMQ", deliveryTag);
-
-            Delivery delivery = this.cache.get(deliveryTag);
-            this.cache.remove(deliveryTag);
-            LOG.debug("Successfully committed record with delivery tag {}", delivery.getEnvelope().getDeliveryTag());
         });
     }
 }

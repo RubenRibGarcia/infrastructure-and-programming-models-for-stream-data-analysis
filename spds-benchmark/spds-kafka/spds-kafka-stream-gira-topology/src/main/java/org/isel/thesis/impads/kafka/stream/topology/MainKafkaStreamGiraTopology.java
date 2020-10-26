@@ -5,16 +5,30 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.InstanteDeserializer;
-import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeDeserializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeJamsDeserializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableSimplifiedGiraTravelsDeserializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableSimplifiedWazeIrregularitiesDeserializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableSimplifiedWazeJamsDeserializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableGiraTravelsWithWazeResultSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableJoinedGiraTravelsWithWazeJamsSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableJoinedGiraTravelsWithWazeSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedGiraTravelsSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedWazeIrregularitiesSerializer;
+import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedWazeJamsSerializer;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableGiraTravelsWithWazeResults;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWaze;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeIrregularitiesModel;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeJamsModel;
 import org.isel.thesis.impads.kafka.stream.topology.utils.ObservableMeasure;
-import org.isel.thesis.impads.metrics.api.Observable;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +56,9 @@ public class MainKafkaStreamGiraTopology {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, config.getString("kafka.stream.application.id"));
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("kafka.stream.bootstrap_servers"));
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.Void().getClass());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "at_least_once");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
         ObjectMapper mapper = newMapper();
@@ -61,7 +75,7 @@ public class MainKafkaStreamGiraTopology {
                 , mapper
                 , observableMeasure);
 
-        System.out.println(topology.describe());
+        logger.info("Topology description: {}", topology.describe());
         final KafkaStreams app = new KafkaStreams(topology, props);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -76,6 +90,7 @@ public class MainKafkaStreamGiraTopology {
         });
 
         try {
+            app.cleanUp();
             app.start();
             latch.await();
         } catch (Throwable e) {
@@ -88,7 +103,17 @@ public class MainKafkaStreamGiraTopology {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Instant.class, new InstanteDeserializer());
-        module.addSerializer(Observable.class, new ObservableSerializer());
+        module.addDeserializer(ObservableSimplifiedGiraTravelsModel.class, new ObservableSimplifiedGiraTravelsDeserializer());
+        module.addDeserializer(ObservableSimplifiedWazeJamsModel.class, new ObservableSimplifiedWazeJamsDeserializer());
+        module.addDeserializer(ObservableSimplifiedWazeIrregularitiesModel.class, new ObservableSimplifiedWazeIrregularitiesDeserializer());
+        module.addDeserializer(ObservableJoinedGiraTravelsWithWazeJams.class, new ObservableJoinedGiraTravelsWithWazeJamsDeserializer());
+        module.addDeserializer(ObservableJoinedGiraTravelsWithWaze.class, new ObservableJoinedGiraTravelsWithWazeDeserializer());
+        module.addSerializer(ObservableSimplifiedGiraTravelsModel.class, new ObservableSimplifiedGiraTravelsSerializer());
+        module.addSerializer(ObservableSimplifiedWazeJamsModel.class, new ObservableSimplifiedWazeJamsSerializer());
+        module.addSerializer(ObservableSimplifiedWazeIrregularitiesModel.class, new ObservableSimplifiedWazeIrregularitiesSerializer());
+        module.addSerializer(ObservableJoinedGiraTravelsWithWazeJams.class, new ObservableJoinedGiraTravelsWithWazeJamsSerializer());
+        module.addSerializer(ObservableJoinedGiraTravelsWithWaze.class, new ObservableJoinedGiraTravelsWithWazeSerializer());
+        module.addSerializer(ObservableGiraTravelsWithWazeResults.class, new ObservableGiraTravelsWithWazeResultSerializer());
         mapper.registerModule(module);
 
         return mapper;

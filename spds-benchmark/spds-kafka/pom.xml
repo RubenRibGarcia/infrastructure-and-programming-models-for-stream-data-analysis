@@ -20,6 +20,7 @@
     <modules>
         <module>spds-kafka-rabbitmq-connector</module>
         <module>spds-kafka-stream-gira-topology</module>
+        <module>spds-kafka-redis-connector</module>
     </modules>
 
     <dependencies>

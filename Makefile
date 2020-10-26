@@ -165,10 +165,10 @@ docker-stop-kafka-infrastructure:
 	docker-compose -f $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
 docker-run-kafka-connectors:
-	docker-compose -f $(SPDS_KAFKA_PATH)/spds-kafka-connector/docker-compose.yml up -d
+	docker-compose -f $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-compose.yml up -d
 
 docker-stop-kafka-connectors:
-	docker-compose -f $(SPDS_KAFKA_PATH)/spds-kafka-connector/docker-compose.yml down
+	docker-compose -f $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-compose.yml down
 
 docker-execute-kafka-stream-topology:
 	docker-compose -f $(SPDS_KAFKA_PATH)/docker-compose.yml up -d --build kafka-stream-topology

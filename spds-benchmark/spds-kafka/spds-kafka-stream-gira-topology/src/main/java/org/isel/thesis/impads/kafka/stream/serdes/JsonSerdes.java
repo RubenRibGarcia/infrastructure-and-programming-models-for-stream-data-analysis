@@ -12,7 +12,7 @@ public class JsonSerdes<T> implements Serde<T> {
     private final ObjectMapper mapper;
     private final Class<T> klass;
 
-    private JsonSerdes(ObjectMapper mapper, Class<T> klass) {
+    protected JsonSerdes(ObjectMapper mapper, Class<T> klass) {
         this.mapper = mapper;
         this.klass = klass;
     }
