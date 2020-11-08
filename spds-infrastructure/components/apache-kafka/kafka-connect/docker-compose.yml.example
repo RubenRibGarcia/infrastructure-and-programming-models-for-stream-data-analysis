@@ -9,4 +9,4 @@ services:
             - /tmp:/tmp
             - </path/to/connector.jar>:/opt/connectors/kafka-rabbit-mq-connector.jar
             - </path/to/connect-standalone.properties>:/opt/kafka/config/connect-standalone.properties
-            - </path/to/connect-rabbit-mq.properties>:/opt/kafka/config/connect-rabbit-mq-source.properties
+            - </path/to/connect-rabbit-mq.properties>:/opt/kafka/config/connect-connector.properties

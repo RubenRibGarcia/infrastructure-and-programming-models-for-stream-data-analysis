@@ -73,6 +73,19 @@ public class RedisClusterContainer implements RedisCommandsContainer, Closeable 
     }
 
     @Override
+    public String hget(String key, String hashField) {
+        try {
+            return jedisCluster.hget(key, hashField);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot send Redis message with command HGET to hash {} of key {} error message {}",
+                        hashField, key, e.getMessage());
+            }
+            throw e;
+        }
+    }
+
+    @Override
     public void hincrBy(final String key, final String hashField, final Long value, final Integer ttl) {
         try {
             jedisCluster.hincrBy(key, hashField, value);

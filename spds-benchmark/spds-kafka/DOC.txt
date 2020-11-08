@@ -9,6 +9,4 @@
 ./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic gira_travels
 ./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic waze_jams
 ./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic waze_irregularities
-./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_gira_travels
-./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_waze_jams
-./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic observable_waze_irregularities
+./kafka-topics.sh --bootstrap-server kafka:9092 --create --topic kafka_result

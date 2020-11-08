@@ -9,13 +9,12 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
-import org.isel.thesis.impads.metrics.ObservableImpl;
 import org.isel.thesis.impads.metrics.ObservableUtils;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.metrics.collector.Metrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
-import org.isel.thesis.impads.metrics.collector.api.IMetricsCollectorConfiguration;
-import org.isel.thesis.impads.metrics.collector.api.MetricStatsDAgent;
+import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
+import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
 import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields.METRICS_STATSD_AGENT;
+import static org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields.METRICS_STATSD_HOST;
+import static org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields.METRICS_STATSD_PORT;
 
 public class ObservableBolt implements IRichBolt {
 
@@ -55,10 +58,10 @@ public class ObservableBolt implements IRichBolt {
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
 
-        IMetrics metrics = provideMetrics(new IMetricsCollectorConfiguration() {
+        IMetrics metrics = provideMetrics(new MetricsCollectorConfiguration() {
             @Override
-            public MetricStatsDAgent getMetricStatsDAgent() {
-                return config.getEnum(MetricStatsDAgent.class, METRICS_STATSD_AGENT);
+            public MetricsStatsDAgent getMetricsStatsDAgent() {
+                return config.getEnum(MetricsStatsDAgent.class, METRICS_STATSD_AGENT);
             }
 
             @Override
@@ -82,7 +85,7 @@ public class ObservableBolt implements IRichBolt {
         }
     }
 
-    private IMetrics provideMetrics(IMetricsCollectorConfiguration collectorConfiguration) {
+    private IMetrics provideMetrics(MetricsCollectorConfiguration collectorConfiguration) {
         final IMetrics metrics;
         switch (collectorConfiguration.getMetricStatsDAgent()) {
             case TELEGRAF:

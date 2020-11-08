@@ -3,52 +3,57 @@ package org.isel.thesis.impads.flink.metrics;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.statsd.StatsdMeterRegistry;
+import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.isel.thesis.impads.metrics.ObservableUtils;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.metrics.collector.Metrics;
-import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
+import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFunction<T> {
+public class ObservableFilterFunction<T extends Observable<?>> extends RichFilterFunction<T> {
 
     private final MetricsCollectorConfiguration config;
-    private final RichSinkFunction<T> sinkFunction;
+    private final RichFilterFunction<T> filterFunction;
 
     private transient Timer eventLatencyTimer;
     private transient Timer processingLatencyTimer;
 
-    private ObservableSinkFunction(final MetricsCollectorConfiguration config
-            , final RichSinkFunction<T> sinkFunction) {
+    private ObservableFilterFunction(MetricsCollectorConfiguration config
+            , RichFilterFunction<T> filterFunction) {
         this.config = config;
-        this.sinkFunction = sinkFunction;
-        this.eventLatencyTimer = null;
-        this.processingLatencyTimer = null;
+        this.filterFunction = filterFunction;
     }
 
-    public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config) {
-        return observe(config, null);
+    public static <T extends Observable<?>> ObservableFilterFunction<T> observe(MetricsCollectorConfiguration config
+            , RichFilterFunction<T> filterFunction) {
+        return new ObservableFilterFunction<>(config, filterFunction);
     }
 
-    public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config
-            , RichSinkFunction<T> sinkFunction) {
-        return new ObservableSinkFunction<>(config
-                , sinkFunction);
+    public static <T extends Observable<?>> ObservableFilterFunction<T> observe(MetricsCollectorConfiguration config
+            , FilterFunction<T> filterFunction) {
+        return new ObservableFilterFunction<>(config, new RichFilterFunction<T>() {
+            @Override
+            public boolean filter(T t) throws Exception {
+                return filterFunction.filter(t);
+            }
+        });
     }
 
     @Override
-    public void invoke(T value, Context context) throws Exception {
+    public boolean filter(T t) throws Exception {
+        boolean retain = filterFunction.filter(t);
 
-        registerTimers(value);
-
-        if (sinkFunction != null) {
-            sinkFunction.invoke(value, context);
+        if (!retain) {
+            registerTimers(t);
         }
+
+        return retain;
     }
 
     private void registerTimers(T value) {
@@ -68,8 +73,8 @@ public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFun
             this.processingLatencyTimer = metrics.registerTimer("flink.processing_time.latency");
         }
 
-        if (sinkFunction != null) {
-            sinkFunction.open(parameters);
+        if (filterFunction != null) {
+            filterFunction.open(parameters);
         }
     }
 

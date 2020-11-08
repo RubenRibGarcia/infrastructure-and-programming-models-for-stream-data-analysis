@@ -36,7 +36,7 @@ public class TopologySources implements Serializable {
     }
 
     public static TopologySources initializeTopologySources(final StreamExecutionEnvironment env
-            , final Config conf
+            , final ConfigurationContainer conf
             , final ObjectMapper mapper) {
 
         return new TopologySources(initializeGiraTravelsSource(env, conf, mapper)
@@ -46,7 +46,7 @@ public class TopologySources implements Serializable {
 
     private static DataStream<Observable<GiraTravelsSourceModel>> initializeGiraTravelsSource(
             final StreamExecutionEnvironment env
-            , final Config conf
+            , final ConfigurationContainer conf
             , final ObjectMapper mapper) {
 
         DeserializationSchema<Observable<GiraTravelsSourceModel>> deserializationSchema = ObservableSourceDeserializer
@@ -54,7 +54,7 @@ public class TopologySources implements Serializable {
                         , x -> x.getDateStart().toEpochMilli());
 
         return env.addSource(DataStreamRMQSource
-                .newRabbitMQSource(conf
+                .newRabbitMQSource(conf.getRabbitMQConfiguration()
                         , GiraTravelsSourceModel.QUEUE
                         , deserializationSchema))
                 .assignTimestampsAndWatermarks(WatermarkStrategy
@@ -65,14 +65,14 @@ public class TopologySources implements Serializable {
 
     private static DataStream<Observable<WazeIrregularitiesSourceModel>> initializeWazeIrregularitiesSource(
             final StreamExecutionEnvironment env
-            , final Config conf
+            , final ConfigurationContainer conf
             , final ObjectMapper mapper) {
 
         DeserializationSchema<Observable<WazeIrregularitiesSourceModel>> deserializationSchema = ObservableSourceDeserializer
                 .appendObservable(JsonDeserializationSchema.newJsonDeserializationSchema(mapper, TypeInformation.of(WazeIrregularitiesSourceModel.class))
                         , WazeIrregularitiesSourceModel::getDetectionDateMillis);
 
-        return env.addSource(DataStreamRMQSource.newRabbitMQSource(conf
+        return env.addSource(DataStreamRMQSource.newRabbitMQSource(conf.getRabbitMQConfiguration()
                 , WazeIrregularitiesSourceModel.QUEUE
                 , deserializationSchema))
                 .assignTimestampsAndWatermarks(WatermarkStrategy
@@ -83,14 +83,14 @@ public class TopologySources implements Serializable {
 
     private static DataStream<Observable<WazeJamsSourceModel>> initializeWazeJamsSource(
             final StreamExecutionEnvironment env
-            , final Config conf
+            , final ConfigurationContainer conf
             , final ObjectMapper mapper) {
 
         DeserializationSchema<Observable<WazeJamsSourceModel>> deserializationSchema = ObservableSourceDeserializer
                 .appendObservable(JsonDeserializationSchema.newJsonDeserializationSchema(mapper, TypeInformation.of(WazeJamsSourceModel.class))
                         , WazeJamsSourceModel::getPubMillis);
 
-        return env.addSource(DataStreamRMQSource.newRabbitMQSource(conf
+        return env.addSource(DataStreamRMQSource.newRabbitMQSource(conf.getRabbitMQConfiguration()
                 , WazeJamsSourceModel.QUEUE
                 , deserializationSchema))
                 .assignTimestampsAndWatermarks(WatermarkStrategy

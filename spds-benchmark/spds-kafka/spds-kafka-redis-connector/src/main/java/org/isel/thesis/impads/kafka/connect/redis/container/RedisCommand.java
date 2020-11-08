@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flink.streaming.connectors.redis.common.mapper;
+package org.isel.thesis.impads.kafka.connect.redis.container;
 
 /**
  * All available commands for Redis. Each command belongs to a {@link RedisDataType} group.
@@ -79,8 +79,6 @@ public enum RedisCommand {
      */
     HSET(RedisDataType.HASH),
 
-    HGET(RedisDataType.HASH),
-
     HINCRBY(RedisDataType.HINCRBY),
 
     /**
@@ -112,7 +110,6 @@ public enum RedisCommand {
     RedisCommand(RedisDataType redisDataType) {
         this.redisDataType = redisDataType;
     }
-
 
     /**
      * The {@link RedisDataType} this command belongs to.

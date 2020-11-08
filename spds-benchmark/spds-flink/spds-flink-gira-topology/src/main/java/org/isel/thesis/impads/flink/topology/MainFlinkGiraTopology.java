@@ -8,6 +8,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.flink.fasterxml.jackson.serializers.ObservableSerializer;
@@ -52,10 +53,13 @@ public class MainFlinkGiraTopology {
         final File file = new File(configFilePath);
         final Config conf = ConfigFactory.parseFile(file);
 
-        final TopologySources topologySources =
-                TopologySources.initializeTopologySources(env, conf, mapper);
+        final ConfigurationContainer configurationContainer =
+                ConfigurationContainer.setup(conf);
 
-        GiraTravelsTopologyExecutor.execute(conf
+        final TopologySources topologySources =
+                TopologySources.initializeTopologySources(env, configurationContainer, mapper);
+
+        GiraTravelsTopologyExecutor.execute(configurationContainer
                 , mapper
                 , env
                 , topologySources

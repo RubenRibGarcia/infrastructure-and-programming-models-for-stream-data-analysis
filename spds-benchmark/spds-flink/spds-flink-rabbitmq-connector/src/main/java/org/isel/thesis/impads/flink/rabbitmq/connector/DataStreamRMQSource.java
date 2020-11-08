@@ -5,7 +5,8 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource;
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.IRMQQueue;
-import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConnectionConfigurationFields;
+import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfiguration;
+import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfigurationFields;
 
 public class DataStreamRMQSource<T> extends RMQSource<T> {
 
@@ -15,7 +16,7 @@ public class DataStreamRMQSource<T> extends RMQSource<T> {
         super(rmqConnectionConfig, queueName, deserializationSchema);
     }
 
-    public static <T> DataStreamRMQSource<T> newRabbitMQSource(final Config config
+    public static <T> DataStreamRMQSource<T> newRabbitMQSource(final RabbitMQConfiguration config
             , final IRMQQueue queue
             , final DeserializationSchema<T> deserializationSchema) {
         final RMQConnectionConfig connectionConfig = configureRMQConnection(config);
@@ -23,35 +24,15 @@ public class DataStreamRMQSource<T> extends RMQSource<T> {
         return new DataStreamRMQSource<T>(connectionConfig, queue.getQueueName(), deserializationSchema);
     }
 
-    private static RMQConnectionConfig configureRMQConnection(Config config) {
+    private static RMQConnectionConfig configureRMQConnection(RabbitMQConfiguration config) {
         final RMQConnectionConfig.Builder builderConfig = new RMQConnectionConfig.Builder()
-                .setHost(getHost(config))
-                .setPort(getPort(config))
-                .setVirtualHost(getVirtualHost(config))
-                .setUserName(getUsername(config))
-                .setPassword(getPassword(config));
+                .setHost(config.getHost())
+                .setPort(config.getPort())
+                .setVirtualHost(config.getVirtualHost())
+                .setUserName(config.getUsername())
+                .setPassword(config.getPassword());
 
         return builderConfig.build();
-    }
-
-    private static String getHost(Config config) {
-        return config.getString(RabbitMQConnectionConfigurationFields.RABBITMQ_HOST);
-    }
-
-    private static int getPort(Config config) {
-        return config.getInt(RabbitMQConnectionConfigurationFields.RABBITMQ_PORT);
-    }
-
-    private static String getVirtualHost(Config config) {
-        return config.getString(RabbitMQConnectionConfigurationFields.RABBITMQ_VIRTUAL_HOST);
-    }
-
-    private static String getUsername(Config config) {
-        return config.getString(RabbitMQConnectionConfigurationFields.RABBITMQ_USERNAME);
-    }
-
-    private static String getPassword(Config config) {
-        return config.getString(RabbitMQConnectionConfigurationFields.RABBITMQ_PASSWORD);
     }
 
 }

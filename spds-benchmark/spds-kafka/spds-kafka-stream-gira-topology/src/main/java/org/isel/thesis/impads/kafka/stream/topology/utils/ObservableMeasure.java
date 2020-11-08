@@ -8,8 +8,8 @@ import org.isel.thesis.impads.metrics.ObservableUtils;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.metrics.collector.Metrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
-import org.isel.thesis.impads.metrics.collector.api.IMetricsCollectorConfiguration;
-import org.isel.thesis.impads.metrics.collector.api.MetricStatsDAgent;
+import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
+import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
 import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,10 @@ public final class ObservableMeasure {
 
     private IMetrics initMetrics(Config config) {
 
-        IMetrics metrics = configureMetrics(new IMetricsCollectorConfiguration() {
+        IMetrics metrics = configureMetrics(new MetricsCollectorConfiguration() {
             @Override
-            public MetricStatsDAgent getMetricStatsDAgent() {
-                return config.getEnum(MetricStatsDAgent.class, METRICS_STATSD_AGENT);
+            public MetricsStatsDAgent getMetricStatsDAgent() {
+                return config.getEnum(MetricsStatsDAgent.class, METRICS_STATSD_AGENT);
             }
 
             @Override
@@ -56,7 +56,7 @@ public final class ObservableMeasure {
         return metrics;
     }
 
-    private IMetrics configureMetrics(IMetricsCollectorConfiguration collectorConfiguration) {
+    private IMetrics configureMetrics(MetricsCollectorConfiguration collectorConfiguration) {
         final IMetrics metrics;
         switch (collectorConfiguration.getMetricStatsDAgent()) {
             case TELEGRAF:

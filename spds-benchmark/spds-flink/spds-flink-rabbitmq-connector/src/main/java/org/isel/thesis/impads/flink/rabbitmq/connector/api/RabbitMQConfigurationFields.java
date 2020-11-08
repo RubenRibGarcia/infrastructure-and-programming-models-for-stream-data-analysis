@@ -1,6 +1,6 @@
 package org.isel.thesis.impads.flink.rabbitmq.connector.api;
 
-public class RabbitMQConnectionConfigurationFields {
+public class RabbitMQConfigurationFields {
 
         private static final String RABBITMQ_PREFIX = "rabbitmq.";
         public static final String RABBITMQ_HOST = RABBITMQ_PREFIX + "host";

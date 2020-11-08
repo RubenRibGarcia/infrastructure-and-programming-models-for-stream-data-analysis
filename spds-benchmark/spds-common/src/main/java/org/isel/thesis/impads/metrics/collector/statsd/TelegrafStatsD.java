@@ -2,16 +2,16 @@ package org.isel.thesis.impads.metrics.collector.statsd;
 
 import io.micrometer.statsd.StatsdConfig;
 import io.micrometer.statsd.StatsdFlavor;
-import org.isel.thesis.impads.metrics.collector.api.IMetricsCollectorConfiguration;
+import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 
 import javax.inject.Inject;
 
 public class TelegrafStatsD implements StatsdConfig {
 
-    private final IMetricsCollectorConfiguration config;
+    private final MetricsCollectorConfiguration config;
 
     @Inject
-    public TelegrafStatsD(IMetricsCollectorConfiguration config) {
+    public TelegrafStatsD(MetricsCollectorConfiguration config) {
         this.config = config;
     }
 

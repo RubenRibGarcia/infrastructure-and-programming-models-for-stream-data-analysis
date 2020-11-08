@@ -1,6 +1,6 @@
 package org.isel.thesis.impads.metrics.collector.api;
 
-public enum MetricStatsDAgent {
+public enum MetricsStatsDAgent {
     NONE,
     TELEGRAF
 }

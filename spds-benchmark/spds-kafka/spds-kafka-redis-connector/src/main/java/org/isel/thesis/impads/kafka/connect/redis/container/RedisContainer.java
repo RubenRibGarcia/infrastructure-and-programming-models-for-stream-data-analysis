@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flink.streaming.connectors.redis.common.container;
+package org.isel.thesis.impads.kafka.connect.redis.container;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisSentinelPool;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.util.Objects;
 /**
  * Redis command container if we want to connect to a single Redis server or to Redis sentinels
  * If want to connect to a single Redis server, please use the first constructor {@link #RedisContainer(JedisPool)}.
- * If want to connect to a Redis sentinels, please use the second constructor {@link #RedisContainer(JedisSentinelPool)}
  */
 public class RedisContainer implements RedisCommandsContainer, Closeable {
 
@@ -38,7 +36,6 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
 
     private transient JedisPool jedisPool;
-    private transient JedisSentinelPool jedisSentinelPool;
 
     /**
      * Use this constructor if to connect with single Redis server.
@@ -48,18 +45,6 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
     public RedisContainer(JedisPool jedisPool) {
         Objects.requireNonNull(jedisPool, "Jedis Pool can not be null");
         this.jedisPool = jedisPool;
-        this.jedisSentinelPool = null;
-    }
-
-    /**
-     * Use this constructor if Redis environment is clustered with sentinels.
-     *
-     * @param sentinelPool SentinelPool which actually manages Jedis instances
-     */
-    public RedisContainer(final JedisSentinelPool sentinelPool) {
-        Objects.requireNonNull(sentinelPool, "Jedis Sentinel Pool can not be null");
-        this.jedisPool = null;
-        this.jedisSentinelPool = sentinelPool;
     }
 
     /**
@@ -69,9 +54,6 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
     public void close() throws IOException {
         if (this.jedisPool != null) {
             this.jedisPool.close();
-        }
-        if (this.jedisSentinelPool != null) {
-            this.jedisSentinelPool.close();
         }
     }
 
@@ -103,26 +85,6 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } finally {
             releaseInstance(jedis);
         }
-    }
-
-    @Override
-    public String hget(String key, String hashField) {
-        String value;
-        Jedis jedis = null;
-        try {
-            jedis = getInstance();
-            value = jedis.hget(key, hashField);
-        } catch (Exception e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot send Redis message with command HSET to key {} and hashField {} error message {}",
-                        key, hashField, e.getMessage());
-            }
-            throw e;
-        } finally {
-            releaseInstance(jedis);
-        }
-
-        return value;
     }
 
     @Override
@@ -321,11 +283,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
      * @return the Jedis instance
      */
     private Jedis getInstance() {
-        if (jedisSentinelPool != null) {
-            return jedisSentinelPool.getResource();
-        } else {
-            return jedisPool.getResource();
-        }
+        return jedisPool.getResource();
     }
 
     /**

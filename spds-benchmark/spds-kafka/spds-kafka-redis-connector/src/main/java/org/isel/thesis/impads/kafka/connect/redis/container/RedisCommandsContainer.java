@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flink.streaming.connectors.redis.common.container;
+package org.isel.thesis.impads.kafka.connect.redis.container;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,8 +43,6 @@ public interface RedisCommandsContainer extends Serializable {
      * @param ttl Hash expire time
      */
     void hset(String key, String hashField, String value, Integer ttl);
-
-    String hget(String key, String hashField);
 
     void hincrBy(String key, String hashField, Long value, Integer ttl);
 
