@@ -2,7 +2,7 @@ package org.isel.thesis.impads.storm.spouts.rabbitmq.func;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
+import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +24,10 @@ public final class RabbitMQConnectionFactory implements Serializable {
 
     private static ConnectionFactory createConnectionFactory(RabbitMQConfiguration configuration) {
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        connectionFactory.setHost(configuration.getRabbitMQHost());
-        connectionFactory.setUsername(configuration.getRabbitMQUsername());
-        connectionFactory.setPassword(configuration.getRabbitMQPassword());
-        connectionFactory.setPort(configuration.getRabbitMQPort());
+        connectionFactory.setHost(configuration.getHost());
+        connectionFactory.setUsername(configuration.getUsername());
+        connectionFactory.setPassword(configuration.getPassword());
+        connectionFactory.setPort(configuration.getPort());
 
         return connectionFactory;
     }

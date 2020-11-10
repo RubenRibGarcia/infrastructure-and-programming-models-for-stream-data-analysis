@@ -10,9 +10,7 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.streams.StreamBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.isel.thesis.impads.giragen.datamodel.api.ipma.api.IpmaStationValue;
 import org.isel.thesis.impads.storm.fasterxml.jackson.deserializers.InstanteDeserializer;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +33,16 @@ public class MainStormStreamsGiraTopology {
         else {
             File file = new File(args[0]);
             com.typesafe.config.Config config = ConfigFactory.parseFile(file);
-            RabbitMQConfiguration rabbitMQConfiguration = RabbitMQConfiguration.initializeRabbitMQConfiguration(config);
+
+            ConfigurationContainer configurationContainer =
+                    ConfigurationContainer.setup(config);
 
             StreamBuilder streamBuilder = new StreamBuilder();
             ObjectMapper mapper = newMapper();
             final GeometryFactory geoFactory = initGeometryFactory();
 
             TopologyStreamSources topologySources =
-                    TopologyStreamSources.initializeTopologySources(rabbitMQConfiguration
+                    TopologyStreamSources.initializeTopologySources(configurationContainer
                         , mapper
                         , streamBuilder);
 
@@ -55,8 +55,7 @@ public class MainStormStreamsGiraTopology {
                     , GiraTravelsStreamTopologyBuilder.build(streamBuilder
                             , topologySources
                             , geoFactory
-                            , rabbitMQConfiguration
-                            , config));
+                            , configurationContainer));
         }
     }
 

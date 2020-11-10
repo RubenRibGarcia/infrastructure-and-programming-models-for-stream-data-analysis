@@ -1,34 +1,21 @@
 package org.isel.thesis.impads.flink.metrics;
 
-import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.Timer;
-import io.micrometer.statsd.StatsdMeterRegistry;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.isel.thesis.impads.metrics.ObservableUtils;
 import org.isel.thesis.impads.metrics.api.Observable;
-import org.isel.thesis.impads.metrics.collector.Metrics;
-import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
-import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
-
-import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 
 public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFunction<T> {
 
     private final MetricsCollectorConfiguration config;
     private final RichSinkFunction<T> sinkFunction;
 
-    private transient Timer eventLatencyTimer;
-    private transient Timer processingLatencyTimer;
+    private FlinkObservableMetricsCollector collector;
 
     private ObservableSinkFunction(final MetricsCollectorConfiguration config
             , final RichSinkFunction<T> sinkFunction) {
         this.config = config;
         this.sinkFunction = sinkFunction;
-        this.eventLatencyTimer = null;
-        this.processingLatencyTimer = null;
     }
 
     public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config) {
@@ -44,47 +31,20 @@ public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFun
     @Override
     public void invoke(T value, Context context) throws Exception {
 
-        registerTimers(value);
+        collector.collect(value);
 
         if (sinkFunction != null) {
             sinkFunction.invoke(value, context);
         }
     }
 
-    private void registerTimers(T value) {
-        if (this.eventLatencyTimer != null && this.processingLatencyTimer != null) {
-            long nowTimestamp = Instant.now().toEpochMilli();
-            this.eventLatencyTimer.record(ObservableUtils.eventTimeLatencyInMillis(nowTimestamp, value.getEventTimestamp()), TimeUnit.MILLISECONDS);
-            this.processingLatencyTimer.record(ObservableUtils.processingTimeLatencyInMillis(nowTimestamp, value.getIngestionTimestamp()), TimeUnit.MILLISECONDS);
-        }
-    }
-
     @Override
     public void open(Configuration parameters) throws Exception {
-        IMetrics metrics = provideMetrics(config);
 
-        if (metrics != null) {
-            this.eventLatencyTimer = metrics.registerTimer("flink.event_time.latency");
-            this.processingLatencyTimer = metrics.registerTimer("flink.processing_time.latency");
-        }
+        collector = new FlinkObservableMetricsCollector(config);
 
         if (sinkFunction != null) {
             sinkFunction.open(parameters);
         }
-    }
-
-    private IMetrics provideMetrics(MetricsCollectorConfiguration collectorConfiguration) {
-        final IMetrics metrics;
-        switch (collectorConfiguration.getMetricsStatsDAgent()) {
-            case TELEGRAF:
-                metrics = new Metrics(new StatsdMeterRegistry(new TelegrafStatsD(collectorConfiguration), Clock.SYSTEM));
-                break;
-            case NONE:
-            default:
-                metrics = null;
-                break;
-        }
-
-        return metrics;
     }
 }

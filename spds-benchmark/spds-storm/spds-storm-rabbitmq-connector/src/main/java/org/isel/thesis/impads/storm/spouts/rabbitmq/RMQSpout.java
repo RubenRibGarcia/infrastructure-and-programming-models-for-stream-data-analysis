@@ -9,7 +9,7 @@ import org.apache.storm.topology.IRichSpout;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.ITupleProducer;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
+import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.func.RabbitMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class RMQSpout implements IRichSpout {
     @Override
     public void open(Map<String, Object> map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
         LOG.debug("Opening RabbitMQ Spout");
-        LOG.debug("Creating RabbitMQ Connection at {}:{}", config.getRabbitMQHost(), config.getRabbitMQPort());
+        LOG.debug("Creating RabbitMQ Connection at {}:{}", config.getHost(), config.getPort());
         try {
 
             this.connection = RabbitMQConnectionFactory.createNewConnection(this.config);

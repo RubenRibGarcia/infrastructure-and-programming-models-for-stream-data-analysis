@@ -2,7 +2,11 @@ package org.isel.thesis.impads.metrics.collector;
 
 import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
 
-public final class MetricsCollectorConfiguration {
+import java.io.Serializable;
+
+public final class MetricsCollectorConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final MetricsStatsDAgent metricsStatsDAgent;
     private final String metricsStatsDHost;

@@ -1,6 +1,5 @@
 package org.isel.thesis.impads.flink.topology;
 
-import com.typesafe.config.Config;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

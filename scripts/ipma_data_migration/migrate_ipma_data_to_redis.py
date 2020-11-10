@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import redis
 import os
@@ -6,17 +6,15 @@ import csv
 import json
 import argparse
 
-SPDS_DATA_DIR = '../../spds-data'
-
-
 def main(args):
     r = redis.Redis(host=args.redis_host, port=6379)
 
-    for filename in os.listdir(SPDS_DATA_DIR):
+    for filename in os.listdir(args.data_path):
         if filename.endswith('.csv') and filename.startswith('ipma'):
             print(f"Migrating {filename} to Redis")
-            data_name = filename.replace('.csv', '')
-            with open(os.path.join(SPDS_DATA_DIR, filename), 'r') as csv_file:
+            data_name = filename.replace('.csv', '').replace('ipma_', '').replace('_2018', '')
+            print(data_name)
+            with open(os.path.join(args.data_path, filename), 'r') as csv_file:
                 records = csv.DictReader(csv_file)
                 for record in records:
                     key = __compose_ipma_key(record)
@@ -38,6 +36,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-rh --redis-host', action='store', required=True, dest='redis_host')
+    parser.add_argument('-dp --data-path', action='store', required=True, dest='data_path')
 
     args = parser.parse_args()
 

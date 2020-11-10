@@ -7,7 +7,7 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
+import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.func.RabbitMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class RMQBolt implements IRichBolt {
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector outputCollector) {
         LOG.info("Opening RabbitMQ Bolt");
-        LOG.info("Creating RabbitMQ Connection at {}:{}", config.getRabbitMQHost(), config.getRabbitMQPort());
+        LOG.info("Creating RabbitMQ Connection at {}:{}", config.getHost(), config.getPort());
         try {
 
             this.connection = RabbitMQConnectionFactory.createNewConnection(this.config);

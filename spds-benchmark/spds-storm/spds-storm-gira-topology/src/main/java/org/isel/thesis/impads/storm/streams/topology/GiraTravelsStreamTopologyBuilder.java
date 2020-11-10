@@ -13,7 +13,6 @@ import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.metrics.ObservableImpl;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.conf.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple2;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple3;
 import org.isel.thesis.impads.storm.streams.topology.models.GiraTravelsWithWazeResult;
@@ -34,8 +33,7 @@ public final class GiraTravelsStreamTopologyBuilder {
     public static StormTopology build(final StreamBuilder builder
             , final TopologyStreamSources topologySources
             , final GeometryFactory geoFactory
-            , final RabbitMQConfiguration rabbitMQConfiguration
-            , final Config config) {
+            , final ConfigurationContainer config) {
 
         PairStream<Long, Observable<SimplifiedGiraTravelsModel>> pairStreamGiraTravels = topologySources.getGiraTravelsSourceModelStream()
                 .filter(model -> (model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
@@ -123,7 +121,7 @@ public final class GiraTravelsStreamTopologyBuilder {
                     }
                 });
 
-        result.to(ObservableBolt.observe(config));
+        result.to(ObservableBolt.observe(config.getMetricsCollectorConfiguration()));
 
         return builder.build();
     }

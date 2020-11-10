@@ -8,11 +8,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.flink.fasterxml.jackson.serializers.ObservableSerializer;
-import org.isel.thesis.impads.giragen.datamodel.api.ipma.api.IpmaStationValue;
 import org.isel.thesis.impads.metrics.api.Observable;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
@@ -31,7 +29,7 @@ public class MainFlinkGiraTopology {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 //        env.enableCheckpointing(10000, CheckpointingMode.AT_LEAST_ONCE);
-        env.setParallelism(5);
+        env.setParallelism(24);
 
         ExecutionConfig executionConfig = env.getConfig();
         executionConfig.enableObjectReuse();
