@@ -3,7 +3,7 @@ package org.isel.thesis.impads.flink.fasterxml.jackson.serializers;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.IOException;
 

@@ -6,8 +6,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.giragen.datamodel.api.gira.adapter.GiraTravelsDataAdapter;
-import org.isel.thesis.impads.metrics.api.Observable;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 
 import java.io.Serializable;
@@ -157,7 +156,7 @@ public class GiraTravelsSourceModel implements GiraTravelsDataAdapter, IJsonTupl
             rvalue.setGeometry((String)tuple.getValueByField("geometry"));
             rvalue.setNumberOfVertices((Integer) tuple.getValueByField("num_vertices"));
 
-            return ObservableImpl.of(rvalue, rvalue.getDateStart().toEpochMilli(), Instant.now().toEpochMilli());
+            return Observable.of(rvalue, rvalue.getDateStart().toEpochMilli(), Instant.now().toEpochMilli());
         }
     }
 }

@@ -1,17 +1,19 @@
 package org.isel.thesis.impads.storm.spouts.rabbitmq.api;
 
-public class RabbitMQConfiguration {
+import java.io.Serializable;
+
+public class RabbitMQConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String host;
     private final int port;
-    private final String virtualHost;
     private final String username;
     private final String password;
 
-    public RabbitMQConfiguration(String host, int port, String virtualHost, String username, String password) {
+    public RabbitMQConfiguration(String host, int port, String username, String password) {
         this.host = host;
         this.port = port;
-        this.virtualHost = virtualHost;
         this.username = username;
         this.password = password;
     }
@@ -22,10 +24,6 @@ public class RabbitMQConfiguration {
 
     public int getPort() {
         return port;
-    }
-
-    public String getVirtualHost() {
-        return virtualHost;
     }
 
     public String getUsername() {
@@ -39,7 +37,6 @@ public class RabbitMQConfiguration {
     public static final class Builder {
         private String host;
         private int port;
-        private String virtualHost;
         private String username;
         private String password;
 
@@ -60,11 +57,6 @@ public class RabbitMQConfiguration {
             return this;
         }
 
-        public Builder withVirtualHost(String virtualHost) {
-            this.virtualHost = virtualHost;
-            return this;
-        }
-
         public Builder withUsername(String username) {
             this.username = username;
             return this;
@@ -76,7 +68,7 @@ public class RabbitMQConfiguration {
         }
 
         public RabbitMQConfiguration build() {
-            return new RabbitMQConfiguration(host, port, virtualHost, username, password);
+            return new RabbitMQConfiguration(host, port, username, password);
         }
     }
 }

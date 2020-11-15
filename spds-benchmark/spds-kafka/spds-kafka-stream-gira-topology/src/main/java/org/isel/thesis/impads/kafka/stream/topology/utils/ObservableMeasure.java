@@ -4,8 +4,8 @@ import com.typesafe.config.Config;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.statsd.StatsdMeterRegistry;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.metrics.ObservableUtils;
-import org.isel.thesis.impads.metrics.api.Observable;
 import org.isel.thesis.impads.metrics.collector.Metrics;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+
+import static org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent.NONE;
+import static org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent.TELEGRAF;
 
 public final class ObservableMeasure {
 

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeIrregularitiesModel;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public class ObservableSimplifiedWazeIrregularitiesDeserializer extends StdDeser
                 , data.get("geometry").asText()
                 , data.get("eventTimestamp").asLong());
 
-        return new ObservableSimplifiedWazeIrregularitiesModel(ObservableImpl.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
+        return new ObservableSimplifiedWazeIrregularitiesModel(Observable.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
     }
 
 }

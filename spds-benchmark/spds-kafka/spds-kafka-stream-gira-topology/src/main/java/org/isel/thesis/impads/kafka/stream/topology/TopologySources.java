@@ -14,8 +14,7 @@ import org.isel.thesis.impads.kafka.stream.topology.model.WazeJamsSourceModel;
 import org.isel.thesis.impads.kafka.stream.topology.utils.GiraTravelsTimestampExtractor;
 import org.isel.thesis.impads.kafka.stream.topology.utils.WazeIrregularitiesTimestampExtractor;
 import org.isel.thesis.impads.kafka.stream.topology.utils.WazeJamsTimestampExtractor;
-import org.isel.thesis.impads.metrics.ObservableImpl;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ public class TopologySources {
                         , JsonSerdes.newJsonSerders(mapper, GiraTravelsSourceModel.class)
                         , new GiraTravelsTimestampExtractor()
                         , null).withName("gira_travels_source"))
-                .mapValues((k, v) -> ObservableImpl.of(v, v.getDateStart().toEpochMilli(), Instant.now().toEpochMilli())
+                .mapValues((k, v) -> Observable.of(v, v.getDateStart().toEpochMilli(), Instant.now().toEpochMilli())
                         , Named.as("observable_gira_travels_map"));
     }
 
@@ -68,7 +67,7 @@ public class TopologySources {
                         , JsonSerdes.newJsonSerders(mapper, WazeJamsSourceModel.class)
                         , new WazeJamsTimestampExtractor()
                         , null).withName("waze_jams_source"))
-                .mapValues((k ,v) -> ObservableImpl.of(v, v.getPubMillis(), Instant.now().toEpochMilli())
+                .mapValues((k ,v) -> Observable.of(v, v.getPubMillis(), Instant.now().toEpochMilli())
                         , Named.as("observable_waze_jams_map"));
     }
 
@@ -81,7 +80,7 @@ public class TopologySources {
                         , JsonSerdes.newJsonSerders(mapper, WazeIrregularitiesSourceModel.class)
                         , new WazeIrregularitiesTimestampExtractor()
                         , null).withName("waze_irregularities_source"))
-                .mapValues((k, v) -> ObservableImpl.of(v, v.getDetectionDateMillis(), Instant.now().toEpochMilli())
+                .mapValues((k, v) -> Observable.of(v, v.getDetectionDateMillis(), Instant.now().toEpochMilli())
                         , Named.as("observable_waze_irregularities_map"));
     }
 

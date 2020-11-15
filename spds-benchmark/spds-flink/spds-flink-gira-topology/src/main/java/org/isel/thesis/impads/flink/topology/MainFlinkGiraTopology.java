@@ -11,7 +11,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.flink.fasterxml.jackson.serializers.ObservableSerializer;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

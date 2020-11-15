@@ -3,8 +3,7 @@ package org.isel.thesis.impads.flink.metrics;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.isel.thesis.impads.metrics.ObservableImpl;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.metrics.api.SerializableEventTimestampAssigner;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class ObservableSourceDeserializer<T> implements DeserializationSchema<Ob
     @Override
     public Observable<T> deserialize(byte[] bytes) throws IOException {
         T obj = deserializationSchema.deserialize(bytes);
-        return  ObservableImpl.of(obj, eventTimestampAssigner.extractEventTimestamp(obj), Instant.now().toEpochMilli());
+        return  Observable.of(obj, eventTimestampAssigner.extractEventTimestamp(obj), Instant.now().toEpochMilli());
     }
 
     @Override

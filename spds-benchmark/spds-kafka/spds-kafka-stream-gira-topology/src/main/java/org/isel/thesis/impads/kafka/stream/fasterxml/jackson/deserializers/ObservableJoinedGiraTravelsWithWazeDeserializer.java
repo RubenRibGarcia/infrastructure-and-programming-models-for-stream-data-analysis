@@ -5,14 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.isel.thesis.impads.kafka.stream.data.structures.Tuple2;
 import org.isel.thesis.impads.kafka.stream.data.structures.Tuple3;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWaze;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.IOException;
 
@@ -53,7 +51,7 @@ public class ObservableJoinedGiraTravelsWithWazeDeserializer extends StdDeserial
                 , third.get("eventTimestamp").asLong());
 
         return new ObservableJoinedGiraTravelsWithWaze(
-                ObservableImpl.of(Tuple3.of(giraTravelsModel, wazeJamsModel, wazeIrregularitiesModel), eventTimestamp, ingestionTimestamp, processedTimestamp));
+                Observable.of(Tuple3.of(giraTravelsModel, wazeJamsModel, wazeIrregularitiesModel), eventTimestamp, ingestionTimestamp, processedTimestamp));
     }
 
 }

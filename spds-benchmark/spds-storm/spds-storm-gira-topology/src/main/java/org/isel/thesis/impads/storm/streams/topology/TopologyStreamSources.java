@@ -3,7 +3,7 @@ package org.isel.thesis.impads.storm.streams.topology;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.streams.Stream;
 import org.apache.storm.streams.StreamBuilder;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.RMQSpout;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.func.JsonToTupleProducer;
 import org.isel.thesis.impads.storm.streams.topology.models.GiraTravelsSourceModel;

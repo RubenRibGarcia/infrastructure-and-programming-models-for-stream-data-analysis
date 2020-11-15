@@ -24,7 +24,7 @@ import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeIrregula
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
 import org.isel.thesis.impads.kafka.stream.topology.utils.ObservableMeasure;
 import org.isel.thesis.impads.kafka.stream.topology.utils.SerdesUtils;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -52,19 +52,19 @@ public final class GiraTravelsTopologyBuilder {
                         (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty())
                                 || v.getData().getNumberOfVertices() != null && v.getData().getNumberOfVertices() > 1
                                 || v.getData().getDistance() != null && v.getData().getDistance() > 0)
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedGiraTravelsModel(ObservableImpl.map(v, new SimplifiedGiraTravelsModel(String.valueOf(v.getData().getId())
+                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedGiraTravelsModel(v.map(new SimplifiedGiraTravelsModel(String.valueOf(v.getData().getId())
                             , v.getData().getGeometry()
                             , v.getEventTimestamp())))));
 
         KStream<Long, ObservableSimplifiedWazeJamsModel> observableWazeJamsStream = topologySources.getWazeJamsStream()
                 .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeJamsModel(ObservableImpl.map(v, new SimplifiedWazeJamsModel(String.valueOf(v.getData().getId())
+                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeJamsModel(v.map(new SimplifiedWazeJamsModel(String.valueOf(v.getData().getId())
                            , v.getData().getGeometry()
                            , v.getEventTimestamp())))));
 
         KStream<Long, ObservableSimplifiedWazeIrregularitiesModel> observableWazeIrregularitiesStream = topologySources.getWazeIrregularitiesStream()
                 .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeIrregularitiesModel(ObservableImpl.map(v, new SimplifiedWazeIrregularitiesModel(String.valueOf(v.getData().getId())
+                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeIrregularitiesModel(v.map(new SimplifiedWazeIrregularitiesModel(String.valueOf(v.getData().getId())
                         , v.getData().getGeometry()
                         , v.getEventTimestamp())))));
 
@@ -72,7 +72,7 @@ public final class GiraTravelsTopologyBuilder {
         KStream<Long, ObservableJoinedGiraTravelsWithWazeJams> joinedGiraTravelsWithWazeJams =
                 observableGiraTravelsStream
                         .join(observableWazeJamsStream
-                                , (left, right) -> new ObservableJoinedGiraTravelsWithWazeJams(ObservableImpl.join(Tuple2.of(left.getData(), right.getData()), left, right))
+                                , (left, right) -> new ObservableJoinedGiraTravelsWithWazeJams(left.join(Tuple2.of(left.getData(), right.getData()), right))
                                 , JoinWindows.of(Duration.ofMillis(5))
                                 , StreamJoined.with(Serdes.Long()
                                         , SerdesUtils.simplifiedGiraTravelsSerdes(mapper)
@@ -81,7 +81,7 @@ public final class GiraTravelsTopologyBuilder {
         KStream<Long, ObservableJoinedGiraTravelsWithWaze> joinedGiraTravelsWithWaze =
                 joinedGiraTravelsWithWazeJams
                         .join(observableWazeIrregularitiesStream
-                                , (left, right) -> new ObservableJoinedGiraTravelsWithWaze(ObservableImpl.join(Tuple3.of(left.getData().getFirst(), left.getData().getSecond(), right.getData()), left, right))
+                                , (left, right) -> new ObservableJoinedGiraTravelsWithWaze(left.join(Tuple3.of(left.getData().getFirst(), left.getData().getSecond(), right.getData()), right))
                                 , JoinWindows.of(Duration.ofMillis(5))
                                 , StreamJoined.with(Serdes.Long()
                                                 , SerdesUtils.joinedGiraTravelsWithWazeJamsJsonSerdes(mapper)
@@ -117,7 +117,7 @@ public final class GiraTravelsTopologyBuilder {
                                         , giraTravelStartingPoint.intersects(wazeIrrGeo)
                                         , jamAndIrrMatches);
 
-                                return KeyValue.pair(k, new ObservableGiraTravelsWithWazeResults(ObservableImpl.map(v, rvalue)));
+                                return KeyValue.pair(k, new ObservableGiraTravelsWithWazeResults(v.map(rvalue)));
                             }
                             catch(Exception e) {
                                 throw new RuntimeException(e.getMessage(), e);

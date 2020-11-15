@@ -12,7 +12,7 @@ import org.isel.thesis.impads.flink.metrics.ObservableSourceDeserializer;
 import org.isel.thesis.impads.flink.topology.models.GiraTravelsSourceModel;
 import org.isel.thesis.impads.flink.topology.models.WazeIrregularitiesSourceModel;
 import org.isel.thesis.impads.flink.topology.models.WazeJamsSourceModel;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.Serializable;
 import java.time.Duration;

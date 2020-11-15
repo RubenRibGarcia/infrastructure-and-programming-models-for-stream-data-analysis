@@ -5,11 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeJamsModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.IOException;
 
@@ -37,7 +35,7 @@ public class ObservableSimplifiedWazeJamsDeserializer extends StdDeserializer<Ob
                 , data.get("geometry").asText()
                 , data.get("eventTimestamp").asLong());
 
-        return new ObservableSimplifiedWazeJamsModel(ObservableImpl.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
+        return new ObservableSimplifiedWazeJamsModel(Observable.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
     }
 
 }

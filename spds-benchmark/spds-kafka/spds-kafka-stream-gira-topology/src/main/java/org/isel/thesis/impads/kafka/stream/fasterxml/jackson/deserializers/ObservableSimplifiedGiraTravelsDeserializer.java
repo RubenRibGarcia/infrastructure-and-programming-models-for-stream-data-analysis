@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public class ObservableSimplifiedGiraTravelsDeserializer extends StdDeserializer
                 , data.get("geometry").asText()
                 , data.get("eventTimestamp").asLong());
 
-        return new ObservableSimplifiedGiraTravelsModel(ObservableImpl.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
+        return new ObservableSimplifiedGiraTravelsModel(Observable.of(model, eventTimestamp, ingestionTimestamp, processedTimestamp));
     }
 
 }

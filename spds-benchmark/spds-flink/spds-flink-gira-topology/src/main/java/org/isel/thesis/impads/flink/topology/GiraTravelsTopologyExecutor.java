@@ -13,7 +13,6 @@ import org.apache.flink.streaming.connectors.redis.RedisProcessFunction;
 import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.mapper.json.RPushJsonMapper;
 import org.apache.flink.util.Collector;
-import org.isel.thesis.impads.flink.metrics.ObservableFilterFunction;
 import org.isel.thesis.impads.flink.topology.models.GiraTravelsWithWazeAndIpmaResult;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
@@ -23,8 +22,7 @@ import org.isel.thesis.impads.flink.topology.models.GiraTravelsSourceModel;
 import org.isel.thesis.impads.flink.topology.models.WazeIrregularitiesSourceModel;
 import org.isel.thesis.impads.flink.topology.models.WazeJamsSourceModel;
 import org.isel.thesis.impads.flink.topology.utils.IpmaUtils;
-import org.isel.thesis.impads.metrics.api.Observable;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -49,17 +47,16 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
 
         DataStream<Observable<SimplifiedGiraTravelsModel>> giraTravelsDataStream =
                 sources.getGiraTravelsSource()
-                        .filter(ObservableFilterFunction.observe(config.getMetricsCollectorConfiguration(), model ->
-                                model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()
+                        .filter(model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()
                                 || model.getData().getNumberOfVertices() != null && model.getData().getNumberOfVertices() > 1
-                                || model.getData().getDistance() != null && model.getData().getDistance() > 0))
+                                || model.getData().getDistance() != null && model.getData().getDistance() > 0)
                         .map(new MapFunction<Observable<GiraTravelsSourceModel>
                                 , Observable<SimplifiedGiraTravelsModel>>() {
                             @Override
                             public Observable<SimplifiedGiraTravelsModel> map(
                                     Observable<GiraTravelsSourceModel> model) throws Exception {
 
-                                return ObservableImpl.map(model, new SimplifiedGiraTravelsModel(String.valueOf(model.getData().getId())
+                                return model.map(new SimplifiedGiraTravelsModel(String.valueOf(model.getData().getId())
                                         , model.getData().getGeometry()
                                         , model.getEventTimestamp()));
                             }
@@ -67,15 +64,15 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
 
         DataStream<Observable<SimplifiedWazeJamsModel>> wazeJamsDataStream =
                 sources.getWazeJamsSource()
-                        .filter(ObservableFilterFunction.observe(config.getMetricsCollectorConfiguration()
-                                , model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()))
+                        .filter(model ->
+                                model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
                         .map(new MapFunction<Observable<WazeJamsSourceModel>
                                 , Observable<SimplifiedWazeJamsModel>>() {
                             @Override
                             public Observable<SimplifiedWazeJamsModel> map(
                                     Observable<WazeJamsSourceModel> model) throws Exception {
 
-                                return ObservableImpl.map(model, new SimplifiedWazeJamsModel(String.valueOf(model.getData().getId())
+                                return model.map(new SimplifiedWazeJamsModel(String.valueOf(model.getData().getId())
                                         , model.getData().getGeometry()
                                         , model.getEventTimestamp()));
                             }
@@ -83,15 +80,15 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
 
         DataStream<Observable<SimplifiedWazeIrregularitiesModel>> wazeIrregularitiesDataStream =
                 sources.getWazeIrregularitiesSource()
-                        .filter(ObservableFilterFunction.observe(config.getMetricsCollectorConfiguration()
-                                , model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()))
+                        .filter(model ->
+                                model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
                         .map(new MapFunction<Observable<WazeIrregularitiesSourceModel>
                                 , Observable<SimplifiedWazeIrregularitiesModel>>() {
                             @Override
                             public Observable<SimplifiedWazeIrregularitiesModel> map(
                                     Observable<WazeIrregularitiesSourceModel> model) throws Exception {
 
-                                return ObservableImpl.map(model, new SimplifiedWazeIrregularitiesModel(String.valueOf(model.getData().getId())
+                                return model.map(new SimplifiedWazeIrregularitiesModel(String.valueOf(model.getData().getId())
                                         , model.getData().getGeometry()
                                         , model.getEventTimestamp()));
                             }
@@ -111,7 +108,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                                 final Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel> tuple =
                                         Tuple2.of(left.getData(), right.getData());
 
-                                collector.collect(ObservableImpl.join(tuple, left, right));
+                                collector.collect(left.join(tuple, right));
                             }
                         });
 
@@ -129,7 +126,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                                 final Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel> tuple =
                                         Tuple3.of(left.getData().f0, left.getData().f1, right.getData());
 
-                                collector.collect(ObservableImpl.join(tuple, left, right));
+                                collector.collect(left.join(tuple, right));
                             }
                         });
 
@@ -144,8 +141,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                                 String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(tuple.getData().f0.getEventTimestamp()));
                                 IpmaValuesModel rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
 
-                                collector.collect(ObservableImpl.map(tuple
-                                        , Tuple4.of(tuple.getData().f0, tuple.getData().f1, tuple.getData().f2, rvalue)));
+                                collector.collect(tuple.map(Tuple4.of(tuple.getData().f0, tuple.getData().f1, tuple.getData().f2, rvalue)));
                             }
                         });
 
@@ -180,7 +176,7 @@ public final class GiraTravelsTopologyExecutor implements Serializable {
                                 , giraTravelStartingPoint.intersects(wazeIrrGeo)
                                 , jamAndIrrMatches);
 
-                        return ObservableImpl.map(tuple, rvalue);
+                        return tuple.map(rvalue);
                     }
                 });
 

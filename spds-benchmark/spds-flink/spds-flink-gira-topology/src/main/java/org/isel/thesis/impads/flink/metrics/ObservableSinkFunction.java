@@ -2,7 +2,7 @@ package org.isel.thesis.impads.flink.metrics;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.isel.thesis.impads.metrics.api.Observable;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 
 public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFunction<T> {

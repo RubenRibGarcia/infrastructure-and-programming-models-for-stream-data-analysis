@@ -6,8 +6,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.giragen.datamodel.api.waze.adapter.WazeJamsDataAdapter;
-import org.isel.thesis.impads.metrics.api.Observable;
-import org.isel.thesis.impads.metrics.ObservableImpl;
+import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 
 import java.io.Serializable;
@@ -217,7 +216,7 @@ public class WazeJamsSourceModel implements WazeJamsDataAdapter, IJsonTuple, Ser
             rvalue.setLastModDate((Instant)tuple.getValueByField("last_mod_date"));
             rvalue.setGeometry((String)tuple.getValueByField("geometry"));
 
-            return ObservableImpl.of(rvalue, rvalue.getPubMillis(), Instant.now().toEpochMilli());
+            return Observable.of(rvalue, rvalue.getPubMillis(), Instant.now().toEpochMilli());
         }
     }
 }
