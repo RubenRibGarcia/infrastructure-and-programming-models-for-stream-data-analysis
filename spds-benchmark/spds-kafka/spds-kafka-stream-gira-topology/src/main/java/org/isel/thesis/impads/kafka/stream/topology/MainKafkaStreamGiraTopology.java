@@ -10,6 +10,9 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
+import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainerBuilder;
+import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisContainer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeJamsDeserializer;
@@ -22,13 +25,13 @@ import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.Observa
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedGiraTravelsSerializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedWazeIrregularitiesSerializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.serializers.ObservableSimplifiedWazeJamsSerializer;
+import org.isel.thesis.impads.kafka.stream.metrics.KafkaStreamObservableMetricsCollector;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableGiraTravelsWithWazeResults;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWaze;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeJamsModel;
-import org.isel.thesis.impads.kafka.stream.topology.utils.ObservableMeasure;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,8 @@ import java.time.Instant;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-public class MainKafkaStreamGiraTopology {
+public class
+MainKafkaStreamGiraTopology {
 
     private static final Logger logger = LoggerFactory.getLogger(MainKafkaStreamGiraTopology.class);
 
@@ -64,16 +68,24 @@ public class MainKafkaStreamGiraTopology {
         ObjectMapper mapper = newMapper();
         final GeometryFactory geoFactory = initGeometryFactory();
 
-        final TopologySources sources =
-                TopologySources.initializeTopologySources(streamsBuilder, config, mapper);
+        ConfigurationContainer configurationContainer =
+                ConfigurationContainer.setup(config);
 
-        final ObservableMeasure observableMeasure = new ObservableMeasure(config);
+        final TopologySources sources =
+                TopologySources.initializeTopologySources(streamsBuilder, mapper);
+
+        final KafkaStreamObservableMetricsCollector observableMeasure =
+                new KafkaStreamObservableMetricsCollector(configurationContainer.getMetricsCollectorConfiguration());
+
+        final RedisCommandsContainer redisContainer =
+                RedisCommandsContainerBuilder.build(configurationContainer.getRedisConfiguration());
 
         Topology topology = GiraTravelsTopologyBuilder.build(streamsBuilder
                 , sources
                 , geoFactory
                 , mapper
-                , observableMeasure);
+                , observableMeasure
+                , redisContainer);
 
         logger.info("Topology description: {}", topology.describe());
         final KafkaStreams app = new KafkaStreams(topology, props);

@@ -55,7 +55,8 @@ public class MainStormStreamsGiraTopology {
                     , GiraTravelsStreamTopologyBuilder.build(streamBuilder
                             , topologySources
                             , geoFactory
-                            , configurationContainer));
+                            , configurationContainer
+                            , mapper));
         }
     }
 

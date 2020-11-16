@@ -10,11 +10,16 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.StreamJoined;
 import org.geotools.geometry.jts.WKBReader;
+import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
 import org.isel.thesis.impads.kafka.stream.data.structures.Tuple2;
 import org.isel.thesis.impads.kafka.stream.data.structures.Tuple3;
-import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsWithWazeResult;
+import org.isel.thesis.impads.kafka.stream.data.structures.Tuple4;
+import org.isel.thesis.impads.kafka.stream.metrics.KafkaStreamObservableMetricsCollector;
+import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsWithWazeAndIpmaResult;
+import org.isel.thesis.impads.kafka.stream.topology.model.IpmaValuesModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableGiraTravelsWithWazeResults;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWaze;
+import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeAndIpma;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeIrregularitiesModel;
@@ -22,9 +27,8 @@ import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWa
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.kafka.stream.topology.utils.ObservableMeasure;
+import org.isel.thesis.impads.kafka.stream.topology.utils.IpmaUtils;
 import org.isel.thesis.impads.kafka.stream.topology.utils.SerdesUtils;
-import org.isel.thesis.impads.metrics.Observable;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -45,7 +49,8 @@ public final class GiraTravelsTopologyBuilder {
             , final TopologySources topologySources
             , final GeometryFactory geoFactory
             , final ObjectMapper mapper
-            , final ObservableMeasure observableMeasure) {
+            , final KafkaStreamObservableMetricsCollector observableMetricsCollector
+            , final RedisCommandsContainer redisContainer) {
 
         KStream<Long, ObservableSimplifiedGiraTravelsModel> observableGiraTravelsStream = topologySources.getGiraTravelsStream()
                 .filter((k, v) ->
@@ -87,8 +92,18 @@ public final class GiraTravelsTopologyBuilder {
                                                 , SerdesUtils.joinedGiraTravelsWithWazeJamsJsonSerdes(mapper)
                                                 , SerdesUtils.simplifiedWazeIrregularitiesSerdes(mapper)));
 
+        KStream<Long, ObservableJoinedGiraTravelsWithWazeAndIpma> joinedGiraTravelsWithWazeAndIpma =
+                joinedGiraTravelsWithWaze.mapValues(v -> {
+                    String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(v.getData().getFirst().getEventTimestamp()));
+                    IpmaValuesModel rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisContainer);
+
+                    return new ObservableJoinedGiraTravelsWithWazeAndIpma(
+                            v.map(Tuple4.of(v.getData().getFirst(), v.getData().getSecond(), v.getData().getThird(), rvalue)));
+                });
+
+
         KStream<Long, ObservableGiraTravelsWithWazeResults> result =
-                joinedGiraTravelsWithWaze
+                joinedGiraTravelsWithWazeAndIpma
                         .map((k, v) -> {
                             try {
                                 boolean jamAndIrrMatches = false;
@@ -110,9 +125,10 @@ public final class GiraTravelsTopologyBuilder {
                                     jamAndIrrMatches = true;
                                 }
 
-                                GiraTravelsWithWazeResult rvalue = new GiraTravelsWithWazeResult(v.getData().getFirst()
+                                GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(v.getData().getFirst()
                                         , v.getData().getSecond()
                                         , v.getData().getThird()
+                                        , v.getData().getFourth()
                                         , giraTravelStartingPoint.intersects(wazeJamGeo)
                                         , giraTravelStartingPoint.intersects(wazeIrrGeo)
                                         , jamAndIrrMatches);
@@ -123,7 +139,7 @@ public final class GiraTravelsTopologyBuilder {
                                 throw new RuntimeException(e.getMessage(), e);
                             }
                         })
-                .peek((k,v) -> observableMeasure.measure(v));
+                .peek((k,v) -> observableMetricsCollector.collect(v));
 
 
         result.to("kafka_result", Produced.with(Serdes.Long(), SerdesUtils.giraTravelsWithWazeResultsJsonSerdes(mapper)));

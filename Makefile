@@ -27,6 +27,16 @@ initial-setup: install-giragen-data-adapters install-spds-common
 build-project:
 	mvn clean compile package -f $(DIR)/pom.xml
 
+bootstrap-run-flink: docker-run-flink-infrastructure docker-run-rabbitmq docker-run-redis docker-run-metrics-monitor
+bootstrap-stop-flink: docker-stop-flink-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-metrics-monitor
+
+bootstrap-run-storm: docker-run-storm-infrastructure docker-run-rabbitmq docker-run-redis docker-run-metrics-monitor
+bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-metrics-monitor
+
+bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-rabbitmq docker-run-redis docker-run-kafka-connectors docker-run-metrics-monitor
+bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-kafka-connectors docker-stop-metrics-monitor
+
+
 # ------------- DATA ADAPTER ---------------------
 # ------------- GIRAGEN --------------------------
 

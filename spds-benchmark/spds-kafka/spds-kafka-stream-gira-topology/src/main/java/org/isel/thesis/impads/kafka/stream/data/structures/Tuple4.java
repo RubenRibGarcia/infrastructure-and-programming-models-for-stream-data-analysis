@@ -1,10 +1,6 @@
 package org.isel.thesis.impads.kafka.stream.data.structures;
 
-import java.io.Serializable;
-
-public final class Tuple4<V1, V2, V3, V4> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public final class Tuple4<V1, V2, V3, V4> {
 
     public final V1 first;
     public final V2 second;

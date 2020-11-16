@@ -34,7 +34,7 @@ public class RMQSpout implements IRichSpout {
     protected transient QueueingConsumer consumer;
 
     protected final String queueName;
-    private final transient boolean autoAcknowledge;
+    private final boolean autoAcknowledge;
     private final ITupleProducer tupleProducer;
 
     private RMQSpout(final RabbitMQConfiguration config

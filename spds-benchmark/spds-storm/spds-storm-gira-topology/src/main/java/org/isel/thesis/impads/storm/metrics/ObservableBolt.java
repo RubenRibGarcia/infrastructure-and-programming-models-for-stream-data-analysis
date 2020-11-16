@@ -49,7 +49,7 @@ public class ObservableBolt implements IRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        LOG.info("Sending latency metrics");
+        LOG.debug("Sending latency metrics");
 
         this.collector.collect((Observable<?>) input.getValueByField("value"));
 

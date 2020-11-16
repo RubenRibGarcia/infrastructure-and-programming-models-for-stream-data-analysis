@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+
 public class RedisSinkTask extends SinkTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);

@@ -1,7 +1,6 @@
 package org.isel.thesis.impads.kafka.stream.topology;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.typesafe.config.Config;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -37,16 +36,14 @@ public class TopologySources {
     }
 
     public static TopologySources initializeTopologySources(final StreamsBuilder builder
-            , final Config conf
             , final ObjectMapper mapper) {
 
-        return new TopologySources(initializeGiraTravelsSource(builder, conf, mapper)
-                , initializeWazeJamsSource(builder, conf, mapper)
-                , initializeWazeIrregularitiesSource(builder, conf, mapper));
+        return new TopologySources(initializeGiraTravelsSource(builder, mapper)
+                , initializeWazeJamsSource(builder, mapper)
+                , initializeWazeIrregularitiesSource(builder, mapper));
     }
 
     private static KStream<Void, Observable<GiraTravelsSourceModel>> initializeGiraTravelsSource(final StreamsBuilder builder
-            , final Config config
             , final ObjectMapper mapper) {
 
         return builder.stream("gira_travels"
@@ -59,7 +56,6 @@ public class TopologySources {
     }
 
     private static KStream<Void, Observable<WazeJamsSourceModel>> initializeWazeJamsSource(final StreamsBuilder builder
-            , final Config config
             , final ObjectMapper mapper) {
 
         return builder.stream("waze_jams"
@@ -72,7 +68,6 @@ public class TopologySources {
     }
 
     private static KStream<Void, Observable<WazeIrregularitiesSourceModel>> initializeWazeIrregularitiesSource(final StreamsBuilder builder
-            , final Config config
             , final ObjectMapper mapper) {
 
         return builder.stream("waze_irregularities"

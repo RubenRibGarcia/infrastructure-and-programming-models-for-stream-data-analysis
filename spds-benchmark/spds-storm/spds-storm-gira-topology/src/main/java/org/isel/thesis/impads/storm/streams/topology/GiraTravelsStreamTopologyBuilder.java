@@ -1,5 +1,6 @@
 package org.isel.thesis.impads.storm.streams.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.streams.Pair;
 import org.apache.storm.streams.PairStream;
@@ -12,6 +13,8 @@ import org.apache.storm.topology.base.BaseWindowedBolt;
 import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
+import org.isel.thesis.impads.storm.redis.bolt.RedisStoreBolt;
+import org.isel.thesis.impads.storm.redis.common.mapper.json.RPushJsonMapper;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple2;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple3;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple4;
@@ -35,7 +38,8 @@ public final class GiraTravelsStreamTopologyBuilder {
     public static StormTopology build(final StreamBuilder builder
             , final TopologyStreamSources topologySources
             , final GeometryFactory geoFactory
-            , final ConfigurationContainer config) {
+            , final ConfigurationContainer config
+            , final ObjectMapper mapper) {
 
         PairStream<Long, Observable<SimplifiedGiraTravelsModel>> pairStreamGiraTravels = topologySources.getGiraTravelsSourceModelStream()
                 .filter(model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()
@@ -64,7 +68,7 @@ public final class GiraTravelsStreamTopologyBuilder {
                                 , model.getData().getGeometry()
                                 , model.getEventTimestamp()))));
 
-        PairStream<Long, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazJams =
+        PairStream<Long, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazeJams =
                 pairStreamGiraTravels.window(SlidingWindows.of(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
                         .withLag(BaseWindowedBolt.Duration.of(5)))
                 .join(pairStreamWazeJams
@@ -77,7 +81,7 @@ public final class GiraTravelsStreamTopologyBuilder {
                                 });
 
         PairStream<Long, Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWaze =
-                joinedGiraTravelsWithWazJams.window(SlidingWindows.of(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
+                joinedGiraTravelsWithWazeJams.window(SlidingWindows.of(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
                         .withLag(BaseWindowedBolt.Duration.of(5)))
                 .join(pairStreamWazeIrregularities
                         , (ValueJoiner<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>, Observable<SimplifiedWazeIrregularitiesModel>, Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>>)
@@ -136,7 +140,8 @@ public final class GiraTravelsStreamTopologyBuilder {
                     }
                 });
 
-        result.to(ObservableBolt.observe(config.getMetricsCollectorConfiguration()));
+        result.to(ObservableBolt.observe(config.getMetricsCollectorConfiguration()
+                , new RedisStoreBolt(config.getRedisConfiguration(), new RPushJsonMapper(mapper, "storm_output"))));
 
         return builder.build();
     }
