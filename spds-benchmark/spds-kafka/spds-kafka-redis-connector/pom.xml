@@ -36,6 +36,7 @@
                         </goals>
                         <configuration>
                             <finalName>${project.artifactId}-shaded</finalName>
+                            <outputDirectory>${project.basedir}/../../../spds-infrastructure/components/apache-kafka/kafka-connect/connectors</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

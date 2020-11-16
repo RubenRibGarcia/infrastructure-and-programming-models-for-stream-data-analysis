@@ -1,32 +1,27 @@
 generator {
-    thread_pool {
-        size = 16
+    throughput {
+        events_per_second = 1000
     }
     gira_travels {
         enabled = true
         data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv
-        threads = 1
-        workspace_path = /opt/isel/thesis/impads/spds-benchmark/giragen/workspace
         queue_name = gira_travels
     }
     waze {
         irregularities {
             enabled = true
             data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv
-            threads = 1
-            workspace_path = /opt/isel/thesis/impads/spds-benchmark/giragen/workspace
             queue_name = waze_irregularities
         }
         jams {
             enabled = true
             data_path = /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv
-            threads = 1
-            workspace_path = /opt/isel/thesis/impads/spds-benchmark/giragen/workspace
             queue_name = waze_jams
         }
     }
 }
 rabbitmq {
+    enabled = true
     host = "{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}"
     port = 5672
     connection_timeout_ms = 5000

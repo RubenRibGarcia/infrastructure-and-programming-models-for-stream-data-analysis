@@ -146,11 +146,8 @@ docker-execute-storm-topology:
 # ------------- SPDS KAFKA -----------------
 
 build-kafka-stream-topology: ## Maven build SPDS Kafka
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-kafka -amd
-	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/connect
+	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/spds-kafka/spds-kafka-stream-gira-topology/pom.xml
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs
-	cp $(SPDS_KAFKA_PATH)/spds-kafka-rabbitmq-connector/target/spds-kafka-rabbitmq-connector-shaded.jar \
-	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/connect/
 	cp $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/target/spds-kafka-stream-gira-topology-shaded.jar \
 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs/
 	cp $(SPDS_KAFKA_PATH)/Dockerfile-kafka-stream \

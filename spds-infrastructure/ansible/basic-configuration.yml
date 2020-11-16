@@ -2,6 +2,5 @@
 
 - hosts: all
   become: yes
-  strategy: free
   roles:
     - basic-configuration
