@@ -1,7 +1,5 @@
 # *Infrastructure and Programming Models for Stream Data Analysis*
 
-[![Build Status](https://travis-ci.com/RubenRibGarcia/infrastructure-and-programming-models-for-stream-data-analysis.svg?branch=master)](https://travis-ci.com/RubenRibGarcia/infrastructure-and-programming-models-for-stream-data-analysis)
-
 Infraestruturas e Modelos de Programação para Análise de Dados em Stream 
 (or *Infrastructure and Programming Models for Stream Data Analysis*, with acronym **IMPADS**)
 is an thesis theme which the main objective is to evaluate,
