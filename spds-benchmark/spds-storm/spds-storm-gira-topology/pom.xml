@@ -100,7 +100,8 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology</mainClass>
+<!--                                    <mainClass>org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology</mainClass>-->
+                                    <mainClass>org.isel.thesis.impads.storm.low_level.topology.MainStormGiraTopology</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

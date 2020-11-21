@@ -138,9 +138,13 @@ docker-execute-storm-topology:
 	nimbus:/apache-storm-2.2.0/topology.jar
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
 	nimbus:/apache-storm-2.2.0/topology.conf
+	#docker exec nimbus storm jar \
+#	/apache-storm-2.2.0/topology.jar \
+#	org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology \
+#	/apache-storm-2.2.0/topology.conf
 	docker exec nimbus storm jar \
 	/apache-storm-2.2.0/topology.jar \
-	org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology \
+	org.isel.thesis.impads.storm.low_level.topology.MainStormGiraTopology \
 	/apache-storm-2.2.0/topology.conf
 
 # ------------- SPDS KAFKA -----------------

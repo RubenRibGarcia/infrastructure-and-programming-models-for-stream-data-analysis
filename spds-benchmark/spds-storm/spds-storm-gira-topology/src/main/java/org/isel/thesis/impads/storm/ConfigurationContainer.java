@@ -1,4 +1,4 @@
-package org.isel.thesis.impads.storm.streams.topology;
+package org.isel.thesis.impads.storm;
 
 import com.typesafe.config.Config;
 import org.apache.storm.streams.RedisConfigurationFields;

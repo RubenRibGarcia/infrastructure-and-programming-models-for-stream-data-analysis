@@ -12,6 +12,7 @@ import org.apache.storm.streams.windowing.SlidingWindows;
 import org.apache.storm.topology.base.BaseWindowedBolt;
 import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.metrics.Observable;
+import org.isel.thesis.impads.storm.ConfigurationContainer;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
 import org.isel.thesis.impads.storm.redis.bolt.RedisStoreBolt;
 import org.isel.thesis.impads.storm.redis.common.mapper.json.RPushJsonMapper;
