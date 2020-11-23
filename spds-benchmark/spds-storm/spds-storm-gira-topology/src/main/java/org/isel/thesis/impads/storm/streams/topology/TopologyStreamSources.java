@@ -29,6 +29,7 @@ public final class TopologyStreamSources {
         this.wazeJamsSourceModelStream = wazeJamsSourceModelStream;
     }
 
+    //TODO: Broken Topology sources
     public static TopologyStreamSources initializeTopologySources(ConfigurationContainer config
             , ObjectMapper mapper
             , StreamBuilder streamBuilder) {
@@ -37,22 +38,19 @@ public final class TopologyStreamSources {
                 , "gira_travels"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
-                        , GiraTravelsSourceModel.class
-                        , GiraTravelsSourceModel.getTupleField())), GiraTravelsTupleMapper.map());
+                        , GiraTravelsSourceModel.class)), GiraTravelsTupleMapper.map());
 
         final Stream<Observable<WazeIrregularitiesSourceModel>> wazeIrregularitiesStream = streamBuilder.newStream(RMQSpout.newRabbitMQSpout(config.getRabbitMQConfiguration()
                 , "waze_irregularities"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
-                        , WazeIrregularitiesSourceModel.class
-                        , WazeIrregularitiesSourceModel.getTupleField())), WazeIrregularitiesTupleMapper.map());
+                        , WazeIrregularitiesSourceModel.class)), WazeIrregularitiesTupleMapper.map());
 
         final Stream<Observable<WazeJamsSourceModel>> wazeJamsStream = streamBuilder.newStream(RMQSpout.newRabbitMQSpout(config.getRabbitMQConfiguration()
                 , "waze_jams"
                 , true
                 , JsonToTupleProducer.jsonTupleProducer(mapper
-                        , WazeJamsSourceModel.class
-                        , WazeJamsSourceModel.getTupleField())), WazeJamsTupleMapper.map());
+                        , WazeJamsSourceModel.class)), WazeJamsTupleMapper.map());
 
         return new TopologyStreamSources(giraTravelStream
                 , wazeIrregularitiesStream

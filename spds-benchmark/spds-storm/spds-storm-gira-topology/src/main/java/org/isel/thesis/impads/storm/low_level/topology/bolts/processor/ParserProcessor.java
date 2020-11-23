@@ -1,4 +1,4 @@
-package org.isel.thesis.impads.storm.low_level.topology.bolts;
+package org.isel.thesis.impads.storm.low_level.topology.bolts.processor;
 
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.tuple.Fields;

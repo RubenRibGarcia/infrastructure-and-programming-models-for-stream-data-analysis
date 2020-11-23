@@ -1,19 +1,12 @@
 package org.isel.thesis.impads.storm.low_level.topology.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.storm.streams.operations.mappers.TupleValueMapper;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.giragen.datamodel.api.waze.adapter.WazeJamsDataAdapter;
-import org.isel.thesis.impads.metrics.Observable;
-import org.isel.thesis.impads.storm.low_level.topology.TupleMapper;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 
 import java.io.Serializable;
 import java.time.Instant;
 
-public class WazeJamsSourceModel implements WazeJamsDataAdapter, IJsonTuple, Serializable {
+public class WazeJamsSourceModel implements WazeJamsDataAdapter, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -181,43 +174,5 @@ public class WazeJamsSourceModel implements WazeJamsDataAdapter, IJsonTuple, Ser
     @JsonProperty("geom")
     public void setGeometry(String geometry) {
         this.geometry = geometry;
-    }
-
-    @Override
-    public Values getTupleValues() {
-        return new Values(id, city, level, length, jamIntensityType, uuid, endNode, speed, roadType, delay, street, pubMillis, creationDate, lastModDate, geometry);
-    }
-
-    public static Fields getTupleField() {
-        return new Fields("id", "city", "level", "length", "type", "uuid", "end_node", "speed", "road_type", "delay", "street", "pub_millis", "creation_date", "last_mod_date", "geometry");
-    }
-
-    public static final class WazeJamsTupleMapper implements TupleMapper<Observable<WazeJamsSourceModel>> {
-
-        public static WazeJamsTupleMapper mapper() {
-            return new WazeJamsTupleMapper();
-        }
-
-        @Override
-        public Observable<WazeJamsSourceModel> apply(Tuple tuple) {
-            WazeJamsSourceModel rvalue = new WazeJamsSourceModel();
-            rvalue.setId((Long)tuple.getValueByField("id"));
-            rvalue.setCity((String)tuple.getValueByField("city"));
-            rvalue.setLevel((Integer)tuple.getValueByField("level"));
-            rvalue.setLength((Integer)tuple.getValueByField("length"));
-            rvalue.setJamIntensityType((JamIntensityType)tuple.getValueByField("type"));
-            rvalue.setUuid((Long)tuple.getValueByField("uuid"));
-            rvalue.setEndNode((String)tuple.getValueByField("end_node"));
-            rvalue.setSpeed((Float)tuple.getValueByField("speed"));
-            rvalue.setRoadType((Integer)tuple.getValueByField("road_type"));
-            rvalue.setDelay((Integer)tuple.getValueByField("delay"));
-            rvalue.setStreet((String)tuple.getValueByField("street"));
-            rvalue.setPubMillis((Long)tuple.getValueByField("pub_millis"));
-            rvalue.setCreationDate((Instant)tuple.getValueByField("creation_date"));
-            rvalue.setLastModDate((Instant)tuple.getValueByField("last_mod_date"));
-            rvalue.setGeometry((String)tuple.getValueByField("geometry"));
-
-            return Observable.of(rvalue, rvalue.getPubMillis(), Instant.now().toEpochMilli());
-        }
     }
 }

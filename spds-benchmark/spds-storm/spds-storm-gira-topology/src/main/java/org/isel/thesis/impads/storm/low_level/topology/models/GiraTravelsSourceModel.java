@@ -1,19 +1,12 @@
 package org.isel.thesis.impads.storm.low_level.topology.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.storm.streams.operations.mappers.TupleValueMapper;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.giragen.datamodel.api.gira.adapter.GiraTravelsDataAdapter;
-import org.isel.thesis.impads.metrics.Observable;
-import org.isel.thesis.impads.storm.low_level.topology.TupleMapper;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 
 import java.io.Serializable;
 import java.time.Instant;
 
-public class GiraTravelsSourceModel implements GiraTravelsDataAdapter, IJsonTuple, Serializable {
+public class GiraTravelsSourceModel implements GiraTravelsDataAdapter, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -126,38 +119,5 @@ public class GiraTravelsSourceModel implements GiraTravelsDataAdapter, IJsonTupl
     @JsonProperty("num_vertices")
     public void setNumberOfVertices(Integer numberOfVertices) {
         this.numberOfVertices = numberOfVertices;
-    }
-
-    @Override
-    public Values getTupleValues() {
-        return new Values(id, dateStart, dateEnd, distance, stationStart, stationEnd, bikeRfid, bicycleType, geometry, numberOfVertices);
-    }
-
-    public static Fields getTupleField() {
-        return new Fields("id", "date_start", "date_end", "distance", "station_start", "station_end", "bike_rfid", "bicycle_type", "geometry", "num_vertices");
-    }
-
-    public static final class GiraTravelsTupleMapper implements TupleMapper<Observable<GiraTravelsSourceModel>> {
-
-        public static GiraTravelsTupleMapper mapper() {
-            return new GiraTravelsTupleMapper();
-        }
-
-        @Override
-        public Observable<GiraTravelsSourceModel> apply(Tuple tuple) {
-            GiraTravelsSourceModel rvalue = new GiraTravelsSourceModel();
-            rvalue.setId((Long)tuple.getValueByField("id"));
-            rvalue.setDateStart((Instant)tuple.getValueByField("date_start"));
-            rvalue.setDateEnd((Instant)tuple.getValueByField("date_end"));
-            rvalue.setDistance((Float)tuple.getValueByField("distance"));
-            rvalue.setStationStart((Integer)tuple.getValueByField("station_start"));
-            rvalue.setStationEnd((Integer)tuple.getValueByField("station_end"));
-            rvalue.setBikeRfid((String) tuple.getValueByField("bike_rfid"));
-            rvalue.setBicycleType((BicycleType)tuple.getValueByField("bicycle_type"));
-            rvalue.setGeometry((String)tuple.getValueByField("geometry"));
-            rvalue.setNumberOfVertices((Integer) tuple.getValueByField("num_vertices"));
-
-            return Observable.of(rvalue, rvalue.getDateStart().toEpochMilli(), Instant.now().toEpochMilli());
-        }
     }
 }

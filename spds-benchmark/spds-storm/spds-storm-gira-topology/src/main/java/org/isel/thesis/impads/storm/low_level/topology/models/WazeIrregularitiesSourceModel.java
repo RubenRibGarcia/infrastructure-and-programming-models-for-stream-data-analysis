@@ -1,19 +1,12 @@
 package org.isel.thesis.impads.storm.low_level.topology.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.storm.streams.operations.mappers.TupleValueMapper;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import org.isel.thesis.impads.giragen.datamodel.api.waze.adapter.WazeIrregularitiesDataAdapter;
-import org.isel.thesis.impads.metrics.Observable;
-import org.isel.thesis.impads.storm.low_level.topology.TupleMapper;
-import org.isel.thesis.impads.storm.spouts.rabbitmq.api.IJsonTuple;
 
 import java.io.Serializable;
 import java.time.Instant;
 
-public class WazeIrregularitiesSourceModel implements WazeIrregularitiesDataAdapter, IJsonTuple, Serializable {
+public class WazeIrregularitiesSourceModel implements WazeIrregularitiesDataAdapter, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -291,53 +284,5 @@ public class WazeIrregularitiesSourceModel implements WazeIrregularitiesDataAdap
     @JsonProperty("geom")
     public void setGeometry(String geometry) {
         this.geometry = geometry;
-    }
-
-    @Override
-    public Values getTupleValues() {
-        return new Values(id, nThumbsUp, updateDate, trend, city, detectionDateMillis, irregularityIntensityType, endNode, speed, seconds, startNode, street, jamLevel, wazeId, highway, delaySeconds, severity, alertsCount, length, updateDateMillis, detectionDate, regularSpeed, creationDate, lastModDate, geometry);
-    }
-
-    public static Fields getTupleField() {
-        return new Fields("id", "n_thumbs_up", "update_date", "trend", "city", "detection_date_millis", "type", "end_node", "speed", "seconds", "start_node", "street", "jam_level", "waze_id", "is_highway", "delay_seconds", "severity", "alerts_count", "length", "update_date_millis", "detection_date", "regular_speed", "creation_date", "last_mod_date", "geometry");
-    }
-
-    public static final class WazeIrregularitiesTupleMapper implements TupleMapper<Observable<WazeIrregularitiesSourceModel>> {
-
-        public static WazeIrregularitiesTupleMapper mapper() {
-            return new WazeIrregularitiesTupleMapper();
-        }
-
-        @Override
-        public Observable<WazeIrregularitiesSourceModel> apply(Tuple tuple) {
-            WazeIrregularitiesSourceModel rvalue = new WazeIrregularitiesSourceModel();
-            rvalue.setId((Long)tuple.getValueByField("id"));
-            rvalue.setnThumbsUp((Integer)tuple.getValueByField("n_thumbs_up"));
-            rvalue.setUpdateDate((Instant)tuple.getValueByField("update_date"));
-            rvalue.setTrend((Integer)tuple.getValueByField("trend"));
-            rvalue.setCity((String)tuple.getValueByField("city"));
-            rvalue.setDetectionDateMillis((Long)tuple.getValueByField("detection_date_millis"));
-            rvalue.setIrregularityIntensityType((IrregularityIntensityType)tuple.getValueByField("type"));
-            rvalue.setEndNode((String)tuple.getValueByField("end_node"));
-            rvalue.setSpeed((Float)tuple.getValueByField("speed"));
-            rvalue.setSeconds((Integer)tuple.getValueByField("seconds"));
-            rvalue.setStartNode((String)tuple.getValueByField("start_node"));
-            rvalue.setStreet((String)tuple.getValueByField("street"));
-            rvalue.setJamLevel((Integer)tuple.getValueByField("jam_level"));
-            rvalue.setWazeId((Long)tuple.getValueByField("waze_id"));
-            rvalue.setIsHighway((Boolean)tuple.getValueByField("is_highway"));
-            rvalue.setDelaySeconds((Integer)tuple.getValueByField("delay_seconds"));
-            rvalue.setSeverity((Integer)tuple.getValueByField("severity"));
-            rvalue.setAlertsCount((Integer)tuple.getValueByField("alerts_count"));
-            rvalue.setLength((Integer)tuple.getValueByField("length"));
-            rvalue.setUpdateDateMillis((Long)tuple.getValueByField("update_date_millis"));
-            rvalue.setDetectionDate((Instant)tuple.getValueByField("detection_date"));
-            rvalue.setRegularSpeed((Float)tuple.getValueByField("regular_speed"));
-            rvalue.setCreationDate((Instant)tuple.getValueByField("creation_date"));
-            rvalue.setLastModDate((Instant)tuple.getValueByField("last_mod_date"));
-            rvalue.setGeometry((String)tuple.getValueByField("geometry"));
-
-            return Observable.of(rvalue, rvalue.getDetectionDateMillis(), Instant.now().toEpochMilli());
-        }
     }
 }
