@@ -18,15 +18,20 @@ import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.GiraTrave
 import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.WazeIrregularitiesParserProcessor;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.WazeJamsParserProcessor;
 import org.isel.thesis.impads.storm.low_level.topology.models.GiraTravelsSourceModel;
+import org.isel.thesis.impads.storm.low_level.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.SimplifiedWazeJamsModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.WazeIrregularitiesSourceModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.WazeJamsSourceModel;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
+import org.isel.thesis.impads.storm.redis.bolt.RedisBoltBuilder;
+import org.isel.thesis.impads.storm.redis.bolt.RedisMapperBolt;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.RMQSpout;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple2;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple3;
+import org.isel.thesis.impads.storm.streams.data.structures.Tuple4;
+import org.isel.thesis.impads.storm.streams.topology.utils.IpmaUtils;
 import org.locationtech.jts.geom.GeometryFactory;
 
 import java.time.Instant;
@@ -127,28 +132,25 @@ public final class GiraTravelsTopologyBuilder {
                 .fieldsGrouping("joined_gira_travels_with_waze_jams", new Fields("key"))
                 .fieldsGrouping("parse_waze_irregularities", new Fields("key"));
 
-        builder.setBolt("joined_gira_travels_with_waze_and_ipma", null)
+        RedisMapperBolt<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeAndIpma =
+                RedisBoltBuilder.<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>>mapper(configurationContainer.getRedisConfiguration())
+                .tupleMapper(t -> (Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>) t.getValueByField("value"))
+                .transform((redisCommandsContainer, t) -> {
+                    String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(t.getData().getFirst().getEventTimestamp()));
+                    IpmaValuesModel ipmaValues = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
+
+                    Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel> rvalue =
+                            Tuple4.of(t.getData().getFirst(), t.getData().getSecond(), t.getData().getThird(), ipmaValues);
+                    return new Values(t.map(rvalue));
+                })
+                .outputFields("value")
+                .build();
+
+        builder.setBolt("joined_gira_travels_with_waze_and_ipma", joinedGiraTravelsWithWazeAndIpma)
                 .shuffleGrouping("joined_gira_travels_with_waze");
 
         builder.setBolt("observable", ObservableBolt.observe(configurationContainer.getMetricsCollectorConfiguration()))
                 .shuffleGrouping("joined_gira_travels_with_waze");
-
-//        builder.setBolt("joined_gira_travels_with_waze_jams", new JoinBolt("parse_gira_travels", "key")
-//                .join("parse_waze_jams", "key", "parse_gira_travels")
-//                .select("parse_gira_travels:key,parse_gira_travels:event_timestamp,parse_gira_travels:value,parse_waze_jams:key,parse_waze_jams:value")
-//                .withWindow(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
-//                .withTimestampExtractor(tuple -> tuple.getLongByField("event_timestamp")))
-//                .fieldsGrouping("parse_gira_travels", new Fields("key"))
-//                .fieldsGrouping("parse_waze_jams", new Fields("key"));
-//
-//        builder.setBolt("joined_gira_travels_with_waze", new JoinBolt("joined_gira_travels_with_waze_jams", "parse_gira_travels:key")
-//                .join("parse_waze_irregularities", "key", "joined_gira_travels_with_waze_jams")
-//                .select("joined_gira_travels_with_waze_jams:parse_gira_travels:key,parse_waze_irregularites:key")
-//                .withWindow(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
-//                .withTimestampExtractor(tuple -> tuple.getLongByField("event_timestamp")));
-
-//        builder.setBolt("output", new PrinterBolt())
-//                .shuffleGrouping("joined_gira_travels_with_waze_jams");
 
         return builder.createTopology();
     }

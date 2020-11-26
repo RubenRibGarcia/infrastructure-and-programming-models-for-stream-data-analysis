@@ -6,7 +6,7 @@ import inquirer
 
 logging.basicConfig(format="%(levelname) -10s %(asctime)s %(funcName)s:%(lineno)s: %(message)s")
 
-SPDS_INFRASTRUCTURE='/home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/spds-infrastructure'
+SPDS_INFRASTRUCTURE='/home/rgarcia/workspace/ISEL/dissertacao/infrastructure-and-programming-models-for-stream-data-analysis/spds-infrastructure'
 GOOGLE_APPLICATION_CREDENTIALS= SPDS_INFRASTRUCTURE + '/envs/gcp-thesis-service-account.json'
 
 def main():

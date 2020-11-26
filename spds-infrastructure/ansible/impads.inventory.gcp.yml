@@ -18,4 +18,4 @@ groups:
   misc_infrastructure: "'misc-infrastructure' in name"
 compose:
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP
-service_account_file: /home/rgarcia/workspace/ISEL/dissertacao/impads/spds-benchmark/spds-infrastructure/envs/gcp-thesis-service-account.json #--> Point to own service account key
+service_account_file: /home/rgarcia/workspace/ISEL/dissertacao/infrastructure-and-programming-models-for-stream-data-analysis/spds-infrastructure/envs/gcp-thesis-service-account.json #--> Point to own service account key
