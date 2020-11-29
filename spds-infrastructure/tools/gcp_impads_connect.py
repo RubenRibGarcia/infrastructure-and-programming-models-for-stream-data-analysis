@@ -10,7 +10,7 @@ SPDS_INFRASTRUCTURE='/home/rgarcia/workspace/ISEL/dissertacao/infrastructure-and
 GOOGLE_APPLICATION_CREDENTIALS= SPDS_INFRASTRUCTURE + '/envs/gcp-thesis-service-account.json'
 
 def main():
-    TERRAFORM_BASE = "{}/terraform".format(SPDS_INFRASTRUCTURE)
+    TERRAFORM_BASE = "{}/terraform/gcp".format(SPDS_INFRASTRUCTURE)
 
     try:
 

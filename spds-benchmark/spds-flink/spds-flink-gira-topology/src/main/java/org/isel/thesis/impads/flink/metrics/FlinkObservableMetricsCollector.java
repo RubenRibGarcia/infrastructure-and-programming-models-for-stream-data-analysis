@@ -7,7 +7,6 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 public class FlinkObservableMetricsCollector
         extends ObservableMetricsCollector {
 
-
     public FlinkObservableMetricsCollector(MetricsCollectorConfiguration config) {
         super(config, SPDS.FLINK);
     }

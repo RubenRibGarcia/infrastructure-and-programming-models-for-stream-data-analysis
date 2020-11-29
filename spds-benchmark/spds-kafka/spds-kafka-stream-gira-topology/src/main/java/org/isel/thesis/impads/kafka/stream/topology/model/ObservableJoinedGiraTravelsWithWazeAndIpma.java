@@ -1,7 +1,7 @@
 package org.isel.thesis.impads.kafka.stream.topology.model;
 
-import org.isel.thesis.impads.kafka.stream.data.structures.Tuple4;
 import org.isel.thesis.impads.metrics.Observable;
+import org.isel.thesis.impads.structures.Tuple4;
 
 public class ObservableJoinedGiraTravelsWithWazeAndIpma
         extends Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>> {

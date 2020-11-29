@@ -11,21 +11,8 @@
 - hosts: flink_task_manager
   become: yes
   gather_facts: yes
-  serial: 1
   roles:
     - flink-infrastructure/task-manager
-  vars:
-    agent:
-      statsd:
-        enabled: true
-  tags:
-    - flink-task-manager
-
-- hosts: flink_task_manager
-  become: yes
-  gather_facts: yes
-  serial: 1
-  roles:
     - metrics-monitor/agent
   vars:
     agent:
@@ -34,4 +21,4 @@
       docker:
         enabled: true
   tags:
-    - flink-task-manager-agent
+    - flink-task-manager

@@ -1,8 +1,8 @@
 package org.isel.thesis.impads.flink.topology;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
@@ -11,12 +11,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.flink.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.flink.fasterxml.jackson.serializers.ObservableSerializer;
+import org.isel.thesis.impads.flink.topology.utils.ConfigLoader;
 import org.isel.thesis.impads.metrics.Observable;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 import java.time.Instant;
 
 public class MainFlinkGiraTopology {
@@ -26,42 +25,30 @@ public class MainFlinkGiraTopology {
     private static final String JOB_NAME = "gira-travels-pattern";
 
     public static void main(String... args) throws Exception {
+        final Config config = ConfigLoader.loadFromParameterTool(ParameterTool.fromArgs(args));
+
+        final ConfigurationContainer configurationContainer =
+                ConfigurationContainer.setup(config);
+
+        //---Stream Execution Environment configuration---
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-//        env.enableCheckpointing(10000, CheckpointingMode.AT_LEAST_ONCE);
-        env.setParallelism(24);
+        env.setParallelism(configurationContainer.getTopologyConfiguration().getParallelism());
 
         ExecutionConfig executionConfig = env.getConfig();
         executionConfig.enableObjectReuse();
-        executionConfig.setAutoWatermarkInterval(50);
-
-        ParameterTool parameters = ParameterTool.fromArgs(args);
-
-        logger.info("Args length: {}", args.length);
-        for (String arg : args) {
-            logger.info("Arg: {}", arg);
-        }
-        String configFilePath = parameters.get("config.file.path");
-
-        logger.info("Config File Path: {}", configFilePath);
 
         final ObjectMapper mapper = initMapper();
         final GeometryFactory geoFactory = initGeometryFactory();
 
-        final File file = new File(configFilePath);
-        final Config conf = ConfigFactory.parseFile(file);
-
-        final ConfigurationContainer configurationContainer =
-                ConfigurationContainer.setup(conf);
-
         final TopologySources topologySources =
                 TopologySources.initializeTopologySources(env, configurationContainer, mapper);
 
-        GiraTravelsTopologyExecutor.execute(configurationContainer
+        GiraTravelsTopologyBuilder.build(configurationContainer
                 , mapper
-                , env
                 , topologySources
                 , geoFactory);
+
 
         env.execute(JOB_NAME);
     }

@@ -1,6 +1,8 @@
 # DEFAULTS
 .DEFAULT_GOAL := help
 
+
+
 # HELP
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
@@ -38,11 +40,34 @@ local-bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-rabbitm
 local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-rabbitmq docker-run-redis docker-run-kafka-connectors docker-run-metrics-monitor
 local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-kafka-connectors docker-stop-metrics-monitor
 
-# ------------- LOCAL BOOTSTRAP ---------------------
+# ------------- REMOTE BOOTSTRAP ---------------------
+# ------------- Apache Flink -------------------------
 remote-bootstrap-run-flink:
-	ansible-playbook $(SPDS_INFRASTRUCTURE_PATH)/ansible/deploy-flink-infrastructure
-	ansible-playbook $(SPDS_INFRASTRUCTURE_PATH)/ansible/deploy-metrics-dashboard.yml
-	ansible-playbook $(SPDS_INFRASTRUCTURE_PATH)/ansible/deploy-misc-infrastructure.yml
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform init; \
+	terraform apply -auto-approve
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	ansible-playbook deploy-flink-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml;
+
+remote-bootstrap-stop-flink:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform destroy -auto-approve
+
+# ------------- Apache Storm -------------------------
+remote-bootstrap-run-storm:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform init; \
+	terraform apply -auto-approve
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	ansible-playbook deploy-storm-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml;
+
+remote-bootstrap-stop-storm:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform destroy -auto-approve
 
 # ------------- DATA ADAPTER ---------------------
 # ------------- GIRAGEN --------------------------
@@ -145,10 +170,6 @@ docker-execute-storm-topology:
 	nimbus:/apache-storm-2.2.0/topology.jar
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
 	nimbus:/apache-storm-2.2.0/topology.conf
-	#docker exec nimbus storm jar \
-#	/apache-storm-2.2.0/topology.jar \
-#	org.isel.thesis.impads.storm.streams.topology.MainStormStreamsGiraTopology \
-#	/apache-storm-2.2.0/topology.conf
 	docker exec nimbus storm jar \
 	/apache-storm-2.2.0/topology.jar \
 	org.isel.thesis.impads.storm.low_level.topology.MainStormGiraTopology \

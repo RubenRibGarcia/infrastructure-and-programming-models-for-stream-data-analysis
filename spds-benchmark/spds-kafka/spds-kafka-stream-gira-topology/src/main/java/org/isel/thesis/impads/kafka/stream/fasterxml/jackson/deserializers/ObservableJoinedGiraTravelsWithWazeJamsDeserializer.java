@@ -5,11 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.isel.thesis.impads.kafka.stream.data.structures.Tuple2;
 import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
 import org.isel.thesis.impads.metrics.Observable;
+import org.isel.thesis.impads.structures.Tuple2;
 
 import java.io.IOException;
 

@@ -3,7 +3,6 @@ package org.isel.thesis.impads.flink.fasterxml.jackson.deserializers;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonParser;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.DeserializationContext;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JavaType;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
@@ -25,8 +24,7 @@ public class InstanteDeserializer extends StdDeserializer<Instant> {
 
     @Override
     public Instant deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
-            throws IOException
-            , JsonProcessingException {
+            throws IOException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         long epochSeconds = node.get(FIELD_EPOCH_SECOND).longValue();
         long nano = node.get(FIELD_NANO).longValue();

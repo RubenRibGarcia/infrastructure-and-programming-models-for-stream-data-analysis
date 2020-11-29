@@ -12,7 +12,6 @@
 - hosts: storm_supervisor
   become: yes
   gather_facts: yes
-  serial: 1
   roles:
     - storm-infrastructure/supervisor
   tags:
