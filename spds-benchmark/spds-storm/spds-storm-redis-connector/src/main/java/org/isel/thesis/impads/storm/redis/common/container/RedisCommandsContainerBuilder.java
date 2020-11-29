@@ -41,8 +41,7 @@ public class RedisCommandsContainerBuilder {
         genericObjectPoolConfig.setMinIdle(config.getMinIdle());
 
         JedisPool jedisPool =
-                new JedisPool(genericObjectPoolConfig, config.getHost(), config.getPort(), config.getTimeout(), config.getPassword(),
-                        config.getDatabase());
+                new JedisPool(genericObjectPoolConfig, config.getHost(), config.getPort(), config.getTimeout());
         return new RedisContainer(jedisPool);
     }
 }

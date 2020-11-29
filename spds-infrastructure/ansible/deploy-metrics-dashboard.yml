@@ -1,5 +1,5 @@
 ---
-- hosts: misc_infrastructure
+- hosts: metrics_dashboard
   become: yes
   gather_facts: yes
   roles:

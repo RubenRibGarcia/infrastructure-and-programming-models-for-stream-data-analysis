@@ -1,5 +1,6 @@
 package org.isel.thesis.impads.storm.low_level.topology;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.topology.TopologyBuilder;
@@ -10,14 +11,15 @@ import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.ConfigurationContainer;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.ObservableJsonProducer;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.ParserBolt;
-import org.isel.thesis.impads.storm.low_level.topology.bolts.PrinterBolt;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.join.KeySelector;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.join.ObservableJoinBolt;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.join.TupleFieldSelector;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.GiraTravelsParserProcessor;
+import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.GiraTravelsWithWazeAndIpmaResultProcessor;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.WazeIrregularitiesParserProcessor;
 import org.isel.thesis.impads.storm.low_level.topology.bolts.processor.WazeJamsParserProcessor;
 import org.isel.thesis.impads.storm.low_level.topology.models.GiraTravelsSourceModel;
+import org.isel.thesis.impads.storm.low_level.topology.models.GiraTravelsWithWazeAndIpmaResult;
 import org.isel.thesis.impads.storm.low_level.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.storm.low_level.topology.models.SimplifiedWazeIrregularitiesModel;
@@ -27,6 +29,7 @@ import org.isel.thesis.impads.storm.low_level.topology.models.WazeJamsSourceMode
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
 import org.isel.thesis.impads.storm.redis.bolt.RedisBoltBuilder;
 import org.isel.thesis.impads.storm.redis.bolt.RedisMapperBolt;
+import org.isel.thesis.impads.storm.redis.bolt.RedisStoreBolt;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.RMQSpout;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple2;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple3;
@@ -149,8 +152,23 @@ public final class GiraTravelsTopologyBuilder {
         builder.setBolt("joined_gira_travels_with_waze_and_ipma", joinedGiraTravelsWithWazeAndIpma)
                 .shuffleGrouping("joined_gira_travels_with_waze");
 
-        builder.setBolt("observable", ObservableBolt.observe(configurationContainer.getMetricsCollectorConfiguration()))
-                .shuffleGrouping("joined_gira_travels_with_waze");
+        builder.setBolt("result", ParserBolt.parse(new GiraTravelsWithWazeAndIpmaResultProcessor(geometryFactory)))
+                .shuffleGrouping("joined_gira_travels_with_waze_and_ipma");
+
+        RedisStoreBolt<Observable<GiraTravelsWithWazeAndIpmaResult>> resultBolt =
+                RedisBoltBuilder.<Observable<GiraTravelsWithWazeAndIpmaResult>>store(configurationContainer.getRedisConfiguration())
+                .tupleMapper(t -> (Observable<GiraTravelsWithWazeAndIpmaResult>) t.getValueByField("value"))
+                .consume((container, t) -> {
+                    try {
+                        container.rpush("storm_output", mapper.writeValueAsString(t));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e.getMessage(), e);
+                    }
+                })
+                .build();
+
+        builder.setBolt("output", ObservableBolt.observe(configurationContainer.getMetricsCollectorConfiguration(), resultBolt))
+                .shuffleGrouping("result");
 
         return builder.createTopology();
     }

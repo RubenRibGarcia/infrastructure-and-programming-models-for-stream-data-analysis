@@ -6,3 +6,17 @@ kafka{
         }
     }
 }
+redis {
+    host = "{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}"
+    port = "6379"
+    max_idle = 10
+    max_total = 10
+    min_idle = 0
+}
+metrics {
+    statsd {
+        host = telegraf
+        port = 8125
+        agent = TELEGRAF
+    }
+}

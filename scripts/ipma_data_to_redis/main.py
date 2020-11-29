@@ -29,8 +29,7 @@ def __compose_ipma_key(record):
 
 
 def __compose_ipma_values_to_map(record):
-    return {'1200535': record['1200535'], '1200579': record['1200579'], '1210762': record['1210762']}
-
+    return {"1200535": float(record['1200535']), "1200579": float(record['1200579']), "1210762": float(record['1210762'])}
 
 if __name__ == '__main__':
 

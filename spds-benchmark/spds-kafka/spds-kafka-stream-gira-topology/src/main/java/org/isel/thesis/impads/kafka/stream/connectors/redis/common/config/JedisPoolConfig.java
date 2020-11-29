@@ -1,19 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.isel.thesis.impads.kafka.stream.connectors.redis.common.config;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -27,15 +11,13 @@ public class JedisPoolConfig extends JedisConfigBase {
 
     private final String host;
     private final int port;
-    private final int database;
 
-    private JedisPoolConfig(String host, int port, int connectionTimeout, String password, int database,
-                            int maxTotal, int maxIdle, int minIdle) {
-        super(connectionTimeout, maxTotal, maxIdle, minIdle, password);
+    private JedisPoolConfig(String host, int port, int connectionTimeout
+            , int maxTotal, int maxIdle, int minIdle) {
+        super(connectionTimeout, maxTotal, maxIdle, minIdle);
         Objects.requireNonNull(host, "Host information should be presented");
         this.host = host;
         this.port = port;
-        this.database = database;
     }
 
     /**
@@ -56,16 +38,6 @@ public class JedisPoolConfig extends JedisConfigBase {
         return port;
     }
 
-
-    /**
-     * Returns database index.
-     *
-     * @return database index
-     */
-    public int getDatabase() {
-        return database;
-    }
-
     /**
      * Builder for initializing  {@link JedisPoolConfig}.
      */
@@ -73,8 +45,6 @@ public class JedisPoolConfig extends JedisConfigBase {
         private String host;
         private int port = Protocol.DEFAULT_PORT;
         private int timeout = Protocol.DEFAULT_TIMEOUT;
-        private int database = Protocol.DEFAULT_DATABASE;
-        private String password;
         private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
         private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
         private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
@@ -137,39 +107,6 @@ public class JedisPoolConfig extends JedisConfigBase {
             return this;
         }
 
-        /**
-         * Sets timeout.
-         *
-         * @param timeout timeout, default value is 2000
-         * @return Builder itself
-         */
-        public Builder setTimeout(int timeout) {
-            this.timeout = timeout;
-            return this;
-        }
-
-        /**
-         * Sets database index.
-         *
-         * @param database database index, default value is 0
-         * @return Builder itself
-         */
-        public Builder setDatabase(int database) {
-            this.database = database;
-            return this;
-        }
-
-        /**
-         * Sets password.
-         *
-         * @param password password, if any
-         * @return Builder itself
-         */
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
 
         /**
          * Builds JedisPoolConfig.
@@ -177,20 +114,7 @@ public class JedisPoolConfig extends JedisConfigBase {
          * @return JedisPoolConfig
          */
         public JedisPoolConfig build() {
-            return new JedisPoolConfig(host, port, timeout, password, database, maxTotal, maxIdle, minIdle);
+            return new JedisPoolConfig(host, port, timeout, maxTotal, maxIdle, minIdle);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "JedisPoolConfig{" +
-            "host='" + host + '\'' +
-            ", port=" + port +
-            ", timeout=" + connectionTimeout +
-            ", database=" + database +
-            ", maxTotal=" + maxTotal +
-            ", maxIdle=" + maxIdle +
-            ", minIdle=" + minIdle +
-            '}';
     }
 }

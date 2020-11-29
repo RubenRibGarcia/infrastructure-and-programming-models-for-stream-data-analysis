@@ -1,15 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.  The ASF licenses this file to you under the Apache License, Version
- * 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
- * and limitations under the License.
- */
-
 package org.isel.thesis.impads.storm.redis.common.config;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -25,33 +13,21 @@ public class JedisPoolConfig implements Serializable {
     private String host;
     private int port;
     private int timeout;
-    private int database;
     private int minIdle;
     private int maxIdle;
     private int maxTotal;
-    private String password;
 
     // for serialization
     public JedisPoolConfig() {
     }
 
-    /**
-     * Constructor.
-     * <p/>
-     * You can use JedisPoolConfig.Builder() for leaving some fields to apply default value.
-     *
-     * @param host hostname or IP
-     * @param port port
-     * @param timeout socket / connection timeout
-     * @param database database index
-     * @param password password, if any
-     */
-    public JedisPoolConfig(String host, int port, int timeout, String password, int database) {
+    public JedisPoolConfig(String host, int port, int timeout, int minIdle, int maxIdle, int maxTotal) {
         this.host = host;
         this.port = port;
         this.timeout = timeout;
-        this.database = database;
-        this.password = password;
+        this.minIdle = minIdle;
+        this.maxIdle = maxIdle;
+        this.maxTotal = maxTotal;
     }
 
     /**
@@ -78,22 +54,6 @@ public class JedisPoolConfig implements Serializable {
         return timeout;
     }
 
-    /**
-     * Returns database index.
-     * @return database index
-     */
-    public int getDatabase() {
-        return database;
-    }
-
-    /**
-     * Returns password.
-     * @return password
-     */
-    public String getPassword() {
-        return password;
-    }
-
     public int getMinIdle() {
         return minIdle;
     }
@@ -113,11 +73,9 @@ public class JedisPoolConfig implements Serializable {
         private String host = Protocol.DEFAULT_HOST;
         private int port = Protocol.DEFAULT_PORT;
         private int timeout = Protocol.DEFAULT_TIMEOUT;
-        private int database = Protocol.DEFAULT_DATABASE;
         private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
         private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
         private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
-        private String password;
 
         /**
          * Sets host.
@@ -149,26 +107,6 @@ public class JedisPoolConfig implements Serializable {
             return this;
         }
 
-        /**
-         * Sets database index.
-         * @param database database index
-         * @return Builder itself
-         */
-        public Builder setDatabase(int database) {
-            this.database = database;
-            return this;
-        }
-
-        /**
-         * Sets password.
-         * @param password password, if any
-         * @return Builder itself
-         */
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
         public Builder setMinIdle(int minIdle) {
             this.minIdle = minIdle;
             return this;
@@ -189,7 +127,7 @@ public class JedisPoolConfig implements Serializable {
          * @return JedisPoolConfig
          */
         public JedisPoolConfig build() {
-            return new JedisPoolConfig(host, port, timeout, password, database);
+            return new JedisPoolConfig(host, port, timeout, minIdle, maxIdle, maxTotal);
         }
     }
 }

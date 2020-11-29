@@ -1,0 +1,3 @@
+
+# Running IPMA Redis data migration on CE on Google Cloud plataform by stacking network of redis container
+docker run --rm --network container:redis impads/ipma-data-to-redis:0.0.1 -rh localhost

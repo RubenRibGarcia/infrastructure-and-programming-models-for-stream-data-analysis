@@ -43,15 +43,13 @@ taskmanager.data.port: 40100
 
 taskmanager.memory.task.heap.size: 24g
 taskmanager.memory.managed.size: 0g
+taskmanager.memory.task.off-heap.size: 4g
 
 taskmanager.numberOfTaskSlots: 8
 
 # The parallelism used for programs that did not specify and other parallelism.
 
 parallelism.default: 1
-
-metrics.internal.query-service.port = 30100
-
 
 #==============================================================================
 # Fault tolerance and checkpointing
@@ -70,14 +68,14 @@ state.backend: filesystem
 #
 state.checkpoints.dir: file:///data/flink/checkpoints
 
-# Default target directory for savepoints, optional.
-#
-# state.savepoints.dir: hdfs://namenode-host:port/flink-checkpoints
-
 # Flag to enable/disable incremental checkpoints for backends that
-# support incremental checkpoints (like the RocksDB state backend). 
+# support incremental checkpoints (like the RocksDB state backend).
 #
 #state.backend.incremental: true
+
+# The failover strategy, i.e., how the job computation recovers from task failures.
+# Only restart tasks that may have been affected by the task failure, which typically includes
+# downstream tasks and potentially upstream tasks if their produced data is no longer available for consumption.
 
 jobmanager.execution.failover-strategy: region
 

@@ -40,7 +40,7 @@ module "flink-job-manager" {
 
   name = "flink-job-manager"
 
-  zone = "europe-west3-a"
+  zone = "europe-west1-b"
 
   instance_type = "e2-medium"
   instance_count = 1
@@ -54,7 +54,7 @@ module "flink-task-manager" {
   zone = "europe-west3-a"
 
   instance_type = "e2-standard-8"
-  instance_count = 1
+  instance_count = 4
 }
 
 /*=============================

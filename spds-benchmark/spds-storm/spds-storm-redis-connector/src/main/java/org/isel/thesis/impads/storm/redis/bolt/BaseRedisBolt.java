@@ -12,6 +12,8 @@ import java.util.Map;
 
 public abstract class BaseRedisBolt implements IRichBolt {
 
+    private static final long serialVersionUID = 1L;
+
     private final JedisPoolConfig config;
 
     private TopologyContext context;

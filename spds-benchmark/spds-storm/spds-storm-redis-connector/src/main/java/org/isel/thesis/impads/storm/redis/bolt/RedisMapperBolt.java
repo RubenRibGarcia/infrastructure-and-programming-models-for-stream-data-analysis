@@ -10,6 +10,8 @@ import org.isel.thesis.impads.storm.redis.common.config.JedisPoolConfig;
 
 public class RedisMapperBolt<T> extends BaseRedisBolt {
 
+    private static final long serialVersionUID = 1L;
+
     private final TupleMapper<T> tupleMapper;
     private final Transform<T, Values> transform;
     private final String[] outputFields;

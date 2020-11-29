@@ -14,8 +14,6 @@ import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.ConfigurationContainer;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
-import org.isel.thesis.impads.storm.redis.bolt.BaseRedisBolt;
-import org.isel.thesis.impads.storm.redis.common.mapper.json.RPushJsonMapper;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple2;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple3;
 import org.isel.thesis.impads.storm.streams.data.structures.Tuple4;
@@ -141,8 +139,7 @@ public final class GiraTravelsStreamTopologyBuilder {
                     }
                 });
 
-        result.to(ObservableBolt.observe(config.getMetricsCollectorConfiguration()
-                , new BaseRedisBolt(config.getRedisConfiguration(), new RPushJsonMapper(mapper, "storm_output"))));
+        result.to(ObservableBolt.observe(config.getMetricsCollectorConfiguration()));
 
         return builder.build();
     }
