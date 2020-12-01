@@ -64,7 +64,7 @@ module "kafka-node" {
 
   name = "kafka-node"
 
-  zone = "europe-west3-a"
+  zone = "europe-west1-b"
 
   instance_type = "e2-standard-2"
   instance_count = 0
@@ -90,7 +90,7 @@ module "storm-nimbus" {
 
   name = "storm-nimbus"
 
-  zone = "europe-west3-a"
+  zone = "europe-west1-b"
 
   instance_type = "e2-standard-2"
   instance_count = 1

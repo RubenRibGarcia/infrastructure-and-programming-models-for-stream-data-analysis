@@ -1,5 +1,5 @@
 storm.zookeeper.servers:
-    - "{{ hostvars['storm-zookeeper-0']['networkInterfaces'][0]['networkIP'] }}"
+    - "{{ hostvars['storm-nimbus-0']['networkInterfaces'][0]['networkIP'] }}"
 
 nimbus.seeds: ["{{ hostvars['storm-nimbus-0']['networkInterfaces'][0]['networkIP'] }}"]
 
@@ -11,4 +11,7 @@ supervisor.slots.ports:
     - 6702
     - 6703
 
-worker.childopts: "-Xmx8g"
+worker.childopts: "-Xmx24g"
+
+worker.heap.memory.mb: 24000
+topology.worker.max.heap.size.mb: 24000

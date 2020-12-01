@@ -1,19 +1,25 @@
 ---
-- hosts: storm-zookeeper
+- hosts: storm_nimbus
   become: yes
   gather_facts: yes
   serial: 1
   roles:
-    - storm-infrastructure/zookeeper
     - storm-infrastructure/nimbus
   tags:
-    - storm-zookeeper
+    - storm-nimbus
 
 - hosts: storm_supervisor
   become: yes
   gather_facts: yes
   roles:
     - storm-infrastructure/supervisor
+    - metrics-monitor/agent
+  vars:
+    agent:
+      statsd:
+        enabled: true
+      docker:
+        enabled: true
   tags:
     - storm-supervisor
 

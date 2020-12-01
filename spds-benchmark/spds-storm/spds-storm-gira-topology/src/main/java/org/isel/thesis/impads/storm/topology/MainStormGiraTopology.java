@@ -42,7 +42,6 @@ public class MainStormGiraTopology {
             Config stormConfig = new Config();
             stormConfig.setMaxSpoutPending(5000);
             stormConfig.setDebug(false);
-            stormConfig.setNumWorkers(2);
             stormConfig.setFallBackOnJavaSerialization(true);
 
             TopologyBuilder topologyBuilder = new TopologyBuilder();
