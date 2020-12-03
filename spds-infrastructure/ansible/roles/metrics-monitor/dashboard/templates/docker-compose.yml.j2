@@ -26,3 +26,8 @@ services:
       - "3000:3000"
     volumes:
       - "./grafana:/var/lib/grafana"
+
+networks:
+  default:
+    external:
+      name: spds-network

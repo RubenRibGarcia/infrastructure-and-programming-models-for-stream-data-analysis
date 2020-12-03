@@ -15,3 +15,8 @@ services:
             - JOB_MANAGER_RPC_ADDRESS={{ flink_services.flink_job_manager_address }}
         volumes:
             - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+
+networks:
+  default:
+    external:
+      name: spds-network

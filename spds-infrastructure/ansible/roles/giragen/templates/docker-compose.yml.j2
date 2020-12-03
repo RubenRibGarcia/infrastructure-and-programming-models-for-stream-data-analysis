@@ -8,3 +8,8 @@ services:
     volumes:
       - "./application.conf:/opt/isel/thesis/impads/spds-benchmark/giragen/conf/application.conf:ro"
       - "/opt/isel/thesis/impads/spds-benchmark/giragen/data:/opt/isel/thesis/impads/spds-benchmark/giragen/data:ro"
+
+networks:
+  default:
+    external:
+      name: spds-network

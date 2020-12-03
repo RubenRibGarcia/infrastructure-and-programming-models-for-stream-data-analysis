@@ -14,3 +14,8 @@ services:
             - "6701:6701"
             - "6702:6702"
             - "6703:6703"
+
+networks:
+  default:
+    external:
+      name: spds-network

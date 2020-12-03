@@ -2,9 +2,7 @@ version: '3.7'
 services:
 
       kafka-connect-standalone:
-        build:
-            context: .
-            dockerfile: Dockerfile-kafka-connect
+        image: impads/kafka-connect:2.13-2.6.0
         container_name: kafka-connect-rabbit-mq-{{ item.name }}-queue
         volumes:
             - /opt/impads/containers/kafka-connect/connectors:/opt/connectors
