@@ -1,54 +1,34 @@
 ---
-- name: create group
-  group:
-    name: "impads"
-
-- name: create user
-  user:
-    name: "impads"
-    group: "impads"
-    shell: "/bin/false"
-    createhome: no
-
-- name: adding user 'impads' to group 'docker''
-  user:
-    name: 'impads'
-    groups: docker
-    append: yes
-
-- name: directory creation
-  file:
-    recurse: true
-    state: directory
-    path: "{{ item }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-      - "/opt/impads/containers/kafka"
-
-- name: put docker compose file and .env
-  template:
-    src: "{{ item.src }}"
-    dest: "/opt/impads/containers/kafka/{{ item.dest }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
-
-- name : stop services
-  docker_compose:
-    project_src: "/opt/impads/containers/kafka"
-    build: no
-    pull: yes
-    state: present
-    stopped: true
-  register: output
-
-- name: start services
-  docker_compose:
-    project_src: "/opt/impads/containers/kafka"
-    build: no
-    pull: yes
-    state: present
-    restarted: true
-  register: output
+- name: Deploy Kafka node and Web UI
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: kafka
+      services:
+        - name: zookeeper
+          image: bitnami/zookeeper:3.6.1
+          container_name: zookeeper
+          environments:
+            - ALLOW_ANONYMOUS_LOGIN=yes
+        - name: kafka
+          image: bitnami/kafka:2.6.0
+          container_name: kafka
+          ports:
+            - "9092:9092"
+          environments:
+            - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+            - ALLOW_PLAINTEXT_LISTENER=yes
+            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+            - KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://{{ kafka_services.kafka_internal_address }}:29092,OUTSIDE://{{ kafka_services.kafka_internal_address }}:9092
+            - KAFKA_CFG_LISTENERS=INSIDE://:29092,OUTSIDE://:9092
+            - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+        - name: kafka-drop
+          image: obsidiandynamics/kafdrop:3.27.0
+          container-name: kafka-web-ui
+          ports:
+            - "9000:9000"
+          environment:
+            - KAFKA_BROKERCONNECT=kafka:9092
+        - name:

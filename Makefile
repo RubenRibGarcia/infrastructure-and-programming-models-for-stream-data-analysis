@@ -113,8 +113,7 @@ APACHE_FLINK_INFRASTRUCTURE_PATH 		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apa
 APACHE_STORM_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apache-storm
 APACHE_KAFKA_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apache-kafka
 METRICS_MONITOR_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/metrics-monitor
-RABBIT_MQ_INFRASTRUCTURE_PATH			:= ${SPDS_INFRASTRUCTURE_PATH}/components/rabbit-mq
-REDIS_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/components/redis
+MISC_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/componentes/misc-infrastructure
 
 build-spds-benchmark-project:
 	mvn clean compile package -f $(DIR)/pom.xml -pl spds-benchmark -amd
@@ -177,7 +176,7 @@ docker-execute-storm-topology:
 
 # ------------- SPDS KAFKA -----------------
 
-build-kafka-stream-topology: ## Maven build SPDS Kafka
+build-spds-kafka: ## Maven build spds-kafka module
 	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/spds-kafka/spds-kafka-stream-gira-topology/pom.xml
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs
 	cp $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/target/spds-kafka-stream-gira-topology-shaded.jar \
@@ -185,11 +184,9 @@ build-kafka-stream-topology: ## Maven build SPDS Kafka
 	cp $(SPDS_KAFKA_PATH)/Dockerfile-kafka-stream \
 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs/
 
-docker-build-kafka:
-	sh $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/docker-build.sh
+docker-build-kafka-stream-topology:
 
-docker-push-kafka:
-	sh $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/docker-push.sh
+docker-push-kafka-stream-topology:
 
 docker-build-kafka-connect:
 	sh $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-build.sh
@@ -217,22 +214,16 @@ docker-stop-kafka-stream-topology:
 
 # ------------- MISC -----------------
 
-docker-run-rabbitmq: ##Run Docker Container for RabbitMQ
-	docker-compose -f $(RABBIT_MQ_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
+docker-run-misc-infrastructure: ## Runs RabbitMQ and Redis Container
+	docker-compose -f $(MISC_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
 
-docker-stop-rabbitmq: ##Stop RabbitMQ Docker Container
-	docker-compose -f $(RABBIT_MQ_INFRASTRUCTURE_PATH)/docker-compose.yml down
+docker-stop-misc-infrastructure: ## Stops RabbitMQ and Redis container
+	docker-compose -f $(MISC_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-docker-run-redis: ##Run Docker Redis for RabbitMQ
-	docker-compose -f $(REDIS_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
-
-docker-stop-redis: ##Stop Redis Docker Container
-	docker-compose -f $(REDIS_INFRASTRUCTURE_PATH)/docker-compose.yml down
-
-docker-run-metrics-monitor:
+docker-run-metrics-monitor: ## Runs Metrics Dashboard (Grafana+InfluxDB) and Metrics Agent (Telegraf)
 	docker-compose -f $(METRICS_MONITOR_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
 
-docker-stop-metrics-monitor:
+docker-stop-metrics-monitor: ## Stops Metrics Dashboard and Metrics Agent
 	docker-compose -f $(METRICS_MONITOR_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
 # ------------- SERVICES NETWORK -----------------
@@ -240,5 +231,5 @@ docker-stop-metrics-monitor:
 docker-create-spds-network: ## Creates SPDS Network for Docker
 	docker network create -d bridge spds-network
 
-docker-remove-spds-network: ## Deletes SPDS Network from Docker
+docker-remove-spds-network: ## Removes SPDS Network from Docker
 	docker network rm spds-network

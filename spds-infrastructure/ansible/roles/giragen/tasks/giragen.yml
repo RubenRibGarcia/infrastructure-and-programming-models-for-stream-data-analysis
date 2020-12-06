@@ -1,65 +1,18 @@
 ---
-- name: create group
-  group:
-    name: "impads"
-
-- name: create user
-  user:
-    name: "impads"
-    group: "impads"
-    shell: "/bin/false"
-    createhome: no
-
-- name: adding user 'impads' to group 'docker''
-  user:
-    name: 'impads'
-    groups: docker
-    append: yes
-
-- name: directory creation
-  file:
-    recurse: true
-    state: directory
-    path: "{{ item }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-      - "/opt/impads/containers/giragen"
-      - "/opt/isel/thesis/impads/spds-benchmark/giragen/data"
-
-- name: transfer gira data
-  synchronize:
-    src: "{{ playbook_dir }}/../../spds-data/{{ item }}"
-    dest: "/opt/isel/thesis/impads/spds-benchmark/giragen/data/{{ item }}"
-  with_items:
-    - "viagens_gira_2018.csv"
-    - "waze_irregularidades_2018.csv"
-    - "waze_jams_2018.csv"
-
-- name: put docker compose file
-  template:
-    src: "{{ item.src }}"
-    dest: "/opt/impads/containers/giragen/{{ item.dest }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
-    - { src: "application.conf.j2", dest: "application.conf" }
-
-- name : stop services
-  docker_compose:
-    project_src: "/opt/impads/containers/giragen"
-    build: no
-    pull: yes
-    state: present
-    stopped: true
-  register: output
-
-- name: start services
-  docker_compose:
-    project_src: "/opt/impads/containers/giragen"
-    build: no
-    pull: yes
-    state: present
-    restarted: true
-  register: output
+- name: Deploy GiraGen Generator
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: giragen
+      services:
+        - name: giragen-generator
+          image: impads/giragen-generator:0.0.1-SNAPSHOT
+          container_name: giragen-generator
+          properties:
+            - { src: application.conf.j2, from: application.conf, to: /opt/isel/thesis/impads/spds-benchmark/giragen/conf/application.conf }
+          files:
+            - { src: "{{ playbook_dir }}/../../spds-data/viagens_gira_2018.csv", from: viagens_gira_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv }
+            - { src: "{{ playbook_dir }}/../../spds-data/waze_irregularidades_2018.csv", from: waze_irregularidades_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv }
+            - { src: "{{ playbook_dir }}/../../spds-data/waze_jams_2018.csv", from: waze_jams_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv }

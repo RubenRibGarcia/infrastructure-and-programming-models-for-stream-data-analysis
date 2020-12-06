@@ -1,0 +1,68 @@
+---
+- name: Create group
+  group:
+    name: "impads"
+
+- name: Create user
+  user:
+    name: "impads"
+    group: "impads"
+    shell: "/bin/false"
+    createhome: no
+
+- name: Adding user 'impads' to group 'docker'
+  user:
+    name: 'impads'
+    groups: docker
+    append: yes
+
+- name: Directory creation
+  file:
+    recurse: true
+    state: directory
+    path: "{{ compose.src }}/{{ compose.name }}"
+    group: "impads"
+    owner: "impads"
+
+- name: Put docker compose file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ compose.src }}/{{ compose.name }}/{{ item.dest }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
+
+- name: Put properties
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ compose.src }}/{{ compose.name }}/{{ item.from }}"
+    group: "impads"
+    owner: "impads"
+  with_items:
+    - "{{ compose.services | map(attribute='properties') | join }}"
+
+- name: Put files
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ compose.src }}/{{ compose.name }}/{{ item.from }}"
+  with_items:
+    - "{{ compose.services | map(attribute='files') | join }}"
+
+- name : Stop services
+  docker_compose:
+    project_src: "{{ compose.src }}/{{ compose.name }}"
+    build: no
+    pull: yes
+    state: present
+    stopped: true
+  register: output
+
+- name: Start services
+  docker_compose:
+    project_src: "{{ compose.src }}/{{ compose.name }}"
+    build: no
+    pull: yes
+    state: present
+    restarted: true
+  register: output

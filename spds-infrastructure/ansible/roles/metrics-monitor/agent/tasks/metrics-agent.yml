@@ -1,55 +1,18 @@
 ---
-- name: create group
-  group:
-    name: "impads"
-
-- name: create user
-  user:
-    name: "impads"
-    group: "impads"
-    shell: "/bin/false"
-    createhome: no
-
-- name: adding user 'impads' to group 'docker''
-  user:
-    name: 'impads'
-    groups: docker
-    append: yes
-
-- name: directory creation
-  file:
-    recurse: true
-    state: directory
-    path: "{{ item }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-      - "/opt/impads/containers/agent"
-
-- name: put docker compose file
-  template:
-    src: "{{ item.src }}"
-    dest: "/opt/impads/containers/agent/{{ item.dest }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
-    - { src: "telegraf.conf.j2", dest: "telegraf.conf" }
-
-- name : stop services
-  docker_compose:
-    project_src: "/opt/impads/containers/agent"
-    build: no
-    pull: yes
-    state: present
-    stopped: true
-  register: output
-
-- name: start services
-  docker_compose:
-    project_src: "/opt/impads/containers/agent"
-    build: no
-    pull: yes
-    state: present
-    restarted: true
-  register: output
+- name: Deploy Metrics Agent
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: metrics-agent
+      services:
+        - name: telegraf
+          image: telegraf:1.14-alpine
+          container_name: telegraf
+          ports:
+            - "8125:8125/udp"
+          properties:
+            - { src: telegraf.conf.j2, from: telegraf.conf, to: /etc/telegraf/telegraf.conf }
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"

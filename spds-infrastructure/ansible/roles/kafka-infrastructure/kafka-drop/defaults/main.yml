@@ -1,4 +1,0 @@
-kafka_services:
-  kafka_internal_address: "{{ hostvars[ansible_hostname]['networkInterfaces'][0]['networkIP'] }}"
-  kafka_external_address: "{{ hostvars[ansible_hostname]['networkInterfaces'][0]['accessConfigs'][0]['natIP'] }}"
-  zookeeper_internal_address: "{{ hostvars['kafka-zookeeper-0']['networkInterfaces'][0]['networkIP']}}"

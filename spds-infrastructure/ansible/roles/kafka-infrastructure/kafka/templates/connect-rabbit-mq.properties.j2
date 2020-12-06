@@ -1,0 +1,17 @@
+name=rabbit-mq-connector-{{ item.name }}
+connector.class={{ item.connector_class }}
+tasks.max={{ item.max_tasks }}
+
+rabbitmq.host={{ hostvars['spds-misc-infra-0']['networkInterfaces'][0]['networkIP'] }}
+rabbitmq.port=5672
+rabbitmq.username=admin
+rabbitmq.password=admin
+rabbitmq.queue={{ item.from }}
+
+kafka.topic={{ item.to }}
+
+key.converter=org.apache.kafka.connect.storage.StringConverter
+value.converter=org.apache.kafka.connect.storage.StringConverter
+
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false

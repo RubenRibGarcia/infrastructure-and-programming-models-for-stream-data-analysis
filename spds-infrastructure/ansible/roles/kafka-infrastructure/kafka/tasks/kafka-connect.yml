@@ -1,0 +1,33 @@
+---
+- name: Deploy Kafka Connectors
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: kafka-connect
+      services:
+        - name: kafka-connector-rabbitmq-gira-travels-queue
+          image: impads/kafka-connect:2.6.0
+          containe_name: kafka-connector-rabbitmq-gira-travels-queue
+          properties:
+            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-gira-travels.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
+        - name: kafka-connector-rabbitmq-waze-jams-queue
+          image: impads/kafka-connect:2.6.0
+          containe_name: kafka-connector-rabbitmq-waze-jams-queue
+          properties:
+            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
+        - name: kafka-connector-rabbitmq-waze-irregularities-queue
+          image: impads/kafka-connect:2.6.0
+          containe_name: kafka-connector-rabbitmq-waze-jams-queue
+          properties:
+            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
+        - name: kafka-connector-redis
+          image: impads/kafka-connect:2.6.0
+          containe_name: kafka-connector-redis
+          properties:
+            - { src: connect-redis.properties.j2, from: connect-redis.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }

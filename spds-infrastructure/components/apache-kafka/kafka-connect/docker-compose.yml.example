@@ -3,10 +3,9 @@ version: '3.7'
 services:
 
       kafka-connect:
-        image: impads/kafka-connect:2.13-2.6.0
+        image: impads/kafka-connect:2.6.0
         container_name: kafka-connect
         volumes:
             - /tmp:/tmp
-            - </path/to/connector.jar>:/opt/connectors/kafka-rabbit-mq-connector.jar
-            - </path/to/connect-standalone.properties>:/opt/kafka/config/connect-standalone.properties
-            - </path/to/connect-rabbit-mq.properties>:/opt/kafka/config/connect-connector.properties
+            - </path/to/connect-standalone.properties>:/opt/bitnami/kafka/config/connect-standalone.properties
+            - </path/to/connect-rabbit-mq.properties>:/opt/bitnami/kafka/config/connector.properties

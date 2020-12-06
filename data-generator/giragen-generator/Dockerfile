@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jre-11.0.8_10-alpine
+FROM adoptopenjdk/openjdk11:debianslim-jre
 
 WORKDIR /
 COPY target/giragen-generator-shaded.jar giragen-generator.jar

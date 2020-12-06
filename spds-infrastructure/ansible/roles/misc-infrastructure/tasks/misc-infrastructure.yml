@@ -1,0 +1,25 @@
+---
+- name: Deploy Misc Infrastructure
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: misc-infrastructure
+      services:
+        - name: rabbitmq
+          image: rabbitmq:3.8.9-management
+          container_name: rabbitmq
+          ports:
+            - 5672:5672
+            - 8080:15672
+          environment:
+            - RABBITMQ_DEFAULT_USER=admin
+            - RABBITMQ_DEFAULT_PASS=admin
+        - name: redis
+          image: bitnami/redis:6.0.9
+          container_name: redis
+          ports:
+            - 6379:6379
+          environments:
+            - REDIS_AOF_ENABLED=no

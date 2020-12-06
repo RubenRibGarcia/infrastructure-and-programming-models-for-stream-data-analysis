@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+
+{% for service in compose.services %}
+    {{ service.name }}:
+        image: {{ service.image }}
+        restart: always
+{% if service.container_name is defined %}
+        container_name: {{ service.container_name }}
+{% endif %}
+{% if service.command is defined %}
+        command: {{ service.command }}
+{% endif %}
+{% if service.environment is defined %}
+        environment:
+{% for env in service.environment %}
+            - {{ env }}
+{% endfor %}
+{% endif %}
+{% if service.ports is defined %}
+        ports:
+{% for port in service.ports  %}
+            - {{ port }}
+{% endfor %}
+{% endif %}
+{% if service.properties is defined or service.files is defined or service.volumes is defined %}
+        volumes:
+{% if service.properties is defined %}
+{% for property in service.properties %}
+            - ./{{ property.from }}:{{ property.to }}:ro
+{% endfor %}
+{% endif %}
+{% if service.files is defined %}
+{% for file in service.files %}
+            - ./{{ file.from }}:{{ file.to }}:ro
+{% endfor %}
+{% if service.volumes if defined %}
+{% for volume in service.volumes %}
+            - {{ volume }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+networks:
+  default:
+    external:
+      name: spds-network

@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jre-11.0.8_10-debianslim
+FROM adoptopenjdk/openjdk11:debianslim-jre
 
 ENV STORM_CONF_DIR=/conf \
     STORM_DATA_DIR=/data \

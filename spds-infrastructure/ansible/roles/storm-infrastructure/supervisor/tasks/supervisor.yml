@@ -1,55 +1,21 @@
 ---
-- name: create group
-  group:
-    name: "impads"
-
-- name: create user
-  user:
-    name: "impads"
-    group: "impads"
-    shell: "/bin/false"
-    createhome: no
-
-- name: adding user 'impads' to group 'docker''
-  user:
-    name: 'impads'
-    groups: docker
-    append: yes
-
-- name: directory creation
-  file:
-    recurse: true
-    state: directory
-    path: "{{ item }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-      - "/opt/impads/containers/supervisor"
-
-- name: put docker compose file
-  template:
-    src: "{{ item.src }}"
-    dest: "/opt/impads/containers/supervisor/{{ item.dest }}"
-    group: "impads"
-    owner: "impads"
-  with_items:
-    - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
-    - { src: "storm.yaml.j2", dest: "storm.yaml"}
-
-- name : stop services
-  docker_compose:
-    project_src: "/opt/impads/containers/supervisor"
-    build: no
-    pull: yes
-    state: present
-    stopped: true
-  register: output
-
-- name: start services
-  docker_compose:
-    project_src: "/opt/impads/containers/supervisor"
-    build: no
-    pull: yes
-    state: present
-    restarted: true
-  register: output
+- name: Deploy Strom Nimbus
+  include_role:
+    name: container/docker/compose
+  vars:
+    compose:
+      src: /opt/impads/containers
+      name: storm
+      services:
+        - name: supervisor
+          image: impads/storm:2.2.0
+          container_name: supervisor
+          command: storm supervisor
+          ports:
+            - "8000:8000"
+            - "6700:6700"
+            - "6701:6701"
+            - "6702:6702"
+            - "6703:6703"
+          properties:
+            - { src: storm.yaml.j2, from: storm.yaml, to: /conf/storm.yaml }

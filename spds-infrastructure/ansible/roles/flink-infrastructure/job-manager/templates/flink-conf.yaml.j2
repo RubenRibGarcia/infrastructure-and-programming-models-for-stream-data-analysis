@@ -1,54 +1,13 @@
-#==============================================================================
-# Common
-#==============================================================================
-
-# The external address of the host on which the JobManager runs and can be
-# reached by the TaskManagers and any clients which want to connect. This setting
-# is only used in Standalone mode and may be overwritten on the JobManager side
-# by specifying the --host <hostname> parameter of the bin/jobmanager.sh executable.
-# In high availability mode, if you use the bin/start-cluster.sh script and setup
-# the conf/masters file, this will be taken care of automatically. Yarn/Mesos
-# automatically configure the host name based on the hostname of the node where the
-# JobManager runs.
-
 jobmanager.rpc.address: {{ flink_services.flink_job_manager_address }}
 jobmanager.rpc.port: 6123
 
 jobmanager.memory.heap.size: 4g
 
-parallelism.default: 1
-
-metrics.internal.query-service.port = 30100
-
 jobmanager.execution.failover-strategy: region
 
-#==============================================================================
-# Fault tolerance and checkpointing
-#==============================================================================
-
-# The backend that will be used to store operator state checkpoints if
-# checkpointing is enabled.
-#
-# Supported backends are 'jobmanager', 'filesystem', 'rocksdb', or the
-# <class-name-of-factory>.
-#
 state.backend: filesystem
 
-# Directory for checkpoints filesystem, when using any of the default bundled
-# state backends.
-#
 state.checkpoints.dir: file:///data/flink/checkpoints
-
-# Flag to enable/disable incremental checkpoints for backends that
-# support incremental checkpoints (like the RocksDB state backend).
-#
-#state.backend.incremental: true
-
-# The failover strategy, i.e., how the job computation recovers from task failures.
-# Only restart tasks that may have been affected by the task failure, which typically includes
-# downstream tasks and potentially upstream tasks if their produced data is no longer available for consumption.
-
-jobmanager.execution.failover-strategy: region
 
 blob.server.port: 6124
 query.server.port: 6125
