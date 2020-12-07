@@ -1,4 +1,14 @@
 ---
+- name: set kafka server list
+  set_fact:
+    kafka_server_list: "{{ kafka_server_list | default([]) + [ hostvars[item]['networkInterfaces'][0]['networkIP'] + ':' + '9092' ] }}"
+  with_items:
+    - "{{ groups['kafka_node'] }}"
+
+- name: set kafka boostrap server
+  set_fact:
+    kafka_bootstrap_server: "{{ kafka_server_list | join(',')}}"
+
 - name: Deploy Kafka Connectors
   include_role:
     name: container/docker/compose
@@ -9,25 +19,25 @@
       services:
         - name: kafka-connector-rabbitmq-gira-travels-queue
           image: impads/kafka-connect:2.6.0
-          containe_name: kafka-connector-rabbitmq-gira-travels-queue
+          container_name: kafka-connector-rabbitmq-gira-travels-queue
           properties:
-            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-gira-travels.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-rabbit-mq-gira-travels.properties.j2, from: connect-rabbit-mq-gira-travels.properties, to: /opt/bitnami/kafka/config/connector.properties }
             - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
         - name: kafka-connector-rabbitmq-waze-jams-queue
           image: impads/kafka-connect:2.6.0
-          containe_name: kafka-connector-rabbitmq-waze-jams-queue
+          container_name: kafka-connector-rabbitmq-waze-jams-queue
           properties:
-            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-rabbit-mq-waze-jams.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
             - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
         - name: kafka-connector-rabbitmq-waze-irregularities-queue
           image: impads/kafka-connect:2.6.0
-          containe_name: kafka-connector-rabbitmq-waze-jams-queue
+          container_name: kafka-connector-rabbitmq-waze-jams-queue
           properties:
-            - { src: connect-rabbit-mq.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
+            - { src: connect-rabbit-mq-waze-irregularities.properties.j2, from: connect-rabbit-mq-waze-jams.properties, to: /opt/bitnami/kafka/config/connector.properties }
             - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }
         - name: kafka-connector-redis
           image: impads/kafka-connect:2.6.0
-          containe_name: kafka-connector-redis
+          container_name: kafka-connector-redis
           properties:
             - { src: connect-redis.properties.j2, from: connect-redis.properties, to: /opt/bitnami/kafka/config/connector.properties }
             - { src: connect-standalone.properties.j2, from: connect-standalone.properties, to: /opt/bitnami/kafka/config/connect-standalone.properties }

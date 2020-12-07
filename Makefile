@@ -31,14 +31,14 @@ build-project:
 
 # ------------- LOCAL BOOTSTRAP ---------------------
 
-local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-rabbitmq docker-run-redis docker-run-metrics-monitor
-local-bootstrap-stop-flink: docker-stop-flink-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-metrics-monitor
+local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor
+local-bootstrap-stop-flink: docker-stop-flink-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-rabbitmq docker-run-redis docker-run-metrics-monitor
-local-bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-metrics-monitor
+local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor
+local-bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-rabbitmq docker-run-redis docker-run-kafka-connectors docker-run-metrics-monitor
-local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-rabbitmq docker-stop-redis docker-stop-kafka-connectors docker-stop-metrics-monitor
+local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-misc-infrastructure docker-run-kafka-connectors docker-run-metrics-monitor
+local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-misc-infrastructure docker-stop-kafka-connectors docker-stop-metrics-monitor
 
 # ------------- REMOTE BOOTSTRAP ---------------------
 # ------------- Apache Flink -------------------------
@@ -66,6 +66,20 @@ remote-bootstrap-run-storm:
 	ansible-playbook deploy-misc-infrastructure.yml;
 
 remote-bootstrap-stop-storm:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform destroy -auto-approve
+
+# ------------- Apache Kafka -------------------------
+remote-bootstrap-run-kafka:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	terraform init; \
+	terraform apply -auto-approve
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	ansible-playbook deploy-kafka-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml;
+
+remote-bootstrap-stop-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
 	terraform destroy -auto-approve
 
@@ -123,7 +137,7 @@ install-spds-common:
 
 # ------------- SPDS FLINK -----------------
 
-build-flink-topology: ## Maven build SPDS Flink
+build-spds-flink: ## Maven build spds-flink module
 	mvn clean compile package -f $(SPDS_FLINK_PATH)/pom.xml
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs
 	cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
@@ -146,17 +160,17 @@ docker-execute-flink-topology:
 
 # ------------- SPDS STORM -----------------
 
+build-spds-storm: ## Maven build spds-storm module
+	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-storm -amd
+	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
+	cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
+ 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
+
 docker-build-storm:
 	sh $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-build.sh
 
 docker-push-storm:
 	sh $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-push.sh
-
-build-storm-topology: ## Maven build SPDS Storm
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-storm -amd
-	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
-	cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
- 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
 
 docker-run-storm-infrastructure:
 	docker-compose -f $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-compose.yml up -d
@@ -178,15 +192,12 @@ docker-execute-storm-topology:
 
 build-spds-kafka: ## Maven build spds-kafka module
 	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/spds-kafka/spds-kafka-stream-gira-topology/pom.xml
-	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs
-	cp $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/target/spds-kafka-stream-gira-topology-shaded.jar \
-	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs/
-	cp $(SPDS_KAFKA_PATH)/Dockerfile-kafka-stream \
-	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-kafka/jobs/
 
-docker-build-kafka-stream-topology:
+docker-build-kafka-stream-gira-travels-pattern:
+	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-build.sh
 
-docker-push-kafka-stream-topology:
+docker-push-kafka-stream-gira-travels-pattern:
+	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-push.sh
 
 docker-build-kafka-connect:
 	sh $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-build.sh

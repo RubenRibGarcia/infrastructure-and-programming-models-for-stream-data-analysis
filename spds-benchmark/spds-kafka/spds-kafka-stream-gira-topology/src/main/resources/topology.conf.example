@@ -2,13 +2,16 @@ kafka {
     stream {
         bootstrap_servers = "kafka:9092"
         application {
-            id = "gira-topology"
+            id = "gira-travels-pattern"
         }
     }
 }
 redis {
     host = "redis"
     port = "6379"
+    max_idle = 10
+    max_total = 10
+    min_idle = 0
 }
 metrics {
     statsd {

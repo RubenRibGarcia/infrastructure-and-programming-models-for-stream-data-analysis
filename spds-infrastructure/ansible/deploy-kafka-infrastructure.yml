@@ -5,17 +5,6 @@
   gather_facts: yes
   serial: 1
   roles:
-    - kafka-infrastructure/zookeeper
     - kafka-infrastructure/kafka
-    - kafka-infrastructure/kafka-connect
-    - kafka-infrastructure/kafka-drop
-  vars:
-    kafka_connectors_config:
-      - { name: "gira-travels", max_tasks: 1, from: "gira_travels", to: "gira_travels_topic", connector_class: "RabbitMQSourceConnector" }
-      - { name: "waze-irregularities", max_tasks: 1, from: "waze_irregularities", to: "waze_irregularities_topic", connector_class: "RabbitMQSourceConnector" }
-      - { name: "waze-jams", max_tasks: 1, from: "waze_jams", to: "waze_jams_topic", connector_class: "RabbitMQSourceConnector" }
-      - { name: "gira-result", max_tasks: 1, from: "gira_result_topic", to: "gira_result", connector_class: "RabbitMQSinkConnector" }
-    kafka_connectors:
-      - spds-kafka-rabbitmq-connector-shaded.jar
   tags:
     - kafka

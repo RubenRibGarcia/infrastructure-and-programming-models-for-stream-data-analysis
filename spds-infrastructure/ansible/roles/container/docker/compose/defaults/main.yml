@@ -1,4 +1,3 @@
 compose:
-  src: "/opt/impads/containers"
-  name:
+  src: /opt/impads/containers
   services: []

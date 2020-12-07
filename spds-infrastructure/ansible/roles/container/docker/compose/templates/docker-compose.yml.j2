@@ -35,11 +35,11 @@ services:
 {% for file in service.files %}
             - ./{{ file.from }}:{{ file.to }}:ro
 {% endfor %}
-{% if service.volumes if defined %}
+{% endif %}
+{% if service.volumes is defined %}
 {% for volume in service.volumes %}
             - {{ volume }}
 {% endfor %}
-{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}

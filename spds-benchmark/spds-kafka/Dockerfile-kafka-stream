@@ -1,5 +1,0 @@
-FROM adoptopenjdk/openjdk11:debian-slim-jre
-
-WORKDIR /
-COPY spds-kafka-stream-gira-topology/target/spds-kafka-stream-gira-topology-shaded.jar kafka-stream-topology.jar
-ENTRYPOINT ["java", "-jar", "kafka-stream-topology.jar" , "/opt/isel/thesis/impads/spds-kafka/topology/conf/topology.conf"]

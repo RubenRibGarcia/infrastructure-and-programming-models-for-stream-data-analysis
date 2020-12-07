@@ -2,13 +2,13 @@ kafka{
     stream {
         bootstrap_servers = "{{ kafka_bootstrap_server }}"
         application {
-            id = "gira-topology"
+            id = "gira-travels-pattern"
         }
     }
 }
 redis {
-    host = "{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}"
-    port = "6379"
+    host = {{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}
+    port = 6379
     max_idle = 10
     max_total = 10
     min_idle = 0

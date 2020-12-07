@@ -10,25 +10,24 @@
         - name: zookeeper
           image: bitnami/zookeeper:3.6.1
           container_name: zookeeper
-          environments:
+          environment:
             - ALLOW_ANONYMOUS_LOGIN=yes
         - name: kafka
           image: bitnami/kafka:2.6.0
           container_name: kafka
           ports:
             - "9092:9092"
-          environments:
+          environment:
             - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
             - ALLOW_PLAINTEXT_LISTENER=yes
             - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-            - KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://{{ kafka_services.kafka_internal_address }}:29092,OUTSIDE://{{ kafka_services.kafka_internal_address }}:9092
+            - KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://kafka:29092,OUTSIDE://{{ kafka_services.kafka_internal_address }}:9092
             - KAFKA_CFG_LISTENERS=INSIDE://:29092,OUTSIDE://:9092
             - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
         - name: kafka-drop
           image: obsidiandynamics/kafdrop:3.27.0
-          container-name: kafka-web-ui
+          container_name: kafka-web-ui
           ports:
             - "9000:9000"
           environment:
-            - KAFKA_BROKERCONNECT=kafka:9092
-        - name:
+            - KAFKA_BROKERCONNECT={{ kafka_services.kafka_internal_address }}:9092

@@ -1,9 +1,25 @@
 ---
+- hosts: kafka_node
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - kafka-infrastructure/kafka-connect
+  tags:
+    - kafka-connect
+
 - hosts: kafka_stream
   become: yes
   gather_facts: yes
   serial: 1
   roles:
       - topology-submitter/kafka-stream-job-submitter
+      - metrics-monitor/agent
+  vars:
+    agent:
+      statsd:
+        enabled: true
+      docker:
+        enabled: true
   tags:
       - kafka-stream-job-submit-gira-topology

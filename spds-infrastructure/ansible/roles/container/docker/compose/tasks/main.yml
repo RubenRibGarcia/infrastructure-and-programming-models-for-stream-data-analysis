@@ -40,14 +40,16 @@
     group: "impads"
     owner: "impads"
   with_items:
-    - "{{ compose.services | map(attribute='properties') | join }}"
+    - "{{ compose.services | map(attribute='properties') | list | flatten }}"
+  when: compose.services | selectattr("properties", "defined") | list | length > 0
 
 - name: Put files
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ compose.src }}/{{ compose.name }}/{{ item.from }}"
   with_items:
-    - "{{ compose.services | map(attribute='files') | join }}"
+    - "{{ compose.services | map(attribute='files') | list | flatten }}"
+  when: compose.services | selectattr("files", "defined") | list | length > 0
 
 - name : Stop services
   docker_compose:

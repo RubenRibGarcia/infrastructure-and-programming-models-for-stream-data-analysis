@@ -50,3 +50,5 @@ spds-infrastructure/ansible/files/**
 !.travis.yml
 
 /spds-data
+
+__pycache__

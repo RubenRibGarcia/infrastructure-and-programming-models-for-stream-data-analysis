@@ -2,10 +2,8 @@ version: "3.7"
 services:
 
   kafka-stream-topology:
-    build:
-      context: .
-      dockerfile: Dockerfile-kafka-stream
-    container_name: spds-kafka-stream-gira-topology
+    image: impads/kafka-streams-gira-travels-pattern:0.0.1
+    container_name: kafka-stream-gira-travels-pattern
     volumes:
       - <path/to/topology.conf>:/opt/isel/thesis/impads/spds-kafka/topology/conf/topology.conf
 
