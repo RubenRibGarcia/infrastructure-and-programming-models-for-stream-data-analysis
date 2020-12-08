@@ -26,7 +26,7 @@ module "misc-infrastructure" {
   zone = "europe-west1-b"
 
   instance_type = "e2-highmem-16"
-  instance_count = 1
+  instance_count = 0
 }
 
 /*=============================
@@ -78,7 +78,7 @@ module "kafka-stream" {
   zone = "europe-west3-a"
 
   instance_type = "e2-standard-8"
-  instance_count = 1
+  instance_count = 0
 }
 
 /*=============================
@@ -119,7 +119,7 @@ module "metrics-dashboard" {
   zone = "europe-west1-b"
 
   instance_type = "e2-standard-2"
-  instance_count = 1
+  instance_count = 0
 }
 
 

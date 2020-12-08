@@ -1,0 +1,8 @@
+kafka_operations:
+  create_topics:
+    topics: []
+  restart_consumer_groups:
+    execute: false
+  streams_applications_reset:
+    execute: false
+    application_id:

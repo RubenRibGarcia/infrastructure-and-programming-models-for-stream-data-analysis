@@ -1,0 +1,24 @@
+---
+- name: set kafka server list
+  set_fact:
+    kafka_server_list: "{{ kafka_server_list | default([]) + [ hostvars[item]['networkInterfaces'][0]['networkIP'] + ':' + '9092' ] }}"
+  with_items:
+    - "{{ groups['kafka_node'] }}"
+
+- name: set kafka boostrap server
+  set_fact:
+    kafka_bootstrap_server: "{{ kafka_server_list | join(',')}}"
+
+- name: Create Kafka Topics
+  shell: "docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server {{ kafka_bootstrap_server }} --create --if-not-exists --topic {{ item.name }} --partitions {{ item.partitions }}"
+  with_items:
+    - "{{ kafka_operations.create_topics.topics }}"
+  when: kafka_operations.create_topics.topics | length
+
+- name: Reset Consumer Groups
+  shell: "docker exec kafka /opt/bitnami/kafka/bin/kafka-consumer-groups.sh --bootstrap-server {{ kafka_bootstrap_server }} --all-groups --all-topics --reset-offsets --to-earliest --execute"
+  when: kafka_operations.restart_consumer_groups.execute
+
+- name: Reset Streams Applications
+  shell: "docker exec kafka /opt/bitnami/kafka/bin/kafka-streams-application-reset.sh --bootstrap-servers {{ kafka_bootstrap_server }} --application-id {{ kafka_operations.streams_applications_reset.application_id }}"
+  when: kafka_operations.streams_applications_reset.execute
