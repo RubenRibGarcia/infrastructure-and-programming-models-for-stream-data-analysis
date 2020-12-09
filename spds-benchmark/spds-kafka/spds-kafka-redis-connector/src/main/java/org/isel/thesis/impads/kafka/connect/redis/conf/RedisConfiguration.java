@@ -22,14 +22,6 @@ public class RedisConfiguration {
         return Integer.parseInt(config.get(RedisConfigurationFields.REDIS_PORT));
     }
 
-    public String getRedisDatabase() {
-        return config.get(RedisConfigurationFields.REDIS_DATABASE);
-    }
-
-    public String getRedisPassword() {
-        return config.get(RedisConfigurationFields.REDIS_PASSWORD);
-    }
-
     public int getRedisMaxTotal() {
         return Integer.parseInt(config.get(RedisConfigurationFields.REDIS_MAX_TOTAL));
     }

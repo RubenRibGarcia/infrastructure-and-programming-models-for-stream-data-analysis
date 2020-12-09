@@ -46,10 +46,12 @@ remote-bootstrap-run-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
 	terraform init; \
 	terraform apply -auto-approve
+	sleep 3
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
 	ansible-playbook deploy-flink-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
-	ansible-playbook deploy-misc-infrastructure.yml;
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook flink-job-submitter.yml;
 
 remote-bootstrap-stop-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
@@ -60,10 +62,12 @@ remote-bootstrap-run-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
 	terraform init; \
 	terraform apply -auto-approve
+	sleep 3
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
 	ansible-playbook deploy-storm-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
-	ansible-playbook deploy-misc-infrastructure.yml;
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook storm-job-submitter.yml;
 
 remote-bootstrap-stop-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
@@ -74,10 +78,12 @@ remote-bootstrap-run-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
 	terraform init; \
 	terraform apply -auto-approve
+	sleep 3
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
 	ansible-playbook deploy-kafka-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
-	ansible-playbook deploy-misc-infrastructure.yml;
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook kafka-stream-job-submitter.yml;
 
 remote-bootstrap-stop-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
@@ -191,7 +197,7 @@ docker-execute-storm-topology:
 # ------------- SPDS KAFKA -----------------
 
 build-spds-kafka: ## Maven build spds-kafka module
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/spds-kafka/spds-kafka-stream-gira-topology/pom.xml
+	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-kafka -amd
 
 docker-build-kafka-stream-gira-travels-pattern:
 	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-build.sh

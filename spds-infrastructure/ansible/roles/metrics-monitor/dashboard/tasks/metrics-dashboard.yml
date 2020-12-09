@@ -12,7 +12,7 @@
           container_name: influxdb
           ports:
             - "8086:8086"
-          environments:
+          environment:
             - INFLUXDB_DB=telegraf
             - INFLUXDB_HTTP_AUTH_ENABLED=true
             - INFLUXDB_ADMIN_USER=administrator
@@ -24,6 +24,7 @@
         - name: grafana
           image: grafana/grafana:7.1.5
           container_name: grafana
+          user: "root"
           ports:
             - "3000:3000"
           volumes:

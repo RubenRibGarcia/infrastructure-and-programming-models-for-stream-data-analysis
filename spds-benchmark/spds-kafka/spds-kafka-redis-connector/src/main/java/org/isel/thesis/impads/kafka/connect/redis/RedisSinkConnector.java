@@ -17,8 +17,6 @@ public class RedisSinkConnector extends SinkConnector {
     private static final ConfigDef CONFIG_DEF = new ConfigDef()
             .define(RedisConfigurationFields.REDIS_HOST, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, "Redis Host")
             .define(RedisConfigurationFields.REDIS_PORT, ConfigDef.Type.INT, ConfigDef.Importance.HIGH, "Redis Port")
-            .define(RedisConfigurationFields.REDIS_DATABASE, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, "Redis Database")
-            .define(RedisConfigurationFields.REDIS_PASSWORD, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, "Redis Password")
             .define(RedisConfigurationFields.REDIS_CONNECTION_TIMEOUT_MS, ConfigDef.Type.INT, ConfigDef.Importance.HIGH, "Redis Connection Timeout Ms")
             .define(RedisConfigurationFields.REDIS_MIN_IDLE, ConfigDef.Type.INT, ConfigDef.Importance.HIGH, "Redis Pool Min Idle")
             .define(RedisConfigurationFields.REDIS_MAX_IDLE, ConfigDef.Type.INT, ConfigDef.Importance.HIGH, "Redis Pool Max Idle")
@@ -46,8 +44,6 @@ public class RedisSinkConnector extends SinkConnector {
         Map<String, String> config = new HashMap<>();
         config.put(RedisConfigurationFields.REDIS_HOST, this.conf.getRedisHost());
         config.put(RedisConfigurationFields.REDIS_PORT, String.valueOf(this.conf.getRedisPort()));
-        config.put(RedisConfigurationFields.REDIS_DATABASE, this.conf.getRedisDatabase());
-        config.put(RedisConfigurationFields.REDIS_PASSWORD, this.conf.getRedisPassword());
         config.put(RedisConfigurationFields.REDIS_CONNECTION_TIMEOUT_MS, String.valueOf(this.conf.getRedisConnectionTimeoutMs()));
         config.put(RedisConfigurationFields.REDIS_MAX_TOTAL, String.valueOf(this.conf.getRedisMaxTotal()));
         config.put(RedisConfigurationFields.REDIS_MAX_IDLE, String.valueOf(this.conf.getRedisMaxIdle()));

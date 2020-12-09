@@ -19,6 +19,6 @@
       services:
         - name: kafka-stream-gira-topology
           image: impads/kafka-streams-gira-travels-pattern:0.0.1
-          container_name: kafka-stream-gira-topology
+          container_name: kafka-stream
           properties:
             - { src: gira-travels-pattern-topology.conf.j2, from: gira-travels-pattern-topology.conf.conf, to: /opt/isel/thesis/impads/spds-kafka/topology/conf/topology.conf }

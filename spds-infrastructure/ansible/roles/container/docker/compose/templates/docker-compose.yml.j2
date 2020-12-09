@@ -5,7 +5,10 @@ services:
 {% for service in compose.services %}
     {{ service.name }}:
         image: {{ service.image }}
-        restart: always
+        restart: {{ service.restart | default('always') }}
+{% if service.user is defined %}
+        user: {{ service.user }}
+{% endif %}
 {% if service.container_name is defined %}
         container_name: {{ service.container_name }}
 {% endif %}

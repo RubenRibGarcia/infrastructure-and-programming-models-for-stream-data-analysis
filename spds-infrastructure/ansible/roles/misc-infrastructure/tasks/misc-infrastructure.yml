@@ -21,5 +21,6 @@
           container_name: redis
           ports:
             - 6379:6379
-          environments:
+          environment:
             - REDIS_AOF_ENABLED=no
+            - ALLOW_EMPTY_PASSWORD=yes
