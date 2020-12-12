@@ -1,186 +1,129 @@
 package org.isel.thesis.impads.flink.topology;
 
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.redis.RedisProcessFunction;
-import org.apache.flink.streaming.connectors.redis.RedisSink;
-import org.apache.flink.streaming.connectors.redis.common.mapper.json.RPushJsonMapper;
-import org.apache.flink.util.Collector;
-import org.isel.thesis.impads.flink.topology.models.GiraTravelsWithWazeAndIpmaResult;
-import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
-import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
-import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
-import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.flink.topology.models.GiraTravelsSourceModel;
-import org.isel.thesis.impads.flink.topology.models.WazeIrregularitiesSourceModel;
-import org.isel.thesis.impads.flink.topology.models.WazeJamsSourceModel;
-import org.isel.thesis.impads.flink.topology.utils.IpmaUtils;
-import org.isel.thesis.impads.metrics.Observable;
-import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
-import org.locationtech.jts.geom.Geometry;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.isel.thesis.impads.flink.topology.phases.FirstJoinPhase;
+import org.isel.thesis.impads.flink.topology.phases.IngestionPhase;
+import org.isel.thesis.impads.flink.topology.phases.InitialTransformationPhase;
+import org.isel.thesis.impads.flink.topology.phases.OutputPhase;
+import org.isel.thesis.impads.flink.topology.phases.Phases;
+import org.isel.thesis.impads.flink.topology.phases.ResultPhase;
+import org.isel.thesis.impads.flink.topology.phases.SecondJoinPhase;
+import org.isel.thesis.impads.flink.topology.phases.StaticJoinPhase;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.io.WKBReader;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public final class GiraTravelsTopologyBuilder implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final double GEOMETRY_BUFFER = 0.0005;
+    private final StreamExecutionEnvironment streamExecutionEnvironment;
+    private final ConfigurationContainer configurationContainer;
+    private final ObjectMapper mapper;
+    private final GeometryFactory geoFactory;
 
-    public static void build(final ConfigurationContainer config
+    private GiraTravelsTopologyBuilder(final StreamExecutionEnvironment streamExecutionEnvironment
+            , final ConfigurationContainer configurationContainer
             , final ObjectMapper mapper
-            , final TopologySources sources
             , final GeometryFactory geoFactory) {
+        this.streamExecutionEnvironment = streamExecutionEnvironment;
+        this.configurationContainer = configurationContainer;
+        this.mapper = mapper;
+        this.geoFactory = geoFactory;
+    }
 
-        DataStream<Observable<SimplifiedGiraTravelsModel>> giraTravelsDataStream =
-                sources.getGiraTravelsSource()
-                        .filter(model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()
-                                || model.getData().getNumberOfVertices() != null && model.getData().getNumberOfVertices() > 1
-                                || model.getData().getDistance() != null && model.getData().getDistance() > 0)
-                        .map(new MapFunction<Observable<GiraTravelsSourceModel>
-                                , Observable<SimplifiedGiraTravelsModel>>() {
-                            @Override
-                            public Observable<SimplifiedGiraTravelsModel> map(
-                                    Observable<GiraTravelsSourceModel> model) throws Exception {
+    public static final void build(final StreamExecutionEnvironment streamExecutionEnvironment
+            , final ConfigurationContainer configurationContainer
+            , final ObjectMapper mapper
+            , final GeometryFactory geoFactory) {
+        GiraTravelsTopologyBuilder builder =
+                new GiraTravelsTopologyBuilder(streamExecutionEnvironment
+                        , configurationContainer
+                        , mapper
+                        , geoFactory);
 
-                                return model.map(new SimplifiedGiraTravelsModel(String.valueOf(model.getData().getId())
-                                        , model.getData().getGeometry()
-                                        , model.getEventTimestamp()));
-                            }
-                        });
+        builder.build();
+    }
 
-        DataStream<Observable<SimplifiedWazeJamsModel>> wazeJamsDataStream =
-                sources.getWazeJamsSource()
-                        .filter(model ->
-                                model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
-                        .map(new MapFunction<Observable<WazeJamsSourceModel>
-                                , Observable<SimplifiedWazeJamsModel>>() {
-                            @Override
-                            public Observable<SimplifiedWazeJamsModel> map(
-                                    Observable<WazeJamsSourceModel> model) throws Exception {
+    private void build() {
 
-                                return model.map(new SimplifiedWazeJamsModel(String.valueOf(model.getData().getId())
-                                        , model.getData().getGeometry()
-                                        , model.getEventTimestamp()));
-                            }
-                        });
+        Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        DataStream<Observable<SimplifiedWazeIrregularitiesModel>> wazeIrregularitiesDataStream =
-                sources.getWazeIrregularitiesSource()
-                        .filter(model ->
-                                model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
-                        .map(new MapFunction<Observable<WazeIrregularitiesSourceModel>
-                                , Observable<SimplifiedWazeIrregularitiesModel>>() {
-                            @Override
-                            public Observable<SimplifiedWazeIrregularitiesModel> map(
-                                    Observable<WazeIrregularitiesSourceModel> model) throws Exception {
+        if (untilPhase == Phases.INGESTION) {
+            initializeIngestionPhase();
+        }
+        else if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            initializeInitialTransformationPhase(ingestionPhase);
+        }
+        else if (untilPhase == Phases.FIRST_JOIN) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            initializeFirstJoinPhase(initialTransformationPhase);
+        }
+        else if (untilPhase == Phases.SECOND_JOIN){
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+        }
+        else if (untilPhase == Phases.STATIC_JOIN) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            initializeStaticJoinPhase(secondJoinPhase);
+        }
+        else if (untilPhase == Phases.RESULT) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
+            initializeResultPhase(staticJoinPhase);
+        }
+        else if (untilPhase == Phases.OUTPUT) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
+            ResultPhase resultPhase = initializeResultPhase(staticJoinPhase);
+            initializeOutputPhase(resultPhase);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown " + untilPhase + " phase");
+        }
+    }
 
-                                return model.map(new SimplifiedWazeIrregularitiesModel(String.valueOf(model.getData().getId())
-                                        , model.getData().getGeometry()
-                                        , model.getEventTimestamp()));
-                            }
-                        });
+    private IngestionPhase initializeIngestionPhase() {
+        return new IngestionPhase(streamExecutionEnvironment, configurationContainer, mapper);
+    }
 
-        DataStream<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazeJams =
-                giraTravelsDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
-                        .intervalJoin(wazeJamsDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
-                        .between(Time.milliseconds(-5), Time.milliseconds(5))
-                        .process(new ProcessJoinFunction<Observable<SimplifiedGiraTravelsModel>, Observable<SimplifiedWazeJamsModel>, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>>() {
-                            @Override
-                            public void processElement(Observable<SimplifiedGiraTravelsModel> left
-                                    , Observable<SimplifiedWazeJamsModel> right
-                                    , Context context
-                                    , Collector<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> collector) throws Exception {
+    private InitialTransformationPhase initializeInitialTransformationPhase(IngestionPhase ingestionPhase) {
+        return new InitialTransformationPhase(configurationContainer, ingestionPhase);
+    }
 
-                                final Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel> tuple =
-                                        Tuple2.of(left.getData(), right.getData());
+    private FirstJoinPhase initializeFirstJoinPhase(InitialTransformationPhase initialTransformationPhase) {
+        return new FirstJoinPhase(configurationContainer, initialTransformationPhase);
+    }
 
-                                collector.collect(left.join(tuple, right));
-                            }
-                        });
+    private SecondJoinPhase initializeSecondJoinPhase(InitialTransformationPhase initialTransformationPhase
+            , FirstJoinPhase firstJoinPhase) {
+        return new SecondJoinPhase(configurationContainer, initialTransformationPhase, firstJoinPhase);
+    }
 
-        DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWaze =
-                joinedGiraTravelsWithWazeJams.keyBy(k -> Instant.ofEpochMilli(k.getData().f0.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
-                        .intervalJoin(wazeIrregularitiesDataStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
-                        .between(Time.milliseconds(-5), Time.milliseconds(5))
-                        .process(new ProcessJoinFunction<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>, Observable<SimplifiedWazeIrregularitiesModel>, Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>>() {
-                            @Override
-                            public void processElement(Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>> left
-                                    , Observable<SimplifiedWazeIrregularitiesModel> right
-                                    , Context context
-                                    , Collector<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> collector) throws Exception {
+    private StaticJoinPhase initializeStaticJoinPhase(SecondJoinPhase secondJoinPhase) {
+        return new StaticJoinPhase(configurationContainer, secondJoinPhase);
+    }
 
-                                final Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel> tuple =
-                                        Tuple3.of(left.getData().f0, left.getData().f1, right.getData());
+    private ResultPhase initializeResultPhase(StaticJoinPhase staticJoinPhase) {
+        return new ResultPhase(configurationContainer, geoFactory, staticJoinPhase);
+    }
 
-                                collector.collect(left.join(tuple, right));
-                            }
-                        });
-
-        DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> joinedGiraTravelsWithWazeAndIpma =
-                joinedGiraTravelsWithWaze
-                        .process(new RedisProcessFunction<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>, Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>>(config.getRedisConfiguration()) {
-                            @Override
-                            public void processElement(Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>> tuple
-                                    , Context context
-                                    , Collector<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> collector)
-                                    throws Exception {
-                                String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(tuple.getData().f0.getEventTimestamp()));
-                                IpmaValuesModel rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
-
-                                collector.collect(tuple.map(Tuple4.of(tuple.getData().f0, tuple.getData().f1, tuple.getData().f2, rvalue)));
-                            }
-                        });
-
-        DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> result =
-                joinedGiraTravelsWithWazeAndIpma.map(new MapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>, Observable<GiraTravelsWithWazeAndIpmaResult>>() {
-                    @Override
-                    public Observable<GiraTravelsWithWazeAndIpmaResult> map(Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>> tuple) throws Exception {
-                        boolean jamAndIrrMatches = false;
-
-                        WKBReader reader = new WKBReader(geoFactory);
-                        final Geometry giraGeo
-                                = reader.read(WKBReader.hexToBytes(tuple.getData().f0.getGeometry()));
-                        final Geometry wazeIrrGeo
-                                = reader.read(WKBReader.hexToBytes(tuple.getData().f2.getGeometry()));
-                        final Geometry wazeJamGeo
-                                = reader.read(WKBReader.hexToBytes(tuple.getData().f1.getGeometry()));
-
-                        final Geometry giraTravelStartingPoint =
-                                ((LineString) giraGeo.getGeometryN(0))
-                                        .getStartPoint()
-                                        .buffer(GEOMETRY_BUFFER);
-
-                        if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
-                            jamAndIrrMatches = true;
-                        }
-
-                        GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(tuple.getData().f0
-                                , tuple.getData().f1
-                                , tuple.getData().f2
-                                , tuple.getData().f3
-                                , giraTravelStartingPoint.intersects(wazeJamGeo)
-                                , giraTravelStartingPoint.intersects(wazeIrrGeo)
-                                , jamAndIrrMatches);
-
-                        return tuple.map(rvalue);
-                    }
-                });
-
-        result.addSink(ObservableSinkFunction.observe(config.getMetricsCollectorConfiguration()
-                , new RedisSink<>(config.getRedisConfiguration()
-                        , new RPushJsonMapper<>(mapper, "flink_output"))));
+    private OutputPhase initializeOutputPhase(ResultPhase resultPhase) {
+        return new OutputPhase(configurationContainer, mapper, resultPhase);
     }
 }
 

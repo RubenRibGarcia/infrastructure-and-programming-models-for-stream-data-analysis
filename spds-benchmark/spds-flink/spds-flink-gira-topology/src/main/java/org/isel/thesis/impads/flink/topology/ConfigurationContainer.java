@@ -7,6 +7,7 @@ import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolC
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfigurationFields;
 import org.isel.thesis.impads.flink.topology.GiraTravelsTopologyConfiguration.GiraTravelsTopologyConfigurationFields;
+import org.isel.thesis.impads.flink.topology.phases.Phases;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
@@ -38,6 +39,7 @@ public final class ConfigurationContainer {
     private static GiraTravelsTopologyConfiguration doInitializeGiraTravelsTopologyConfiguration(Config config) {
         return GiraTravelsTopologyConfiguration.builder()
                 .withParallelism(config.getInt(GiraTravelsTopologyConfigurationFields.TOPOLOGY_PARALLELISM))
+                .withUntilPhase(config.getEnum(Phases.class, GiraTravelsTopologyConfigurationFields.TOPOLOGY_UNTIL_PHASE))
                 .build();
     }
 

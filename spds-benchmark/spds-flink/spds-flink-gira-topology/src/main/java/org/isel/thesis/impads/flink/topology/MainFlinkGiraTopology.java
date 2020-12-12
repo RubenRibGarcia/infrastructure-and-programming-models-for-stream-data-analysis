@@ -41,14 +41,10 @@ public class MainFlinkGiraTopology {
         final ObjectMapper mapper = initMapper();
         final GeometryFactory geoFactory = initGeometryFactory();
 
-        final TopologySources topologySources =
-                TopologySources.initializeTopologySources(env, configurationContainer, mapper);
-
-        GiraTravelsTopologyBuilder.build(configurationContainer
+        GiraTravelsTopologyBuilder.build(env
+                , configurationContainer
                 , mapper
-                , topologySources
                 , geoFactory);
-
 
         env.execute(JOB_NAME);
     }
