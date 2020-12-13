@@ -36,7 +36,7 @@ public class FirstJoinPhase implements Serializable {
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        if (untilPhase == Phases.FIRST_JOIN) {
             joinedGiraTravelsWithWazeJamsStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
         }
     }

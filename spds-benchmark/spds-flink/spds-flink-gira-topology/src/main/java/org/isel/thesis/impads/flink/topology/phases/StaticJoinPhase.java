@@ -38,7 +38,7 @@ public class StaticJoinPhase implements Serializable {
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        if (untilPhase == Phases.STATIC_JOIN) {
             enrichedJoinedGiraTravelsWithWazeAndIpma.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
         }
     }

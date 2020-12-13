@@ -1,5 +1,6 @@
 topology {
     parallelism = 24
+    until_phase = INGESTION
 }
 rabbitmq {
     host = "rabbitmq"

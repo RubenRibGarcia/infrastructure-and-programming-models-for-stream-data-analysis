@@ -8,25 +8,42 @@ import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
 import org.isel.thesis.impads.storm.redis.common.config.JedisPoolConfig;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfigurationFields;
+import org.isel.thesis.impads.storm.topology.GiraTravelsTopologyConfiguration.GiraTravelsTopologyConfigurationFields;
+import org.isel.thesis.impads.storm.topology.phases.Phases;
 
-public final class ConfigurationContainer {
+import java.io.Serializable;
 
+public final class ConfigurationContainer implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final GiraTravelsTopologyConfiguration topologyConfiguration;
     private final RabbitMQConfiguration rabbitMQConfiguration;
     private final JedisPoolConfig redisConfiguration;
     private final MetricsCollectorConfiguration metricsCollectorConfiguration;
 
-    private ConfigurationContainer(RabbitMQConfiguration rabbitMQConfiguration
+    private ConfigurationContainer(GiraTravelsTopologyConfiguration topologyConfiguration
+            , RabbitMQConfiguration rabbitMQConfiguration
             , JedisPoolConfig redisConfiguration
             , MetricsCollectorConfiguration metricsCollectorConfiguration) {
+        this.topologyConfiguration = topologyConfiguration;
         this.rabbitMQConfiguration = rabbitMQConfiguration;
         this.redisConfiguration = redisConfiguration;
         this.metricsCollectorConfiguration = metricsCollectorConfiguration;
     }
 
     public static ConfigurationContainer setup(Config config) {
-        return new ConfigurationContainer(doInitializeRabbitMQConfiguration(config)
+        return new ConfigurationContainer(doInitializeGiraTravelsTopologyConfiguration(config)
+                , doInitializeRabbitMQConfiguration(config)
                 , doInitializeRedisConfiguration(config)
                 , doInitializeMetricsCollectorConfiguration(config));
+    }
+
+    private static GiraTravelsTopologyConfiguration doInitializeGiraTravelsTopologyConfiguration(Config config) {
+        return GiraTravelsTopologyConfiguration.builder()
+                .withParallelism(config.getInt(GiraTravelsTopologyConfigurationFields.TOPOLOGY_PARALLELISM))
+                .withUntilPhase(config.getEnum(Phases.class, GiraTravelsTopologyConfigurationFields.TOPOLOGY_UNTIL_PHASE))
+                .build();
     }
 
     private static RabbitMQConfiguration doInitializeRabbitMQConfiguration(Config config) {
@@ -52,6 +69,10 @@ public final class ConfigurationContainer {
         return new MetricsCollectorConfiguration(config.getEnum(MetricsStatsDAgent.class, MetricsCollectorConfigurationFields.METRICS_STATSD_AGENT)
                 , config.getString(MetricsCollectorConfigurationFields.METRICS_STATSD_HOST)
                 , config.getInt(MetricsCollectorConfigurationFields.METRICS_STATSD_PORT));
+    }
+
+    public GiraTravelsTopologyConfiguration getTopologyConfiguration() {
+        return topologyConfiguration;
     }
 
     public RabbitMQConfiguration getRabbitMQConfiguration() {

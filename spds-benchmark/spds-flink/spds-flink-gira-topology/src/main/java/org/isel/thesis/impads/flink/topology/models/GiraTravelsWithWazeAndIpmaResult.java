@@ -2,7 +2,11 @@ package org.isel.thesis.impads.flink.topology.models;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GiraTravelsWithWazeAndIpmaResult {
+import java.io.Serializable;
+
+public class GiraTravelsWithWazeAndIpmaResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final SimplifiedGiraTravelsModel giraData;
     private final SimplifiedWazeJamsModel wazeJamData;

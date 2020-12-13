@@ -40,16 +40,17 @@ public class ResultPhase implements Serializable {
 
     private void initializePhase(StaticJoinPhase staticJoinPhase) {
         this.resultStream =
-                transformToResult(staticJoinPhase.getEnrichedJoinedGiraTravelsWithWazeAndIpma());
+                transformToResult(geoFactory
+                        , staticJoinPhase.getEnrichedJoinedGiraTravelsWithWazeAndIpma());
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        if (untilPhase == Phases.RESULT) {
             resultStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
         }
     }
 
-    private DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> transformToResult(DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichedJoinedGiraTravelsWithWazeAndIpma) {
+    private static DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> transformToResult(GeometryFactory geoFactory, DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichedJoinedGiraTravelsWithWazeAndIpma) {
         return enrichedJoinedGiraTravelsWithWazeAndIpma.map(new MapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>, Observable<GiraTravelsWithWazeAndIpmaResult>>() {
             @Override
             public Observable<GiraTravelsWithWazeAndIpmaResult> map(Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>> tuple) throws Exception {

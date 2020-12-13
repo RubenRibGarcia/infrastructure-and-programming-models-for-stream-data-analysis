@@ -43,7 +43,7 @@ public class SecondJoinPhase implements Serializable {
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        if (untilPhase == Phases.SECOND_JOIN) {
             joinedGiraTravelsWithWazeStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
         }
     }

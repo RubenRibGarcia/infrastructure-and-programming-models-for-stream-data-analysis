@@ -133,7 +133,7 @@ APACHE_FLINK_INFRASTRUCTURE_PATH 		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apa
 APACHE_STORM_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apache-storm
 APACHE_KAFKA_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/apache-kafka
 METRICS_MONITOR_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/metrics-monitor
-MISC_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/componentes/misc-infrastructure
+MISC_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/components/misc-infrastructure
 
 build-spds-benchmark-project:
 	mvn clean compile package -f $(DIR)/pom.xml -pl spds-benchmark -amd
@@ -191,7 +191,7 @@ docker-execute-storm-topology:
 	nimbus:/apache-storm-2.2.0/topology.conf
 	docker exec nimbus storm jar \
 	/apache-storm-2.2.0/topology.jar \
-	org.isel.thesis.impads.storm.low_level.topology.MainStormGiraTopology \
+	org.isel.thesis.impads.storm.topology.MainStormGiraTopology \
 	/apache-storm-2.2.0/topology.conf
 
 # ------------- SPDS KAFKA -----------------
