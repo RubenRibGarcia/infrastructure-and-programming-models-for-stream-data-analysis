@@ -12,7 +12,6 @@ import org.apache.kafka.streams.Topology;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
 import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainerBuilder;
-import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisContainer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeJamsDeserializer;
@@ -71,20 +70,17 @@ MainKafkaStreamGiraTopology {
         ConfigurationContainer configurationContainer =
                 ConfigurationContainer.setup(config);
 
-        final TopologySources sources =
-                TopologySources.initializeTopologySources(streamsBuilder, mapper);
-
-        final KafkaStreamObservableMetricsCollector observableMeasure =
+        final KafkaStreamObservableMetricsCollector collector =
                 new KafkaStreamObservableMetricsCollector(configurationContainer.getMetricsCollectorConfiguration());
 
         final RedisCommandsContainer redisContainer =
                 RedisCommandsContainerBuilder.build(configurationContainer.getRedisConfiguration());
 
         Topology topology = GiraTravelsTopologyBuilder.build(streamsBuilder
-                , sources
-                , geoFactory
+                , configurationContainer
                 , mapper
-                , observableMeasure
+                , geoFactory
+                , collector
                 , redisContainer);
 
         logger.info("Topology description: {}", topology.describe());

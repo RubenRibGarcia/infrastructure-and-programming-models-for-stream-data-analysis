@@ -1,149 +1,139 @@
 package org.isel.thesis.impads.kafka.stream.topology;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.JoinWindows;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.StreamJoined;
-import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
 import org.isel.thesis.impads.kafka.stream.metrics.KafkaStreamObservableMetricsCollector;
-import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsWithWazeAndIpmaResult;
-import org.isel.thesis.impads.kafka.stream.topology.model.IpmaValuesModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableGiraTravelsWithWazeResults;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWaze;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeAndIpma;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTravelsWithWazeJams;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedGiraTravelsModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeIrregularitiesModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.ObservableSimplifiedWazeJamsModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedGiraTravelsModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeIrregularitiesModel;
-import org.isel.thesis.impads.kafka.stream.topology.model.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.kafka.stream.topology.utils.IpmaUtils;
-import org.isel.thesis.impads.kafka.stream.topology.utils.SerdesUtils;
-import org.isel.thesis.impads.structures.Tuple2;
-import org.isel.thesis.impads.structures.Tuple3;
-import org.isel.thesis.impads.structures.Tuple4;
-import org.locationtech.jts.geom.Geometry;
+import org.isel.thesis.impads.kafka.stream.topology.phases.FirstJoinPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.IngestionPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.InitialTransformationPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.OutputPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.Phases;
+import org.isel.thesis.impads.kafka.stream.topology.phases.ResultPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.SecondJoinPhase;
+import org.isel.thesis.impads.kafka.stream.topology.phases.StaticJoinPhase;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public final class GiraTravelsTopologyBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(GiraTravelsTopologyBuilder.class);
+    private final StreamsBuilder streamsBuilder;
+    private final ConfigurationContainer configurationContainer;
+    private final ObjectMapper mapper;
+    private final GeometryFactory geoFactory;
+    private final KafkaStreamObservableMetricsCollector collector;
+    private final RedisCommandsContainer redisCommandsContainer;
 
-    private static final double GEOMETRY_BUFFER = 0.0005;
-
-    public static Topology build(final StreamsBuilder streamsBuilder
-            , final TopologySources topologySources
-            , final GeometryFactory geoFactory
+    private GiraTravelsTopologyBuilder(final StreamsBuilder streamsBuilder
+            , final ConfigurationContainer configurationContainer
             , final ObjectMapper mapper
-            , final KafkaStreamObservableMetricsCollector observableMetricsCollector
-            , final RedisCommandsContainer redisContainer) {
+            , final GeometryFactory geoFactory
+            , final KafkaStreamObservableMetricsCollector collector
+            , final RedisCommandsContainer redisCommandsContainer) {
+        this.streamsBuilder = streamsBuilder;
+        this.configurationContainer = configurationContainer;
+        this.mapper = mapper;
+        this.geoFactory = geoFactory;
+        this.collector = collector;
+        this.redisCommandsContainer = redisCommandsContainer;
+    }
 
-        KStream<Long, ObservableSimplifiedGiraTravelsModel> observableGiraTravelsStream = topologySources.getGiraTravelsStream()
-                .filter((k, v) ->
-                        (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty())
-                                || v.getData().getNumberOfVertices() != null && v.getData().getNumberOfVertices() > 1
-                                || v.getData().getDistance() != null && v.getData().getDistance() > 0)
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedGiraTravelsModel(v.map(new SimplifiedGiraTravelsModel(String.valueOf(v.getData().getId())
-                            , v.getData().getGeometry()
-                            , v.getEventTimestamp())))));
+    public static final Topology build(final StreamsBuilder streamsBuilder
+            , final ConfigurationContainer configurationContainer
+            , final ObjectMapper mapper
+            , final GeometryFactory geoFactory
+            , final KafkaStreamObservableMetricsCollector collector
+            , final RedisCommandsContainer redisCommandsContainer) {
+        GiraTravelsTopologyBuilder builder =
+                new GiraTravelsTopologyBuilder(streamsBuilder
+                        , configurationContainer
+                        , mapper
+                        , geoFactory
+                        , collector
+                        , redisCommandsContainer);
 
-        KStream<Long, ObservableSimplifiedWazeJamsModel> observableWazeJamsStream = topologySources.getWazeJamsStream()
-                .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeJamsModel(v.map(new SimplifiedWazeJamsModel(String.valueOf(v.getData().getId())
-                           , v.getData().getGeometry()
-                           , v.getEventTimestamp())))));
+        return builder.build();
+    }
 
-        KStream<Long, ObservableSimplifiedWazeIrregularitiesModel> observableWazeIrregularitiesStream = topologySources.getWazeIrregularitiesStream()
-                .filter((k, v) -> (v.getData().getGeometry() != null && !v.getData().getGeometry().isEmpty()))
-                .map((k, v) -> KeyValue.pair(Instant.ofEpochMilli(v.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli(), new ObservableSimplifiedWazeIrregularitiesModel(v.map(new SimplifiedWazeIrregularitiesModel(String.valueOf(v.getData().getId())
-                        , v.getData().getGeometry()
-                        , v.getEventTimestamp())))));
+    private Topology build() {
 
+        Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        KStream<Long, ObservableJoinedGiraTravelsWithWazeJams> joinedGiraTravelsWithWazeJams =
-                observableGiraTravelsStream
-                        .join(observableWazeJamsStream
-                                , (left, right) -> new ObservableJoinedGiraTravelsWithWazeJams(left.join(Tuple2.of(left.getData(), right.getData()), right))
-                                , JoinWindows.of(Duration.ofMillis(5))
-                                , StreamJoined.with(Serdes.Long()
-                                        , SerdesUtils.simplifiedGiraTravelsSerdes(mapper)
-                                        , SerdesUtils.simplifiedWazeJamsSerdes(mapper)));
-
-        KStream<Long, ObservableJoinedGiraTravelsWithWaze> joinedGiraTravelsWithWaze =
-                joinedGiraTravelsWithWazeJams
-                        .join(observableWazeIrregularitiesStream
-                                , (left, right) -> new ObservableJoinedGiraTravelsWithWaze(left.join(Tuple3.of(left.getData().getFirst(), left.getData().getSecond(), right.getData()), right))
-                                , JoinWindows.of(Duration.ofMillis(5))
-                                , StreamJoined.with(Serdes.Long()
-                                                , SerdesUtils.joinedGiraTravelsWithWazeJamsJsonSerdes(mapper)
-                                                , SerdesUtils.simplifiedWazeIrregularitiesSerdes(mapper)));
-
-        KStream<Long, ObservableJoinedGiraTravelsWithWazeAndIpma> joinedGiraTravelsWithWazeAndIpma =
-                joinedGiraTravelsWithWaze.mapValues(v -> {
-                    String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(v.getData().getFirst().getEventTimestamp()));
-                    IpmaValuesModel rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisContainer);
-
-                    return new ObservableJoinedGiraTravelsWithWazeAndIpma(
-                            v.map(Tuple4.of(v.getData().getFirst(), v.getData().getSecond(), v.getData().getThird(), rvalue)));
-                });
-
-
-        KStream<Long, ObservableGiraTravelsWithWazeResults> result =
-                joinedGiraTravelsWithWazeAndIpma
-                        .map((k, v) -> {
-                            try {
-                                boolean jamAndIrrMatches = false;
-
-                                WKBReader reader = new WKBReader(geoFactory);
-                                final Geometry giraGeo
-                                        = reader.read(WKBReader.hexToBytes(v.getData().getFirst().getGeometry()));
-                                final Geometry wazeIrrGeo
-                                        = reader.read(WKBReader.hexToBytes(v.getData().getThird().getGeometry()));
-                                final Geometry wazeJamGeo
-                                        = reader.read(WKBReader.hexToBytes(v.getData().getSecond().getGeometry()));
-
-                                final Geometry giraTravelStartingPoint =
-                                        ((LineString) giraGeo.getGeometryN(0))
-                                                .getStartPoint()
-                                                .buffer(GEOMETRY_BUFFER);
-
-                                if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
-                                    jamAndIrrMatches = true;
-                                }
-
-                                GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(v.getData().getFirst()
-                                        , v.getData().getSecond()
-                                        , v.getData().getThird()
-                                        , v.getData().getFourth()
-                                        , giraTravelStartingPoint.intersects(wazeJamGeo)
-                                        , giraTravelStartingPoint.intersects(wazeIrrGeo)
-                                        , jamAndIrrMatches);
-
-                                return KeyValue.pair(k, new ObservableGiraTravelsWithWazeResults(v.map(rvalue)));
-                            }
-                            catch(Exception e) {
-                                throw new RuntimeException(e.getMessage(), e);
-                            }
-                        })
-                .peek((k,v) -> observableMetricsCollector.collect(v));
-
-
-        result.to("kafka_result", Produced.with(Serdes.Long(), SerdesUtils.giraTravelsWithWazeResultsJsonSerdes(mapper)));
+        if (untilPhase == Phases.INGESTION) {
+            initializeIngestionPhase();
+        }
+        else if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            initializeInitialTransformationPhase(ingestionPhase);
+        }
+        else if (untilPhase == Phases.FIRST_JOIN) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            initializeFirstJoinPhase(initialTransformationPhase);
+        }
+        else if (untilPhase == Phases.SECOND_JOIN){
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+        }
+        else if (untilPhase == Phases.STATIC_JOIN) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            initializeStaticJoinPhase(secondJoinPhase);
+        }
+        else if (untilPhase == Phases.RESULT) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
+            initializeResultPhase(staticJoinPhase);
+        }
+        else if (untilPhase == Phases.OUTPUT) {
+            IngestionPhase ingestionPhase = initializeIngestionPhase();
+            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
+            SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
+            StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
+            ResultPhase resultPhase = initializeResultPhase(staticJoinPhase);
+            initializeOutputPhase(resultPhase);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown " + untilPhase + " phase");
+        }
 
         return streamsBuilder.build();
+    }
+
+    private IngestionPhase initializeIngestionPhase() {
+        return new IngestionPhase(streamsBuilder, configurationContainer, mapper, collector);
+    }
+
+    private InitialTransformationPhase initializeInitialTransformationPhase(IngestionPhase ingestionPhase) {
+        return new InitialTransformationPhase(configurationContainer, collector, ingestionPhase);
+    }
+
+    private FirstJoinPhase initializeFirstJoinPhase(InitialTransformationPhase initialTransformationPhase) {
+        return new FirstJoinPhase(configurationContainer, collector, mapper, initialTransformationPhase);
+    }
+
+    private SecondJoinPhase initializeSecondJoinPhase(InitialTransformationPhase initialTransformationPhase
+            , FirstJoinPhase firstJoinPhase) {
+        return new SecondJoinPhase(configurationContainer, collector, mapper, initialTransformationPhase, firstJoinPhase);
+    }
+
+    private StaticJoinPhase initializeStaticJoinPhase(SecondJoinPhase secondJoinPhase) {
+        return new StaticJoinPhase(configurationContainer, collector, redisCommandsContainer, secondJoinPhase);
+    }
+
+    private ResultPhase initializeResultPhase(StaticJoinPhase staticJoinPhase) {
+        return new ResultPhase(configurationContainer, geoFactory, collector, staticJoinPhase);
+    }
+
+    private OutputPhase initializeOutputPhase(ResultPhase resultPhase) {
+        return new OutputPhase(collector, mapper, resultPhase);
     }
 }
