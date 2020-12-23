@@ -1,3 +1,6 @@
+jobmanager.rpc.address: {{ flink_services.flink_job_manager_address }}
+jobmanager.rpc.port: 6123
+
 taskmanager.host: {{ hostvars[ansible_hostname]['networkInterfaces'][0]['networkIP'] }}
 taskmanager.rpc.port: 50100
 taskmanager.data.port: 40100

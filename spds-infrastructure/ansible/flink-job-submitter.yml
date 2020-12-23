@@ -10,5 +10,8 @@
     flink_job_arguments: "--config.file.path /opt/impads/flink/jobs/flink-gira-topology.conf"
     flink_job_config_files:
       - { from: "{{ playbook_dir }}/files/spds-flink/jobs/flink-gira-topology.conf", to: "/opt/impads/flink/jobs/flink-gira-topology.conf"}
+    flink_job_configs_vars:
+      parallelism: 8
+      until_phase: STATIC_JOIN
   tags:
     - flink-job-submit-gira-topology

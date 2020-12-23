@@ -43,7 +43,7 @@ local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-
 # ------------- REMOTE BOOTSTRAP ---------------------
 # ------------- Apache Flink -------------------------
 remote-bootstrap-run-flink:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
@@ -54,12 +54,12 @@ remote-bootstrap-run-flink:
 	ansible-playbook flink-job-submitter.yml;
 
 remote-bootstrap-stop-flink:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
 	terraform destroy -auto-approve
 
 # ------------- Apache Storm -------------------------
 remote-bootstrap-run-storm:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
@@ -70,12 +70,12 @@ remote-bootstrap-run-storm:
 	ansible-playbook storm-job-submitter.yml;
 
 remote-bootstrap-stop-storm:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
 	terraform destroy -auto-approve
 
 # ------------- Apache Kafka -------------------------
 remote-bootstrap-run-kafka:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
@@ -86,7 +86,7 @@ remote-bootstrap-run-kafka:
 	ansible-playbook kafka-stream-job-submitter.yml;
 
 remote-bootstrap-stop-kafka:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
 	terraform destroy -auto-approve
 
 # ------------- DATA ADAPTER ---------------------
