@@ -15,7 +15,7 @@ def main():
 
     try:
         for spds in SPDS:
-            TERRAFORM_BASE = f"{SPDS_INFRASTRUCTURE}/terraform/gcp/{spds}"
+            TERRAFORM_BASE = f"{SPDS_INFRASTRUCTURE}/terraform/aws/{spds}"
 
             # https://security.openstack.org/guidelines/dg_avoid-shell-true.html
             terraformOutput = subprocess.check_output(shlex.split("terraform output -json"),

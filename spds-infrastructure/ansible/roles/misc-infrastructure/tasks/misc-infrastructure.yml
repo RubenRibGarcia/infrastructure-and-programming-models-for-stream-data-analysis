@@ -15,8 +15,8 @@
           environment:
             - REDIS_AOF_ENABLED=no
             - ALLOW_EMPTY_PASSWORD=yes
-          properties:
-            - { src: redis.conf.j2, from: redis.conf, to: /opt/bitnami/redis/mounted-etc/redis.conf }
+#          properties:
+#            - { src: redis.conf.j2, from: redis.conf, to: /opt/bitnami/redis/mounted-etc/redis.conf }
         - name: rabbitmq
           image: rabbitmq:3.8.9-management
           container_name: rabbitmq
