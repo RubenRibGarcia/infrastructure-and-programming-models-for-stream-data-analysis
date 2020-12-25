@@ -32,35 +32,35 @@ module "misc-infrastructure" {
   Apache Flink
 ===============================*/
 
-//module "flink-job-manager" {
-//  source = "../modules/ec2"
-//
-//  name = "flink-job-manager"
-//
-//  instance_type = "c5a.2xlarge"
-//  instance_count = 0
-//}
-//
-//module "flink-task-manager" {
-//  source = "../modules/ec2"
-//
-//  name = "flink-task-manager"
-//
-//  instance_type = "c5a.2xlarge"
-//  instance_count = 0
-//}
+module "flink-job-manager" {
+  source = "../modules/ec2"
+
+  name = "flink-job-manager"
+
+  instance_type = "c5a.2xlarge"
+  instance_count = 1
+}
+
+module "flink-task-manager" {
+  source = "../modules/ec2"
+
+  name = "flink-task-manager"
+
+  instance_type = "c5a.2xlarge"
+  instance_count = 1
+}
 
 /*=============================
   Metrics Dashboard
 ===============================*/
 
-//module "metrics-dashboard" {
-//  source = "../modules/ec2"
-//
-//  name = "metrics-dashboard"
-//
-//  instance_type = "c5a.large"
-//  instance_count = 0
-//}
+module "metrics-dashboard" {
+  source = "../modules/ec2"
+
+  name = "metrics-dashboard"
+
+  instance_type = "c5a.large"
+  instance_count = 1
+}
 
 

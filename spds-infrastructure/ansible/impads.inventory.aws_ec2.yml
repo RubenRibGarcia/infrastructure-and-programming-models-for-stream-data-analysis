@@ -1,0 +1,20 @@
+plugin: aws_ec2
+regions:
+  - eu-west-1
+hostnames:
+  - tag:Name
+keyed_groups:
+  - key: tags.Type
+    separator: ""
+groups:
+  flink_task_manager: "'flink-task-manager' in (tags|list)"
+  flink_job_manager: "'flink-job-manager' in (tags|list)"
+  metrics_dashboard: "'metrics-dashboard' in (tags|list)"
+  kafka_node: "'kafka-node' in (tags|list)"
+  kafka_stream: "'kafka-stream' in (tags|list)"
+  storm_nimbus: "'storm-nimbus' in (tags|list)"
+  storm_supervisor: "'storm-supervisor' in (tags|list)"
+  misc_infrastructure: "'misc-infrastructure' in (tags|list)"
+compose:
+  ansible_host: public_ip_address
+strict_permissions: False

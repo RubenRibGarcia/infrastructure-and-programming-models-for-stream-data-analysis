@@ -51,8 +51,8 @@ def main():
 
 
     if answers is not None:
-        print("/usr/bin/ssh", "impads@{}".format(connect[answers['serverName']]))
-        os.execl("/usr/bin/ssh", "-o ConnectTimeout=5", "impads@{}".format(connect[answers['serverName']]))
+        print("/usr/bin/ssh", "admin@{}".format(connect[answers['serverName']]))
+        os.execl("/usr/bin/ssh", "-o ConnectTimeout=5", "admin@{}".format(connect[answers['serverName']]))
     
     return 0
 
