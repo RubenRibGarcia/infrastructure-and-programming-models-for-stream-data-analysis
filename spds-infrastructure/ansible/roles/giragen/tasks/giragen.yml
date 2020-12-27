@@ -13,6 +13,6 @@
           properties:
             - { src: application.conf.j2, from: application.conf, to: /opt/isel/thesis/impads/spds-benchmark/giragen/conf/application.conf }
           files:
-            - { src: "{{ playbook_dir }}/../../spds-data/viagens_gira_2018.csv", from: viagens_gira_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv }
-            - { src: "{{ playbook_dir }}/../../spds-data/waze_irregularidades_2018.csv", from: waze_irregularidades_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv }
-            - { src: "{{ playbook_dir }}/../../spds-data/waze_jams_2018.csv", from: waze_jams_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv }
+            - { src: "{{ playbook_dir }}/../../../spds-data/viagens_gira_2018.csv", from: viagens_gira_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/viagens_gira_2018.csv }
+            - { src: "{{ playbook_dir }}/../../../spds-data/waze_irregularidades_2018.csv", from: waze_irregularidades_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_irregularidades_2018.csv }
+            - { src: "{{ playbook_dir }}/../../../spds-data/waze_jams_2018.csv", from: waze_jams_2018.csv, to: /opt/isel/thesis/impads/spds-benchmark/giragen/data/waze_jams_2018.csv }

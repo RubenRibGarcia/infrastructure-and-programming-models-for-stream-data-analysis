@@ -1,6 +1,6 @@
 generator {
     throughput {
-        events_per_second = 1000
+        events_per_second = {{ giragen.throughput }}
     }
     gira_travels {
         enabled = true
@@ -22,7 +22,7 @@ generator {
 }
 rabbitmq {
     enabled = true
-    host = "{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}"
+    host = "{{ giragen.rabbitmq.host }}"
     port = 5672
     connection_timeout_ms = 5000
     handshake_timeout_ms = 5000
@@ -31,7 +31,7 @@ rabbitmq {
 }
 metrics {
     statsd {
-        host = {{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}
+        host = {{ giragen.telegraf.host }}
         port = 8125
         agent = TELEGRAF
     }

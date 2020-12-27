@@ -1,3 +1,3 @@
 variable "region" {
-  description = "GCP Region Default"
+  description = "AWS Region Default"
 }

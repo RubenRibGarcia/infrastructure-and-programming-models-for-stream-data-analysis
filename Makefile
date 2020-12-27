@@ -42,51 +42,102 @@ local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-
 
 # ------------- REMOTE BOOTSTRAP ---------------------
 # ------------- Apache Flink -------------------------
-remote-bootstrap-run-flink:
+# ------------- Google Cloud Platform ---------------
+remote-bootstrap-gcp-run-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
 	ansible-playbook deploy-flink-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook flink-job-submitter.yml;
 
-remote-bootstrap-stop-flink:
+remote-bootstrap-gcp-stop-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
 	terraform destroy -auto-approve
 
+# ------------- Amazon Web Services ------------------
+remote-bootstrap-aws-run-flink:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/flink; \
+	terraform init; \
+	terraform apply -auto-approve
+	sleep 3
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
+	ansible-playbook deploy-flink-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook flink-job-submitter.yml;
+
+remote-bootstrap-aws-stop-flink:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/flink; \
+	terraform destroy -auto-approve
+
 # ------------- Apache Storm -------------------------
-remote-bootstrap-run-storm:
+# ------------- Google Cloud Platform ---------------
+remote-bootstrap-gcp-run-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
 	ansible-playbook deploy-storm-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook storm-job-submitter.yml;
 
-remote-bootstrap-stop-storm:
+remote-bootstrap-gcp-stop-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
 	terraform destroy -auto-approve
 
+# ------------- Amazon Web Services ------------------
+remote-bootstrap-aws-run-storm:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/storm; \
+	terraform init; \
+	terraform apply -auto-approve
+	sleep 3
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
+	ansible-playbook deploy-storm-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook storm-job-submitter.yml;
+
+remote-bootstrap-aws-stop-storm:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/storm; \
+	terraform destroy -auto-approve
+
 # ------------- Apache Kafka -------------------------
-remote-bootstrap-run-kafka:
+# ------------- Google Cloud Platform ---------------
+remote-bootstrap-gcp-run-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
 	terraform init; \
 	terraform apply -auto-approve
 	sleep 3
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible; \
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
 	ansible-playbook deploy-kafka-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook kafka-stream-job-submitter.yml;
 
-remote-bootstrap-stop-kafka:
+remote-bootstrap-gcp-stop-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
+	terraform destroy -auto-approve
+
+# ------------- Amazon Web Services ------------------
+remote-bootstrap-aws-run-kafka:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
+	terraform init; \
+	terraform apply -auto-approve
+	sleep 3
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
+	ansible-playbook deploy-kafka-infrastructure.yml; \
+	ansible-playbook deploy-metrics-dashboard.yml; \
+	ansible-playbook deploy-misc-infrastructure.yml; \
+	ansible-playbook kafka-stream-job-submitter.yml;
+
+remote-bootstrap-aws-stop-kafka:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
 	terraform destroy -auto-approve
 
 # ------------- DATA ADAPTER ---------------------

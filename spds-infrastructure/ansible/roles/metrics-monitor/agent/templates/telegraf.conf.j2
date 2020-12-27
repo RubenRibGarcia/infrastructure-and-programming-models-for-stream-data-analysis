@@ -110,7 +110,7 @@
   # urls = ["unix:///var/run/influxdb.sock"]
   # urls = ["udp://127.0.0.1:8089"]
   # urls = ["http://127.0.0.1:8086"]
-  urls = ["http://{{ hostvars['metrics-dashboard-0']['networkInterfaces'][0]['networkIP'] }}:8086"]
+  urls = ["{{ agent.outputs.influxdb.host }}"]
 
   ## The target database for metrics; will be created as needed.
   ## For UDP url endpoint database needs to be configured on server side.
@@ -548,7 +548,7 @@
 # # Reads metrics from RabbitMQ servers via the Management Plugin
 [[inputs.rabbitmq]]
 #   ## Management Plugin url. (default: http://localhost:15672)
-    url = "http://{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}:8080"
+    url = "{{ agent.rabbitmq.host }}"
 #   ## Tag added to rabbitmq_overview series; deprecated: use tags
     name = "rmq-server-1"
 #   ## Credentials
@@ -613,7 +613,7 @@
 #   ##
 #   ## If no servers are specified, then localhost is used as the host.
 #   ## If no port is specified, 6379 is used
-    servers = ["tcp://{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}:6379"]
+    servers = ["tcp://{{ agent.redis.host }}"]
 #
 #   ## specify server password
 #   #password = "s#cr@t%"

@@ -1,0 +1,25 @@
+---
+- hosts: misc_infrastructure
+  become: yes
+  gather_facts: yes
+  roles: 
+    - misc-infrastructure
+    - metrics-monitor/agent
+  vars:
+    agent:
+      outputs:
+        influxdb:
+          host: "http://{{ hostvars['metrics-dashboard-0']['network_interfaces'][0]['private_ip_address'] }}:8086"
+      rabbitmq:
+        enabled: true
+        host: "http://{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}:8080"
+      docker:
+        enabled: true
+      redis:
+        enabled: true
+        host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}:6379"
+      statsd:
+        enabled: true
+  tags:
+    - misc-infrastructure
+

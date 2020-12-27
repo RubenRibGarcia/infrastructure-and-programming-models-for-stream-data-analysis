@@ -17,20 +17,17 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CacheableIpmaValues
+public class RedisIpmaValuesFunction
         extends RedisProcessFunction<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>
         , Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> {
 
-    private Map<String, IpmaValuesModel> cache;
-
-    public CacheableIpmaValues(FlinkJedisConfigBase flinkJedisConfigBase) {
+    public RedisIpmaValuesFunction(FlinkJedisConfigBase flinkJedisConfigBase) {
         super(flinkJedisConfigBase);
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        this.cache = new LinkedHashMap<>();
     }
 
     @Override
@@ -38,15 +35,9 @@ public class CacheableIpmaValues
             , Context context
             , Collector<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> collector) throws Exception {
 
-        IpmaValuesModel rvalue;
+        final IpmaValuesModel rvalue;
         String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(tuple.getData().f0.getEventTimestamp()));
-        if (cache.containsKey(hashField)) {
-            rvalue = cache.get(hashField);
-        }
-        else {
-            rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
-            cache.putIfAbsent(hashField, rvalue);
-        }
+        rvalue = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
 
         collector.collect(tuple.map(Tuple4.of(tuple.getData().f0, tuple.getData().f1, tuple.getData().f2, rvalue)));
     }

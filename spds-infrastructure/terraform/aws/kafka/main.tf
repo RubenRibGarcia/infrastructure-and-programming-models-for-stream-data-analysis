@@ -1,18 +1,26 @@
-provider "google" {
-  project = var.project
+provider "aws" {
   region = var.region
-  zone = var.zone
 }
+
 terraform {
-  backend "gcs" {
-    bucket  = "tf-state-thesis"
-    prefix  = "terraform/state"
+  backend "s3" {
+    bucket = "tf-state-thesis"
+    key    = "terraform.tfstate"
+    region = "eu-west-1"
   }
 }
 
 /*=============================
   INFRASTRUCTURE
 ===============================*/
+
+module "access" {
+  source = "../modules/access"
+}
+
+module "networking" {
+  source = "../modules/networking"
+}
 
 /*=============================
   Misc Infrastrutrure
@@ -27,6 +35,9 @@ module "misc-infrastructure" {
 
   instance_type = "e2-highmem-16"
   instance_count = 1
+
+  aws_security_group_id = module.networking.aws_security_group_id
+  key_pair_name = module.access.key_pair_name
 }
 
 
@@ -42,7 +53,10 @@ module "kafka-node" {
   zone = "europe-west1-b"
 
   instance_type = "e2-standard-2"
-  instance_count = 0
+  instance_count = 1
+
+  aws_security_group_id = module.networking.aws_security_group_id
+  key_pair_name = module.access.key_pair_name
 }
 
 module "kafka-stream" {
@@ -53,7 +67,10 @@ module "kafka-stream" {
   zone = "europe-west3-a"
 
   instance_type = "e2-standard-8"
-  instance_count = 0
+  instance_count = 1
+
+  aws_security_group_id = module.networking.aws_security_group_id
+  key_pair_name = module.access.key_pair_name
 }
 
 /*=============================
@@ -69,6 +86,9 @@ module "metrics-dashboard" {
 
   instance_type = "e2-standard-2"
   instance_count = 1
+
+  aws_security_group_id = module.networking.aws_security_group_id
+  key_pair_name = module.access.key_pair_name
 }
 
 

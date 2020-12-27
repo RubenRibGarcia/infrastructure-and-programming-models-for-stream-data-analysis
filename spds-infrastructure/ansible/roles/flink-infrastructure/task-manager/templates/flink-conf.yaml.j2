@@ -1,11 +1,11 @@
 jobmanager.rpc.address: {{ flink_services.flink_job_manager_address }}
 jobmanager.rpc.port: 6123
 
-taskmanager.host: {{ hostvars[ansible_hostname]['networkInterfaces'][0]['networkIP'] }}
+taskmanager.host: {{ flink_services.flink_task_manager_address }}
 taskmanager.rpc.port: 50100
 taskmanager.data.port: 40100
 
-taskmanager.memory.task.heap.size: 24g
+taskmanager.memory.task.heap.size: 10g
 taskmanager.memory.managed.size: 0g
 taskmanager.memory.task.off-heap.size: 4g
 

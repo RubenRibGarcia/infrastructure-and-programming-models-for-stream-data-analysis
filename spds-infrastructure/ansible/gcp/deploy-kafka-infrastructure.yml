@@ -1,0 +1,10 @@
+---
+
+- hosts: kafka_node
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - kafka-infrastructure/kafka
+  tags:
+    - kafka

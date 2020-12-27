@@ -3,20 +3,17 @@ package org.isel.thesis.impads.flink.topology.phases;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.connectors.redis.RedisProcessFunction;
-import org.apache.flink.util.Collector;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
-import org.isel.thesis.impads.flink.topology.function.CacheableIpmaValues;
+import org.isel.thesis.impads.flink.topology.function.CacheableRedisIpmaValuesFunction;
+import org.isel.thesis.impads.flink.topology.function.RedisIpmaValuesFunction;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeJamsModel;
-import org.isel.thesis.impads.flink.topology.utils.IpmaUtils;
 import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 public class StaticJoinPhase implements Serializable {
 
@@ -48,7 +45,7 @@ public class StaticJoinPhase implements Serializable {
             DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeStream) {
 
         return joinedGiraTravelsWithWazeStream
-                .process(new CacheableIpmaValues<>(configurationContainer.getRedisConfiguration()));
+                .process(new RedisIpmaValuesFunction(configurationContainer.getRedisConfiguration()));
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

@@ -1,18 +1,7 @@
 ---
-- name: Create group
-  group:
-    name: "impads"
-
-- name: Create user
-  user:
-    name: "impads"
-    group: "impads"
-    shell: "/bin/false"
-    createhome: no
-
 - name: Adding user 'impads' to group 'docker'
   user:
-    name: 'impads'
+    name: 'admin'
     groups: docker
     append: yes
 
@@ -21,15 +10,15 @@
     recurse: true
     state: directory
     path: "{{ compose.src }}/{{ compose.name }}"
-    group: "impads"
-    owner: "impads"
+    group: "admin"
+    owner: "admin"
 
 - name: Put docker compose file
   template:
     src: "{{ item.src }}"
     dest: "{{ compose.src }}/{{ compose.name }}/{{ item.dest }}"
-    group: "impads"
-    owner: "impads"
+    group: "admin"
+    owner: "admin"
   with_items:
     - { src: "docker-compose.yml.j2", dest: "docker-compose.yml" }
 
@@ -37,8 +26,8 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ compose.src }}/{{ compose.name }}/{{ item.from }}"
-    group: "impads"
-    owner: "impads"
+    group: "admin"
+    owner: "admin"
   with_items:
     - "{{ compose.services | map(attribute='properties') | list | flatten }}"
   when: compose.services | selectattr("properties", "defined") | list | length > 0

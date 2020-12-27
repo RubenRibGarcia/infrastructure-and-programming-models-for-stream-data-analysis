@@ -9,10 +9,12 @@
     agent:
       rabbitmq:
         enabled: true
+        host: "http://{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}:8080"
       docker:
         enabled: true
       redis:
         enabled: true
+        host: "{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}:6379"
       statsd:
         enabled: true
   tags:

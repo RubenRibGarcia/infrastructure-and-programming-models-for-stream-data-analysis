@@ -1,0 +1,33 @@
+---
+- hosts: flink_job_manager
+  become: yes
+  gather_facts: yes
+  serial: 1
+  roles:
+    - flink-infrastructure/job-manager
+  vars:
+    flink_services:
+      flink_job_manager_address: "{{ hostvars['flink-job-manager-0']['networkInterfaces'][0]['networkIP'] }}"
+  tags:
+    - flink-job-manager
+
+- hosts: flink_task_manager
+  become: yes
+  gather_facts: yes
+  roles:
+    - flink-infrastructure/task-manager
+    - metrics-monitor/agent
+  vars:
+    flink_services:
+      flink_job_manager_address: "{{ hostvars['flink-job-manager-0']['networkInterfaces'][0]['networkIP'] }}"
+      flink_task_manager_address: "{{ hostvars[ansible_hostname]['networkInterfaces'][0]['networkIP'] }}"
+    agent:
+      outputs:
+        influxdb:
+          host: "http://{{ hostvars['metrics-dashboard-0']['networkInterfaces'][0]['networkIP'] }}:8086"
+      statsd:
+        enabled: true
+      docker:
+        enabled: true
+  tags:
+    - flink-task-manager

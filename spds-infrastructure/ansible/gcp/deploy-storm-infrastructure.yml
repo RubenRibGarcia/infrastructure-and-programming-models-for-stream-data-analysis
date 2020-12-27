@@ -1,18 +1,18 @@
 ---
-- hosts: flink_job_manager
+- hosts: storm_nimbus
   become: yes
   gather_facts: yes
   serial: 1
   roles:
-    - flink-infrastructure/job-manager
+    - storm-infrastructure/nimbus
   tags:
-    - flink-job-manager
+    - storm-nimbus
 
-- hosts: flink_task_manager
+- hosts: storm_supervisor
   become: yes
   gather_facts: yes
   roles:
-    - flink-infrastructure/task-manager
+    - storm-infrastructure/supervisor
     - metrics-monitor/agent
   vars:
     agent:
@@ -21,4 +21,6 @@
       docker:
         enabled: true
   tags:
-    - flink-task-manager
+    - storm-supervisor
+
+

@@ -7,6 +7,12 @@ variable "instance_count" {
 variable "instance_type" {
   description = "The instance type to use"
 }
+variable "aws_security_group_id" {
+  description = "Security Group id"
+}
+variable "key_pair_name" {
+  description = "Key Pair name"
+}
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "SSH Authorized keys"
