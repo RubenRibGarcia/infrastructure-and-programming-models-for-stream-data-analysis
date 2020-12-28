@@ -48,8 +48,8 @@ public class FlinkJedisPoolConfig extends FlinkJedisConfigBase {
      * @throws NullPointerException if parameter {@code host} is {@code null}
      */
     private FlinkJedisPoolConfig(String host, int port, int connectionTimeout, String password, int database,
-                                int maxTotal, int maxIdle, int minIdle) {
-        super(connectionTimeout, maxTotal, maxIdle, minIdle, password);
+                                int maxTotal, int maxIdle, int minIdle, boolean mocked) {
+        super(connectionTimeout, maxTotal, maxIdle, minIdle, password, mocked);
         Objects.requireNonNull(host, "Host information should be presented");
         this.host = host;
         this.port = port;
@@ -96,6 +96,7 @@ public class FlinkJedisPoolConfig extends FlinkJedisConfigBase {
         private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
         private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
         private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
+        private boolean mocked;
 
         /**
          * Sets value for the {@code maxTotal} configuration attribute
@@ -188,6 +189,11 @@ public class FlinkJedisPoolConfig extends FlinkJedisConfigBase {
             return this;
         }
 
+        public Builder isMocked(boolean mocked) {
+            this.mocked = mocked;
+            return this;
+        }
+
 
         /**
          * Builds JedisPoolConfig.
@@ -195,7 +201,7 @@ public class FlinkJedisPoolConfig extends FlinkJedisConfigBase {
          * @return JedisPoolConfig
          */
         public FlinkJedisPoolConfig build() {
-            return new FlinkJedisPoolConfig(host, port, timeout, password, database, maxTotal, maxIdle, minIdle);
+            return new FlinkJedisPoolConfig(host, port, timeout, password, database, maxTotal, maxIdle, minIdle, mocked);
         }
     }
 
@@ -209,6 +215,7 @@ public class FlinkJedisPoolConfig extends FlinkJedisConfigBase {
             ", maxTotal=" + maxTotal +
             ", maxIdle=" + maxIdle +
             ", minIdle=" + minIdle +
+            ", mocked=" + mocked +
             '}';
     }
 }

@@ -52,7 +52,7 @@ module "flink-task-manager" {
   zone = "europe-west3-a"
 
   instance_type = "e2-standard-8"
-  instance_count = 1
+  instance_count = 4
 }
 
 /*=============================

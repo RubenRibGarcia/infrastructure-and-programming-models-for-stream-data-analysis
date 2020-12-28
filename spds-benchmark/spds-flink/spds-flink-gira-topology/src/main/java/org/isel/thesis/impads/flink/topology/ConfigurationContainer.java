@@ -60,6 +60,7 @@ public final class ConfigurationContainer {
                 .setMinIdle(config.getInt(RedisConfigurationFields.REDIS_MIN_IDLE))
                 .setMaxIdle(config.getInt(RedisConfigurationFields.REDIS_MAX_IDLE))
                 .setMaxTotal(config.getInt(RedisConfigurationFields.REDIS_MAX_TOTAL))
+                .isMocked(config.getBoolean(RedisConfigurationFields.REDIS_MOCKED))
                 .build();
     }
 

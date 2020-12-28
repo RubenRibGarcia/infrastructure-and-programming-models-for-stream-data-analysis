@@ -61,7 +61,7 @@ module "kafka-stream" {
 ===============================*/
 
 module "metrics-dashboard" {
-  source = "./modules/computer_engine"
+  source = "../modules/computer_engine"
 
   name = "metrics-dashboard"
 

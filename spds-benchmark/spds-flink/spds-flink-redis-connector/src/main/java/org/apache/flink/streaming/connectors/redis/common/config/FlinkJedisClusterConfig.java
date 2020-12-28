@@ -52,8 +52,8 @@ public class FlinkJedisClusterConfig extends FlinkJedisConfigBase {
      */
     private FlinkJedisClusterConfig(Set<InetSocketAddress> nodes, int connectionTimeout, int maxRedirections,
                                     int maxTotal, int maxIdle, int minIdle,
-                                    String password) {
-        super(connectionTimeout, maxTotal, maxIdle, minIdle, password);
+                                    String password, boolean mocked) {
+        super(connectionTimeout, maxTotal, maxIdle, minIdle, password, mocked);
 
         Objects.requireNonNull(nodes, "Node information should be presented");
         Util.checkArgument(!nodes.isEmpty(), "Redis cluster hosts should not be empty");
@@ -97,6 +97,7 @@ public class FlinkJedisClusterConfig extends FlinkJedisConfigBase {
         private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
         private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
         private String password;
+        private boolean mocked;
 
         /**
          * Sets list of node.
@@ -179,13 +180,18 @@ public class FlinkJedisClusterConfig extends FlinkJedisConfigBase {
             return this;
         }
 
+        public Builder isMocked(boolean mocked) {
+            this.mocked = mocked;
+            return this;
+        }
+
         /**
          * Builds JedisClusterConfig.
          *
          * @return JedisClusterConfig
          */
         public FlinkJedisClusterConfig build() {
-            return new FlinkJedisClusterConfig(nodes, timeout, maxRedirections, maxTotal, maxIdle, minIdle, password);
+            return new FlinkJedisClusterConfig(nodes, timeout, maxRedirections, maxTotal, maxIdle, minIdle, password, mocked);
         }
     }
 

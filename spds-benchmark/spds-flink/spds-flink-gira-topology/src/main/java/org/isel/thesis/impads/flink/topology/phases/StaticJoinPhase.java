@@ -45,7 +45,7 @@ public class StaticJoinPhase implements Serializable {
             DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeStream) {
 
         return joinedGiraTravelsWithWazeStream
-                .process(new RedisIpmaValuesFunction(configurationContainer.getRedisConfiguration()));
+                .process(new CacheableRedisIpmaValuesFunction(configurationContainer.getRedisConfiguration()));
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

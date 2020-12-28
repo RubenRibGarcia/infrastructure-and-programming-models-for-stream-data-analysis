@@ -54,32 +54,39 @@ public class ResultPhase implements Serializable {
         return enrichedJoinedGiraTravelsWithWazeAndIpma.map(new MapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>, Observable<GiraTravelsWithWazeAndIpmaResult>>() {
             @Override
             public Observable<GiraTravelsWithWazeAndIpmaResult> map(Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>> tuple) throws Exception {
-                boolean jamAndIrrMatches = false;
+//                boolean jamAndIrrMatches = false;
+//
+//                WKBReader reader = new WKBReader(geoFactory);
+//                final Geometry giraGeo
+//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f0.getGeometry()));
+//                final Geometry wazeIrrGeo
+//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f2.getGeometry()));
+//                final Geometry wazeJamGeo
+//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f1.getGeometry()));
+//
+//                final Geometry giraTravelStartingPoint =
+//                        ((LineString) giraGeo.getGeometryN(0))
+//                                .getStartPoint()
+//                                .buffer(GEOMETRY_BUFFER);
+//
+//                if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
+//                    jamAndIrrMatches = true;
+//                }
 
-                WKBReader reader = new WKBReader(geoFactory);
-                final Geometry giraGeo
-                        = reader.read(WKBReader.hexToBytes(tuple.getData().f0.getGeometry()));
-                final Geometry wazeIrrGeo
-                        = reader.read(WKBReader.hexToBytes(tuple.getData().f2.getGeometry()));
-                final Geometry wazeJamGeo
-                        = reader.read(WKBReader.hexToBytes(tuple.getData().f1.getGeometry()));
-
-                final Geometry giraTravelStartingPoint =
-                        ((LineString) giraGeo.getGeometryN(0))
-                                .getStartPoint()
-                                .buffer(GEOMETRY_BUFFER);
-
-                if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
-                    jamAndIrrMatches = true;
-                }
-
+//                GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(tuple.getData().f0
+//                        , tuple.getData().f1
+//                        , tuple.getData().f2
+//                        , tuple.getData().f3
+//                        , giraTravelStartingPoint.intersects(wazeJamGeo)
+//                        , giraTravelStartingPoint.intersects(wazeIrrGeo)
+//                        , jamAndIrrMatches);
                 GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(tuple.getData().f0
                         , tuple.getData().f1
                         , tuple.getData().f2
                         , tuple.getData().f3
-                        , giraTravelStartingPoint.intersects(wazeJamGeo)
-                        , giraTravelStartingPoint.intersects(wazeIrrGeo)
-                        , jamAndIrrMatches);
+                        , false
+                        , false
+                        ,false);
 
                 return tuple.map(rvalue);
             }

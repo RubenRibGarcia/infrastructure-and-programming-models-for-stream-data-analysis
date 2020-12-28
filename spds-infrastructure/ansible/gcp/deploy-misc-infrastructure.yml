@@ -7,6 +7,9 @@
     - metrics-monitor/agent
   vars:
     agent:
+      outputs:
+        influxdb:
+          host: "http://{{ hostvars['metrics-dashboard-0']['networkInterfaces'][0]['networkIP'] }}:8086"
       rabbitmq:
         enabled: true
         host: "http://{{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}:8080"
@@ -19,4 +22,12 @@
         enabled: true
   tags:
     - misc-infrastructure
+
+- hosts: misc_infrastructure
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Populate Redis with IPMA Values
+      command:
+        cmd: "docker run --rm --network container:redis impads/ipma-data-to-redis:0.0.1 -rh localhost"
 
