@@ -1,7 +1,7 @@
 package org.isel.thesis.impads.flink.topology.models;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainer;
+import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;

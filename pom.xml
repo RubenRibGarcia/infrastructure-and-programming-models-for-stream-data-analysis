@@ -34,6 +34,8 @@
         <jackson.version>2.10.2</jackson.version>
         <micrometer.version>1.5.4</micrometer.version>
         <jedis.version>3.3.0</jedis.version>
+        <lettuce.version>6.0.1.RELEASE</lettuce.version>
+        <caffeine.version>2.8.8</caffeine.version>
     </properties>
 
     <dependencyManagement>
@@ -102,6 +104,16 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>${lettuce.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

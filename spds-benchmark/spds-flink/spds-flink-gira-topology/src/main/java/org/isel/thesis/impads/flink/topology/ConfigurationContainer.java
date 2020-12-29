@@ -1,9 +1,9 @@
 package org.isel.thesis.impads.flink.topology;
 
 import com.typesafe.config.Config;
-import org.apache.flink.streaming.connectors.redis.RedisConfigurationFields;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfiguration;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfigurationBase;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfigurationFields;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfigurationFields;
 import org.isel.thesis.impads.flink.topology.GiraTravelsTopologyConfiguration.GiraTravelsTopologyConfigurationFields;
@@ -16,12 +16,12 @@ public final class ConfigurationContainer {
 
     private final GiraTravelsTopologyConfiguration topologyConfiguration;
     private final RabbitMQConfiguration rabbitMQConfiguration;
-    private final FlinkJedisConfigBase redisConfiguration;
+    private final RedisConfigurationBase redisConfiguration;
     private final MetricsCollectorConfiguration metricsCollectorConfiguration;
 
     private ConfigurationContainer(GiraTravelsTopologyConfiguration topologyConfiguration
             , RabbitMQConfiguration rabbitMQConfiguration
-            , FlinkJedisConfigBase redisConfiguration
+            , RedisConfigurationBase redisConfiguration
             , MetricsCollectorConfiguration metricsCollectorConfiguration) {
         this.topologyConfiguration = topologyConfiguration;
         this.rabbitMQConfiguration = rabbitMQConfiguration;
@@ -53,13 +53,10 @@ public final class ConfigurationContainer {
                 .build();
     }
 
-    private static FlinkJedisConfigBase doInitializeRedisConfiguration(Config config) {
-        return new FlinkJedisPoolConfig.Builder()
-                .setHost(config.getString(RedisConfigurationFields.REDIS_HOST))
-                .setPort(config.getInt(RedisConfigurationFields.REDIS_PORT))
-                .setMinIdle(config.getInt(RedisConfigurationFields.REDIS_MIN_IDLE))
-                .setMaxIdle(config.getInt(RedisConfigurationFields.REDIS_MAX_IDLE))
-                .setMaxTotal(config.getInt(RedisConfigurationFields.REDIS_MAX_TOTAL))
+    private static RedisConfigurationBase doInitializeRedisConfiguration(Config config) {
+        return RedisConfiguration.builder()
+                .withHost(config.getString(RedisConfigurationFields.REDIS_HOST))
+                .withPort(config.getInt(RedisConfigurationFields.REDIS_PORT))
                 .isMocked(config.getBoolean(RedisConfigurationFields.REDIS_MOCKED))
                 .build();
     }
@@ -78,7 +75,7 @@ public final class ConfigurationContainer {
         return rabbitMQConfiguration;
     }
 
-    public FlinkJedisConfigBase getRedisConfiguration() {
+    public RedisConfigurationBase getRedisConfiguration() {
         return redisConfiguration;
     }
 

@@ -3,17 +3,19 @@ package org.isel.thesis.impads.flink.topology.phases;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.isel.thesis.impads.connectors.redis.RedisCacheableMapFunction;
+import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainer;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
-import org.isel.thesis.impads.flink.topology.function.CacheableRedisIpmaValuesFunction;
-import org.isel.thesis.impads.flink.topology.function.RedisIpmaValuesFunction;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeJamsModel;
+import org.isel.thesis.impads.flink.topology.utils.IpmaUtils;
 import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 public class StaticJoinPhase implements Serializable {
 
@@ -44,8 +46,7 @@ public class StaticJoinPhase implements Serializable {
     private DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichJoinGiraTravelWithWazeWithIpma(
             DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeStream) {
 
-        return joinedGiraTravelsWithWazeStream
-                .process(new CacheableRedisIpmaValuesFunction(configurationContainer.getRedisConfiguration()));
+        return joinedGiraTravelsWithWazeStream.map()
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

@@ -5,6 +5,7 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
+import org.isel.thesis.impads.flink.topology.function.ResultMapFunction;
 import org.isel.thesis.impads.flink.topology.models.GiraTravelsWithWazeAndIpmaResult;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
@@ -50,47 +51,9 @@ public class ResultPhase implements Serializable {
         }
     }
 
-    private static DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> transformToResult(GeometryFactory geoFactory, DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichedJoinedGiraTravelsWithWazeAndIpma) {
-        return enrichedJoinedGiraTravelsWithWazeAndIpma.map(new MapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>, Observable<GiraTravelsWithWazeAndIpmaResult>>() {
-            @Override
-            public Observable<GiraTravelsWithWazeAndIpmaResult> map(Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>> tuple) throws Exception {
-//                boolean jamAndIrrMatches = false;
-//
-//                WKBReader reader = new WKBReader(geoFactory);
-//                final Geometry giraGeo
-//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f0.getGeometry()));
-//                final Geometry wazeIrrGeo
-//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f2.getGeometry()));
-//                final Geometry wazeJamGeo
-//                        = reader.read(WKBReader.hexToBytes(tuple.getData().f1.getGeometry()));
-//
-//                final Geometry giraTravelStartingPoint =
-//                        ((LineString) giraGeo.getGeometryN(0))
-//                                .getStartPoint()
-//                                .buffer(GEOMETRY_BUFFER);
-//
-//                if (wazeIrrGeo.equalsExact(wazeJamGeo, GEOMETRY_BUFFER)) {
-//                    jamAndIrrMatches = true;
-//                }
-
-//                GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(tuple.getData().f0
-//                        , tuple.getData().f1
-//                        , tuple.getData().f2
-//                        , tuple.getData().f3
-//                        , giraTravelStartingPoint.intersects(wazeJamGeo)
-//                        , giraTravelStartingPoint.intersects(wazeIrrGeo)
-//                        , jamAndIrrMatches);
-                GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(tuple.getData().f0
-                        , tuple.getData().f1
-                        , tuple.getData().f2
-                        , tuple.getData().f3
-                        , false
-                        , false
-                        ,false);
-
-                return tuple.map(rvalue);
-            }
-        });
+    private static DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> transformToResult(GeometryFactory geoFactory
+            , DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichedJoinedGiraTravelsWithWazeAndIpma) {
+        return enrichedJoinedGiraTravelsWithWazeAndIpma.map(new ResultMapFunction(geoFactory));
     }
 
     public DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> getResultStream() {

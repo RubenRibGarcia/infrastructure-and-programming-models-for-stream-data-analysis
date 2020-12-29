@@ -20,7 +20,6 @@
     <modules>
         <module>spds-flink-rabbitmq-connector</module>
         <module>spds-flink-gira-topology</module>
-        <module>spds-flink-redis-connector</module>
     </modules>
 
     <dependencies>

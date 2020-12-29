@@ -30,9 +30,9 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.isel.thesis.impads</groupId>
-            <artifactId>spds-flink-redis-connector</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.isel.thesis.impads.connectors</groupId>
+            <artifactId>spds-redis-connector</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.isel.thesis.impads</groupId>
@@ -42,10 +42,6 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
         </dependency>
     </dependencies>
 

@@ -16,12 +16,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>IMPADS - SPDS Benchmark - Project </name>
+    <name>IMPADS - SPDS Benchmark - Project</name>
 
     <modules>
         <module>spds-flink</module>
         <module>spds-kafka</module>
         <module>spds-storm</module>
         <module>spds-common</module>
+        <module>spds-connectors</module>
     </modules>
 </project>
