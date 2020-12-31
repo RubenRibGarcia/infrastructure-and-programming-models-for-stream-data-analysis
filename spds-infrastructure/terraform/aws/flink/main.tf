@@ -68,7 +68,7 @@ module "flink-task-manager" {
   name = "flink-task-manager"
 
   instance_type = "c5a.2xlarge"
-  instance_count = 4
+  instance_count = 1
 
   aws_security_group_id = module.networking.aws_security_group_id
   key_pair_name = module.access.key_pair_name

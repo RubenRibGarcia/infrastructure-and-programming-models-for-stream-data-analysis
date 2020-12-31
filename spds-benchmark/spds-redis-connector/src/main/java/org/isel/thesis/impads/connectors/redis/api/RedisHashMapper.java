@@ -4,8 +4,7 @@ import org.isel.thesis.impads.connectors.redis.container.RedisHashReadCommandsCo
 
 import java.io.Serializable;
 
-@FunctionalInterface
-public interface RedisMapper<T, R> extends Serializable {
+public interface RedisHashMapper<T, R> extends Serializable {
 
-    R map(RedisHashReadCommandsContainer readCommands, T t);
+    R map(RedisHashReadCommandsContainer readCommands, RedisKeyHashField keyHashField, T t);
 }

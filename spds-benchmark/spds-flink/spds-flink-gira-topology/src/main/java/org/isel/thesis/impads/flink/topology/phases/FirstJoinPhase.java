@@ -24,13 +24,13 @@ public class FirstJoinPhase implements Serializable {
     private DataStream<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinedGiraTravelsWithWazeJamsStream;
 
     public FirstJoinPhase(final ConfigurationContainer configurationContainer
-            , final InitialTransformationPhase initialTransformationPhase) {
+            , final ParsePhase parsePhase) {
         this.configurationContainer = configurationContainer;
 
-        initializePhase(initialTransformationPhase);
+        initializePhase(parsePhase);
     }
 
-    private void initializePhase(final InitialTransformationPhase parsePhase) {
+    private void initializePhase(final ParsePhase parsePhase) {
         this.joinedGiraTravelsWithWazeJamsStream = joinGiraTravelsWithWazeJams(parsePhase.getSimplifiedGiraTravelsStream()
                 , parsePhase.getSimplifiedWazeJamsStream());
 

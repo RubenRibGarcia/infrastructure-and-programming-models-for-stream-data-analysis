@@ -20,19 +20,22 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
         <amqp.version>5.9.0</amqp.version>
         <dagger.version>2.26</dagger.version>
         <slf4j.version>1.7.26</slf4j.version>
         <apache.common.csv.version>1.8</apache.common.csv.version>
         <vavr.version>0.10.2</vavr.version>
         <guava.version>29.0-jre</guava.version>
-        <apache.flink.version>1.11.1</apache.flink.version>
+        <apache.flink.version>1.11.3</apache.flink.version>
         <apache.kafka.version>2.6.0</apache.kafka.version>
         <apache.storm.version>2.2.0</apache.storm.version>
         <geotools.version>23.1</geotools.version>
         <typesafe.version>1.4.0</typesafe.version>
         <jackson.version>2.10.2</jackson.version>
-        <micrometer.version>1.5.4</micrometer.version>
+        <micrometer.version>1.6.2</micrometer.version>
         <jedis.version>3.3.0</jedis.version>
         <lettuce.version>6.0.1.RELEASE</lettuce.version>
         <caffeine.version>2.8.8</caffeine.version>

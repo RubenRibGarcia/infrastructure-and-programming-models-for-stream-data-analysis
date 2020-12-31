@@ -18,11 +18,45 @@
 
     <name>IMPADS - SPDS Benchmark - Project</name>
 
+    <properties>
+        <spds-benchmark.version>${project.version}</spds-benchmark.version>
+    </properties>
+
     <modules>
+        <module>spds-common</module>
+        <module>spds-redis-connector</module>
         <module>spds-flink</module>
         <module>spds-kafka</module>
         <module>spds-storm</module>
-        <module>spds-common</module>
-        <module>spds-connectors</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.isel.thesis.impads</groupId>
+                <artifactId>spds-common</artifactId>
+                <version>${spds-benchmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isel.thesis.impads</groupId>
+                <artifactId>spds-redis-connector</artifactId>
+                <version>${spds-benchmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isel.thesis.impads</groupId>
+                <artifactId>spds-flink</artifactId>
+                <version>${spds-benchmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isel.thesis.impads</groupId>
+                <artifactId>spds-kafka</artifactId>
+                <version>${spds-benchmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isel.thesis.impads</groupId>
+                <artifactId>spds-storm</artifactId>
+                <version>${spds-benchmark.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

@@ -68,7 +68,7 @@ public class IngestionPhase implements Serializable {
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Observable<GiraTravelsSourceModel>>forBoundedOutOfOrderness(Duration.ofMillis(5))
                         .withTimestampAssigner((event, timestamp) -> event.getData().getDateStart().toEpochMilli()))
-                .name("GiraTravelsSource");
+                .name("gira_travels_source");
     }
 
     private DataStream<Observable<WazeJamsSourceModel>> addWazeJamsSource() {
@@ -84,7 +84,7 @@ public class IngestionPhase implements Serializable {
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Observable<WazeJamsSourceModel>>forBoundedOutOfOrderness(Duration.ofMillis(5))
                         .withTimestampAssigner((event, timestamp) -> event.getData().getPubMillis()))
-                .name("WazeJamsSource");
+                .name("waze_jams_source");
     }
 
     private DataStream<Observable<WazeIrregularitiesSourceModel>> addWazeIrregularitiesSource() {
@@ -100,7 +100,7 @@ public class IngestionPhase implements Serializable {
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Observable<WazeIrregularitiesSourceModel>>forBoundedOutOfOrderness(Duration.ofMillis(5))
                         .withTimestampAssigner((event, timestamp) -> event.getData().getDetectionDateMillis()))
-                .name("WazeIrregularitiesSource");
+                .name("waze_irregularities_source");
     }
 
     public DataStream<Observable<GiraTravelsSourceModel>> getGiraTravelsSource() {

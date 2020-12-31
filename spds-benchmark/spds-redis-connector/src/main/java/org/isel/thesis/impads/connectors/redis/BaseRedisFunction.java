@@ -3,13 +3,14 @@ package org.isel.thesis.impads.connectors.redis;
 import org.isel.thesis.impads.connectors.redis.common.RedisConfigurationBase;
 import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainer;
 import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainerBuilder;
+import org.isel.thesis.impads.io.OpenCloseable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class BaseRedisFunction<T, R> implements Serializable {
+public abstract class BaseRedisFunction implements Serializable, OpenCloseable {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,6 +24,7 @@ public abstract class BaseRedisFunction<T, R> implements Serializable {
         this.config = config;
     }
 
+    @Override
     public void open() throws Exception {
         try {
             this.commands = RedisCommandsContainerBuilder.build(this.config);
@@ -33,6 +35,7 @@ public abstract class BaseRedisFunction<T, R> implements Serializable {
         }
     }
 
+    @Override
     public void close() throws Exception {
         if (commands != null) {
             commands.close();

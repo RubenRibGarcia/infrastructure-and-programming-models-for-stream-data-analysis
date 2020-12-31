@@ -19,6 +19,11 @@ public class Metrics implements IMetrics {
     }
 
     @Override
+    public MeterRegistry getRegistry() {
+        return registry;
+    }
+
+    @Override
     public Counter registerCounter(String name, List<Tag> tags) {
         return Counter.builder(name)
                 .tags(tags)

@@ -26,15 +26,15 @@ public class SecondJoinPhase implements Serializable {
     private DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeStream;
 
     public SecondJoinPhase(final ConfigurationContainer configurationContainer
-            , final InitialTransformationPhase initialTransformationPhase
+            , final ParsePhase parsePhase
             , final FirstJoinPhase firstJoinPhase) {
         this.configurationContainer = configurationContainer;
 
-        this.initializePhase(initialTransformationPhase
+        this.initializePhase(parsePhase
                 , firstJoinPhase);
     }
 
-    private void initializePhase(InitialTransformationPhase parsePhase
+    private void initializePhase(ParsePhase parsePhase
             , FirstJoinPhase firstJoinPhase) {
 
         this.joinedGiraTravelsWithWazeStream =

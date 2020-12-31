@@ -1,8 +1,6 @@
 # DEFAULTS
 .DEFAULT_GOAL := help
 
-
-
 # HELP
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
@@ -24,20 +22,18 @@ SPDS_INFRASTRUCTURE_PATH 	:= $(DIR)/spds-infrastructure
 DATA_ADAPTERS_PATH			:= $(DIR)/data-adapters
 DATA_GENERATOR_PATH 		:= $(DIR)/data-generator
 
-initial-setup: install-giragen-data-adapters install-spds-common
-
 build-project:
-	mvn clean compile package -f $(DIR)/pom.xml
+	mvn clean package
 
 # ------------- LOCAL BOOTSTRAP ---------------------
 
-local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor
+local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-migrate-ipma-data
 local-bootstrap-stop-flink: docker-stop-flink-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor
+local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-migrate-ipma-data
 local-bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-misc-infrastructure docker-run-kafka-connectors docker-run-metrics-monitor
+local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-misc-infrastructure docker-run-kafka-connectors docker-run-metrics-monitor docker-migrate-ipma-data
 local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-misc-infrastructure docker-stop-kafka-connectors docker-stop-metrics-monitor
 
 # ------------- REMOTE BOOTSTRAP ---------------------
@@ -47,7 +43,7 @@ remote-bootstrap-gcp-run-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
 	terraform init; \
 	terraform apply -auto-approve
-	sleep 3
+	sleep 5
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
 	ansible-playbook deploy-flink-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
@@ -63,7 +59,7 @@ remote-bootstrap-aws-run-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/flink; \
 	terraform init; \
 	terraform apply -auto-approve
-	sleep 3
+	sleep 5
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
 	ansible-playbook deploy-flink-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
@@ -80,7 +76,7 @@ remote-bootstrap-gcp-run-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
 	terraform init; \
 	terraform apply -auto-approve
-	sleep 3
+	sleep 5
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
 	ansible-playbook deploy-storm-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
@@ -157,9 +153,9 @@ install-giragen-data-adapters:
 GIRAGEN_GENERATOR_PATH := $(DATA_GENERATOR_PATH)/giragen-generator
 
 build-giragen-generator:
-	mvn clean compile package -f $(GIRAGEN_GENERATOR_PATH)/pom.xml
+	mvn clean package -pl :giragen-generator -am
 
-docker-run-giragen-generator: ## Run Docker Container for Giragen Generator (Giragen Generator + RabbitMQ)
+docker-run-giragen-generator: ## Run Docker Container for Giragen Generator
 	docker-compose -f $(GIRAGEN_GENERATOR_PATH)/docker-compose.yml up -d
 
 docker-stop-giragen-generator: ## Stops Docker Container of Giragen Generator
@@ -187,15 +183,12 @@ METRICS_MONITOR_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/m
 MISC_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/components/misc-infrastructure
 
 build-spds-benchmark-project:
-	mvn clean compile package -f $(DIR)/pom.xml -pl spds-benchmark -amd
-
-install-spds-common:
-	mvn clean install -U -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-common -am
+	mvn clean package -pl :spds-benchmark -amd
 
 # ------------- SPDS FLINK -----------------
 
-build-spds-flink: ## Maven build spds-flink module
-	mvn clean compile package -f $(SPDS_FLINK_PATH)/pom.xml
+build-spds-flink-gira-topology: ## Maven build spds-flink module
+	mvn clean package -pl :spds-flink-gira-topology -am
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs
 	cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs/
@@ -206,7 +199,7 @@ docker-run-flink-infrastructure:
 docker-stop-flink-infrastructure:
 	docker-compose -f $(APACHE_FLINK_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-docker-execute-flink-topology:
+submit-flink-gira-topology:
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
 	job-manager:/opt/flink/topology.jar
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/src/main/resources/application.conf \
@@ -217,8 +210,8 @@ docker-execute-flink-topology:
 
 # ------------- SPDS STORM -----------------
 
-build-spds-storm: ## Maven build spds-storm module
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-storm -amd
+build-spds-storm-gira-topology: ## Maven build spds-storm module
+	mvn clean compile package -pl :spds-storm-gira-topology -am
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
 	cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
  	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-storm/jobs/
@@ -235,7 +228,7 @@ docker-run-storm-infrastructure:
 docker-stop-storm-infrastructure:
 	docker-compose -f $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-docker-execute-storm-topology:
+submit-storm-gira-topology:
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
 	nimbus:/apache-storm-2.2.0/topology.jar
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
@@ -248,7 +241,7 @@ docker-execute-storm-topology:
 # ------------- SPDS KAFKA -----------------
 
 build-spds-kafka: ## Maven build spds-kafka module
-	mvn clean compile package -f $(SPDS_BENCHMARK_PATH)/pom.xml -pl spds-kafka -amd
+	mvn clean package -pl :spds-kafka -am
 
 docker-build-kafka-stream-gira-travels-pattern:
 	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-build.sh
@@ -293,6 +286,9 @@ docker-run-metrics-monitor: ## Runs Metrics Dashboard (Grafana+InfluxDB) and Met
 
 docker-stop-metrics-monitor: ## Stops Metrics Dashboard and Metrics Agent
 	docker-compose -f $(METRICS_MONITOR_INFRASTRUCTURE_PATH)/docker-compose.yml down
+
+docker-migrate-ipma-data:
+	docker run --rm --network container:redis impads/ipma-data-to-redis:0.0.1 -rh localhost
 
 # ------------- SERVICES NETWORK -----------------
 

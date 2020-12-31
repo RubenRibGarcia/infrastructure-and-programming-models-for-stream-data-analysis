@@ -1,10 +1,10 @@
 package org.isel.thesis.impads.storm.topology;
 
 import com.typesafe.config.Config;
-import org.apache.storm.streams.RedisConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
+import org.isel.thesis.impads.storm.redis.common.RedisConfigurationFields;
 import org.isel.thesis.impads.storm.redis.common.config.JedisPoolConfig;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfigurationFields;
@@ -59,9 +59,6 @@ public final class ConfigurationContainer implements Serializable {
         return new JedisPoolConfig.Builder()
                 .setHost(config.getString(RedisConfigurationFields.REDIS_HOST))
                 .setPort(config.getInt(RedisConfigurationFields.REDIS_PORT))
-                .setMinIdle(config.getInt(RedisConfigurationFields.REDIS_MIN_IDLE))
-                .setMaxIdle(config.getInt(RedisConfigurationFields.REDIS_MAX_IDLE))
-                .setMaxTotal(config.getInt(RedisConfigurationFields.REDIS_MAX_TOTAL))
                 .build();
     }
 

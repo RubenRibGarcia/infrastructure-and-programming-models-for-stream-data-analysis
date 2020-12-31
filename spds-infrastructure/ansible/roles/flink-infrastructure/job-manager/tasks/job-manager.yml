@@ -8,7 +8,7 @@
       name: flink-job-manager
       services:
         - name: job-manager
-          image: flink:1.11.1-scala_2.12-java11
+          image: flink:1.11.3-scala_2.12-java11
           container_name: job-manager
           command: jobmanager
           ports:

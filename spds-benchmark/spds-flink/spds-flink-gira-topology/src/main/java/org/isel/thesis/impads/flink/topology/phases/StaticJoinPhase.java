@@ -3,10 +3,11 @@ package org.isel.thesis.impads.flink.topology.phases;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.isel.thesis.impads.connectors.redis.RedisCacheableMapFunction;
-import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainer;
+import org.isel.thesis.impads.connectors.redis.RedisHashCacheableMapFunction;
+import org.isel.thesis.impads.connectors.redis.api.RedisKeyHashField;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
+import org.isel.thesis.impads.flink.topology.function.RedisIpmaValuesMapFunction;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
@@ -46,7 +47,16 @@ public class StaticJoinPhase implements Serializable {
     private DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> enrichJoinGiraTravelWithWazeWithIpma(
             DataStream<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeStream) {
 
-        return joinedGiraTravelsWithWazeStream.map()
+        RedisHashCacheableMapFunction<SimplifiedGiraTravelsModel, IpmaValuesModel> mapper =
+                RedisHashCacheableMapFunction.newMapperMonitored(configurationContainer.getRedisConfiguration()
+                        , key -> {
+                            String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(key.getEventTimestamp()));
+                            return RedisKeyHashField.of("ipma_sensores_values" , hashField);
+                        }
+                        , (readCommands, keyHashField, tuple) -> IpmaValuesModel.fetchAndAddFromRedis(keyHashField.getHashField(), readCommands)
+                        , configurationContainer.getMetricsCollectorConfiguration());
+
+        return joinedGiraTravelsWithWazeStream.map(RedisIpmaValuesMapFunction.map(mapper));
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

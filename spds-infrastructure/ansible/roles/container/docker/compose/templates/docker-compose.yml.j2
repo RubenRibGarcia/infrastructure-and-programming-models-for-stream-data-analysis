@@ -20,6 +20,13 @@ services:
 {% for env in service.environment %}
             - {{ env }}
 {% endfor %}
+{% if service.conditional_environment is defined %}
+{% for condition_env in service.conditional_environment %}
+{% if condition_env.predicate %}
+            - {{ condition_env.value }}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endif %}
 {% if service.ports is defined %}
         ports:

@@ -29,5 +29,8 @@
         enabled: true
       docker:
         enabled: true
+      jmx:
+        enabled: true
+        host: task-manager
   tags:
     - flink-task-manager

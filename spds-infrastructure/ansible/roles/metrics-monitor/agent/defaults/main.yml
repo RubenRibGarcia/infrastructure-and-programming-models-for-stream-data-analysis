@@ -12,3 +12,6 @@ agent:
     redis:
         enabled: false
         host: ""
+    jmx:
+        enabled: false
+        host: ""

@@ -4,7 +4,6 @@ import org.isel.thesis.impads.connectors.redis.container.RedisWriteCommandsConta
 
 import java.io.Serializable;
 
-@FunctionalInterface
 public interface RedisConsumer<T> extends Serializable {
 
     void consume(RedisWriteCommandsContainer writeCommands, T t);

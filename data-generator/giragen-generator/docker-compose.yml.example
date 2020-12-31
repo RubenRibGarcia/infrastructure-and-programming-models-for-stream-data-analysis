@@ -2,8 +2,8 @@ version: "3.7"
 
 services:
   giragen-generator:
-    container_name: giragen-generator
     image: impads/giragen-generator:0.0.1-SNAPSHOT
+    container_name: giragen_generator
     volumes:
       - "<path/to/application.conf>:/opt/isel/thesis/impads/spds-benchmark/giragen/conf/application.conf:ro"
       - "<path/to/gira_data>:/opt/isel/thesis/impads/spds-benchmark/giragen/data/"

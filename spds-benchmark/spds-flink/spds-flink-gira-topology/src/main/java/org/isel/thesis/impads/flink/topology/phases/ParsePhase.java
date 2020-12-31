@@ -14,7 +14,7 @@ import org.isel.thesis.impads.metrics.Observable;
 
 import java.io.Serializable;
 
-public class InitialTransformationPhase implements Serializable {
+public class ParsePhase implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class InitialTransformationPhase implements Serializable {
     private DataStream<Observable<SimplifiedWazeJamsModel>> simplifiedWazeJamsStream;
     private DataStream<Observable<SimplifiedWazeIrregularitiesModel>> simplifiedWazeIrregularitiesStream;
 
-    public InitialTransformationPhase(final ConfigurationContainer configurationContainer
+    public ParsePhase(final ConfigurationContainer configurationContainer
             , final IngestionPhase ingestionPhase) {
         this.configurationContainer = configurationContainer;
 
@@ -38,7 +38,7 @@ public class InitialTransformationPhase implements Serializable {
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
-        if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        if (untilPhase == Phases.PARSE) {
             simplifiedGiraTravelsStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
             simplifiedWazeJamsStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));
             simplifiedWazeIrregularitiesStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()));

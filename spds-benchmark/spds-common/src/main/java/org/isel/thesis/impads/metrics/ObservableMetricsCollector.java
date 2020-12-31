@@ -1,12 +1,8 @@
 package org.isel.thesis.impads.metrics;
 
-import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Timer;
-import io.micrometer.statsd.StatsdMeterRegistry;
-import org.isel.thesis.impads.metrics.collector.Metrics;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
-import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +26,7 @@ public class ObservableMetricsCollector {
     }
 
     private void initMetricsCollector() {
-        IMetrics metrics = provideMetrics(config);
+        IMetrics metrics = FactoryMetrics.newMetrics(config);
 
         if (metrics != null && spds != null) {
             this.eventLatencyTimer = metrics.registerTimer(spds.getName().concat(EVENT_TIME_LATENCY_METRIC_SUFFIX));
@@ -46,20 +42,5 @@ public class ObservableMetricsCollector {
             this.processingLatencyTimer.record(ObservableUtils.processingTimeLatencyInMillis(nowTimestamp, data.getIngestionTimestamp())
                     , TimeUnit.MILLISECONDS);
         }
-    }
-
-    private IMetrics provideMetrics(MetricsCollectorConfiguration collectorConfiguration) {
-        final IMetrics metrics;
-        switch (collectorConfiguration.getMetricsStatsDAgent()) {
-            case TELEGRAF:
-                metrics = new Metrics(new StatsdMeterRegistry(new TelegrafStatsD(collectorConfiguration), Clock.SYSTEM));
-                break;
-            case NONE:
-            default:
-                metrics = null;
-                break;
-        }
-
-        return metrics;
     }
 }

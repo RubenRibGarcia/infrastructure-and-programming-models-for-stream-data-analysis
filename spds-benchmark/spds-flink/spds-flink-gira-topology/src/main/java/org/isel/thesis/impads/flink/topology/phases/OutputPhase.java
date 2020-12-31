@@ -3,7 +3,8 @@ package org.isel.thesis.impads.flink.topology.phases;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.isel.thesis.impads.connectors.redis.RedisSinkFunction;
+import org.isel.thesis.impads.connectors.redis.RedisWriterFunction;
+import org.isel.thesis.impads.connectors.redis.api.RedisConsumer;
 import org.isel.thesis.impads.connectors.redis.container.RedisWriteCommandsContainer;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
@@ -39,8 +40,8 @@ public class OutputPhase implements Serializable {
 
     private void output(DataStream<Observable<GiraTravelsWithWazeAndIpmaResult>> resultStream) {
 
-        RedisSinkFunction<Observable<GiraTravelsWithWazeAndIpmaResult>> redisSinkFunction = RedisSinkFunction
-                .sink(configurationContainer.getRedisConfiguration(), this::doOutput);
+        RedisWriterFunction<Observable<GiraTravelsWithWazeAndIpmaResult>> redisSinkFunction = RedisWriterFunction
+                .newWriter(configurationContainer.getRedisConfiguration(), this::doOutput);
 
         resultStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()
                 , RedisSink.sink(redisSinkFunction)));

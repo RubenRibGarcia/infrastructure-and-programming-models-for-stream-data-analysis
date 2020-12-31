@@ -1,0 +1,8 @@
+Case Tests:
+N | Type | Max Sustainable throughput
+
+1 | C5a.2xlarge | 2500 events/s
+
+2 | C5a.2xlarge |
+
+4 | C5a.2xlarge |
