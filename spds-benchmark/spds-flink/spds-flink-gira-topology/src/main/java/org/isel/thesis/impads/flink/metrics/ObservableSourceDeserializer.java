@@ -11,6 +11,8 @@ import java.time.Instant;
 
 public class ObservableSourceDeserializer<T> implements DeserializationSchema<Observable<T>> {
 
+    private static final long serialVersionUID = 1L;
+
     private final DeserializationSchema<T> deserializationSchema;
     private final SerializableEventTimestampAssigner<T> eventTimestampAssigner;
 

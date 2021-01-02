@@ -7,7 +7,11 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.api.IMetrics;
 import org.isel.thesis.impads.metrics.collector.statsd.TelegrafStatsD;
 
-public final class FactoryMetrics {
+import java.io.Serializable;
+
+public final class FactoryMetrics implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static IMetrics newMetrics(MetricsCollectorConfiguration collectorConfiguration) {
         return provideMetrics(collectorConfiguration);

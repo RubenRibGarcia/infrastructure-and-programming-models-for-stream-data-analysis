@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>spds-benchmark</artifactId>
+        <groupId>org.isel.thesis.impads</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.isel.thesis.impads.connectors</groupId>
+    <artifactId>spds-connectors</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>IMPADS - SPDS - Connectors</name>
+
+    <modules>
+        <module>spds-redis-connector</module>
+        <module>spds-rabbit-connector</module>
+    </modules>
+
+</project>

@@ -7,6 +7,8 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 
 public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFunction<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final MetricsCollectorConfiguration config;
     private final RichSinkFunction<T> sinkFunction;
 

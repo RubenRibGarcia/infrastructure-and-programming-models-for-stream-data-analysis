@@ -7,7 +7,7 @@ import org.isel.thesis.impads.connectors.redis.RedisHashCacheableMapFunction;
 import org.isel.thesis.impads.connectors.redis.api.RedisKeyHashField;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
-import org.isel.thesis.impads.flink.topology.function.RedisIpmaValuesMapFunction;
+import org.isel.thesis.impads.flink.topology.function.IpmaValuesCacheableMapFunction;
 import org.isel.thesis.impads.flink.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
@@ -56,7 +56,7 @@ public class StaticJoinPhase implements Serializable {
                         , (readCommands, keyHashField, tuple) -> IpmaValuesModel.fetchAndAddFromRedis(keyHashField.getHashField(), readCommands)
                         , configurationContainer.getMetricsCollectorConfiguration());
 
-        return joinedGiraTravelsWithWazeStream.map(RedisIpmaValuesMapFunction.map(mapper));
+        return joinedGiraTravelsWithWazeStream.map(IpmaValuesCacheableMapFunction.function(mapper));
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

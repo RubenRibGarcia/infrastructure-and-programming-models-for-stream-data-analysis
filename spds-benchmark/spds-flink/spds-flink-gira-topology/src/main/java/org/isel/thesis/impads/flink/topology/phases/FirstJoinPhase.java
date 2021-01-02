@@ -1,5 +1,6 @@
 package org.isel.thesis.impads.flink.topology.phases;
 
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
@@ -44,9 +45,20 @@ public class FirstJoinPhase implements Serializable {
     private DataStream<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> joinGiraTravelsWithWazeJams(
             DataStream<Observable<SimplifiedGiraTravelsModel>> simplifiedGiraTravelsStream
             , DataStream<Observable<SimplifiedWazeJamsModel>> simplifiedWazeJamsStream) {
+
         return simplifiedGiraTravelsStream
-                .keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
-                .intervalJoin(simplifiedWazeJamsStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
+                .keyBy(new KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>() {
+                    @Override
+                    public Long getKey(Observable<SimplifiedGiraTravelsModel> tuple) throws Exception {
+                        return Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
+                    }
+                })
+                .intervalJoin(simplifiedWazeJamsStream.keyBy(new KeySelector<Observable<SimplifiedWazeJamsModel>, Long>() {
+                    @Override
+                    public Long getKey(Observable<SimplifiedWazeJamsModel> tuple) throws Exception {
+                        return Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
+                    }
+                }))
                 .between(Time.milliseconds(-5), Time.milliseconds(5))
                 .process(new ProcessJoinFunction<Observable<SimplifiedGiraTravelsModel>, Observable<SimplifiedWazeJamsModel>, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>>() {
                     @Override

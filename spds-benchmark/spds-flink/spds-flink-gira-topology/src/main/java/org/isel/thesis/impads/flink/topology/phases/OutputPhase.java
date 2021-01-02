@@ -4,11 +4,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessin
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.isel.thesis.impads.connectors.redis.RedisWriterFunction;
-import org.isel.thesis.impads.connectors.redis.api.RedisConsumer;
 import org.isel.thesis.impads.connectors.redis.container.RedisWriteCommandsContainer;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
 import org.isel.thesis.impads.flink.topology.ConfigurationContainer;
-import org.isel.thesis.impads.flink.topology.function.RedisSink;
+import org.isel.thesis.impads.flink.topology.function.ResultSink;
 import org.isel.thesis.impads.flink.topology.models.GiraTravelsWithWazeAndIpmaResult;
 import org.isel.thesis.impads.metrics.Observable;
 import org.slf4j.Logger;
@@ -44,7 +43,7 @@ public class OutputPhase implements Serializable {
                 .newWriter(configurationContainer.getRedisConfiguration(), this::doOutput);
 
         resultStream.addSink(ObservableSinkFunction.observe(configurationContainer.getMetricsCollectorConfiguration()
-                , RedisSink.sink(redisSinkFunction)));
+                , ResultSink.sink(redisSinkFunction)));
     }
 
     private void doOutput(final RedisWriteCommandsContainer redisCommandsContainer
@@ -52,7 +51,7 @@ public class OutputPhase implements Serializable {
 
         try {
             String rvalue = mapper.writeValueAsString(result);
-            redisCommandsContainer.lpush("flink_ouput", rvalue);
+            redisCommandsContainer.lpush("flink_output", rvalue);
         } catch (JsonProcessingException e) {
             LOG.error(e.getMessage(), e);
         }

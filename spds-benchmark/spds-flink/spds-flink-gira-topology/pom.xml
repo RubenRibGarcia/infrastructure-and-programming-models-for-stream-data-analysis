@@ -16,27 +16,23 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.12</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.isel.thesis.impads</groupId>
             <artifactId>spds-flink-rabbitmq-connector</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.isel.thesis.impads</groupId>
+            <groupId>org.isel.thesis.impads.connectors</groupId>
             <artifactId>spds-redis-connector</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.isel.thesis.impads</groupId>
             <artifactId>giragen-data-adapters</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>

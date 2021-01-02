@@ -14,8 +14,11 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.WKBReader;
 
-public class ResultMapFunction extends RichMapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>
+public class ResultMapFunction
+        extends RichMapFunction<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>
         , Observable<GiraTravelsWithWazeAndIpmaResult>> {
+
+    private static final long serialVersionUID = 1L;
 
     private static final double GEOMETRY_BUFFER = 0.0005;
 

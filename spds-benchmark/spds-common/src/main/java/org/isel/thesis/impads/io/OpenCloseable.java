@@ -1,6 +1,8 @@
 package org.isel.thesis.impads.io;
 
-public interface OpenCloseable {
+import java.io.Serializable;
+
+public interface OpenCloseable extends Serializable {
 
     void open() throws Exception;
 

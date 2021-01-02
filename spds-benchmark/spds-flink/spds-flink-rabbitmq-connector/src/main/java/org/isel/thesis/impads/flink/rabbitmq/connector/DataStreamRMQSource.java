@@ -1,12 +1,10 @@
 package org.isel.thesis.impads.flink.rabbitmq.connector;
 
-import com.typesafe.config.Config;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource;
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.IRMQQueue;
 import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfiguration;
-import org.isel.thesis.impads.flink.rabbitmq.connector.api.RabbitMQConfigurationFields;
 
 public class DataStreamRMQSource<T> extends RMQSource<T> {
 
