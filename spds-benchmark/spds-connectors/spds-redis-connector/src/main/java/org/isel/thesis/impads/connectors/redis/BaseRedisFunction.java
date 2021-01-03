@@ -19,6 +19,8 @@ public abstract class BaseRedisFunction implements Serializable, OpenCloseable {
     protected RedisConfigurationBase config;
     protected transient RedisCommandsContainer commands;
 
+    public BaseRedisFunction() { }
+
     protected BaseRedisFunction(RedisConfigurationBase config) {
         Objects.requireNonNull(config, "Redis config should not be null");
         this.config = config;

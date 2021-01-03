@@ -23,7 +23,7 @@ DATA_ADAPTERS_PATH			:= $(DIR)/data-adapters
 DATA_GENERATOR_PATH 		:= $(DIR)/data-generator
 
 build-project:
-	mvn clean package
+	mvn clean compile package -U
 
 # ------------- LOCAL BOOTSTRAP ---------------------
 
@@ -183,12 +183,12 @@ METRICS_MONITOR_INFRASTRUCTURE_PATH		:= ${SPDS_INFRASTRUCTURE_PATH}/components/m
 MISC_INFRASTRUCTURE_PATH				:= ${SPDS_INFRASTRUCTURE_PATH}/components/misc-infrastructure
 
 build-spds-benchmark-project:
-	mvn clean package -pl :spds-benchmark -amd
+	mvn clean compile package -pl :spds-benchmark -amd
 
 # ------------- SPDS FLINK -----------------
 
 build-spds-flink-gira-topology: ## Maven build spds-flink module
-	mvn clean package -pl :spds-flink-gira-topology -am
+	mvn clean compile package -pl :spds-flink-gira-topology -am
 	mkdir -p $(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs
 	cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
 	$(SPDS_INFRASTRUCTURE_BUCKET_BASE)/spds-flink/jobs/

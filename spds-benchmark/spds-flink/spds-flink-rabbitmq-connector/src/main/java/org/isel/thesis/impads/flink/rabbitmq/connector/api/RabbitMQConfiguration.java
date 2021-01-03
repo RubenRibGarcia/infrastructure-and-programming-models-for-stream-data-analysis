@@ -1,6 +1,10 @@
 package org.isel.thesis.impads.flink.rabbitmq.connector.api;
 
-public class RabbitMQConfiguration {
+import java.io.Serializable;
+
+public class RabbitMQConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String host;
     private final int port;

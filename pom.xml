@@ -20,8 +20,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         
         <amqp.version>5.9.0</amqp.version>
         <dagger.version>2.26</dagger.version>
@@ -29,7 +29,7 @@
         <apache.common.csv.version>1.8</apache.common.csv.version>
         <vavr.version>0.10.2</vavr.version>
         <guava.version>29.0-jre</guava.version>
-        <apache.flink.version>1.11.3</apache.flink.version>
+        <apache.flink.version>1.11.1</apache.flink.version>
         <apache.kafka.version>2.6.0</apache.kafka.version>
         <apache.storm.version>2.2.0</apache.storm.version>
         <geotools.version>23.1</geotools.version>
@@ -131,8 +131,16 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resource-plugin</artifactId>
                     <version>3.1.0</version>
+                    <configuration>
+                        <overwrite>false</overwrite>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -140,6 +148,7 @@
                     <version>3.8.1</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <useIncrementalCompilation>false</useIncrementalCompilation>
                     </configuration>
                 </plugin>
                 <plugin>

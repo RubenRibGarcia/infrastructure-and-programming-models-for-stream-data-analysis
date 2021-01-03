@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spds-rabbit-connector</artifactId>
+    <artifactId>spds-rabbitmq-connector</artifactId>
+    <name>IMPADS - SPDS - Connectors - RabbitMQ</name>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

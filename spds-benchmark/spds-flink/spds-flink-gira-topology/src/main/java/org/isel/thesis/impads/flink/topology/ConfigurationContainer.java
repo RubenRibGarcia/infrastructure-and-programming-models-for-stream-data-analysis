@@ -12,7 +12,11 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
 
-public final class ConfigurationContainer {
+import java.io.Serializable;
+
+public final class ConfigurationContainer implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final GiraTravelsTopologyConfiguration topologyConfiguration;
     private final RabbitMQConfiguration rabbitMQConfiguration;
@@ -39,7 +43,7 @@ public final class ConfigurationContainer {
     private static GiraTravelsTopologyConfiguration doInitializeGiraTravelsTopologyConfiguration(Config config) {
         return GiraTravelsTopologyConfiguration.builder()
                 .withParallelism(config.getInt(GiraTravelsTopologyConfigurationFields.TOPOLOGY_PARALLELISM))
-                .withUntilPhase(config.getEnum(Phases.class, GiraTravelsTopologyConfigurationFields.TOPOLOGY_UNTIL_PHASE))
+                .withUntilPhase(Phases.valueOf(config.getString(GiraTravelsTopologyConfigurationFields.TOPOLOGY_UNTIL_PHASE)))
                 .build();
     }
 
@@ -62,7 +66,7 @@ public final class ConfigurationContainer {
     }
 
     private static MetricsCollectorConfiguration doInitializeMetricsCollectorConfiguration(Config config) {
-        return new MetricsCollectorConfiguration(config.getEnum(MetricsStatsDAgent.class, MetricsCollectorConfigurationFields.METRICS_STATSD_AGENT)
+        return new MetricsCollectorConfiguration(MetricsStatsDAgent.valueOf(config.getString(MetricsCollectorConfigurationFields.METRICS_STATSD_AGENT))
                 , config.getString(MetricsCollectorConfigurationFields.METRICS_STATSD_HOST)
                 , config.getInt(MetricsCollectorConfigurationFields.METRICS_STATSD_PORT));
     }

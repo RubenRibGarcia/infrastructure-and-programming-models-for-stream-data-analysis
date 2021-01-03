@@ -6,11 +6,13 @@ public class Observable<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final long eventTimestamp;
-    private final long ingestionTimestamp;
-    private final T data;
+    private long eventTimestamp;
+    private long ingestionTimestamp;
+    private T data;
 
-    private final long processedTimestamp;
+    private long processedTimestamp;
+
+    public Observable() { }
 
     public Observable(T data, long eventTimestamp, long ingestionTimestamp, long processedTimestamp) {
         this.data = data;
@@ -58,16 +60,32 @@ public class Observable<T> implements Serializable {
         return eventTimestamp;
     }
 
+    public void setEventTimestamp(long eventTimestamp) {
+        this.eventTimestamp = eventTimestamp;
+    }
+
     public long getIngestionTimestamp() {
         return ingestionTimestamp;
+    }
+
+    public void setIngestionTimestamp(long ingestionTimestamp) {
+        this.ingestionTimestamp = ingestionTimestamp;
     }
 
     public long getProcessedTimestamp() {
         return processedTimestamp;
     }
 
+    public void setProcessedTimestamp(long processedTimestamp) {
+        this.processedTimestamp = processedTimestamp;
+    }
+
     public T getData() {
         return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
     }
 
 }

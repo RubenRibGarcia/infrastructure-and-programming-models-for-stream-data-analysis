@@ -9,7 +9,9 @@ public abstract class FlinkRedisSinkFunction<IN>
 
     private static final long serialVersionUID = 1L;
 
-    protected final RedisWriterFunction<IN> writerFunction;
+    protected RedisWriterFunction<IN> writerFunction;
+
+    public FlinkRedisSinkFunction() { }
 
     protected FlinkRedisSinkFunction(RedisWriterFunction<IN> writerFunction) {
         this.writerFunction = writerFunction;
@@ -17,8 +19,8 @@ public abstract class FlinkRedisSinkFunction<IN>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        this.writerFunction.open();
         super.open(parameters);
+        this.writerFunction.open();
     }
 
     @Override

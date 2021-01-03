@@ -1,6 +1,5 @@
 package org.isel.thesis.impads.flink.topology.phases;
 
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
@@ -12,10 +11,7 @@ import org.isel.thesis.impads.flink.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.flink.topology.models.SimplifiedWazeJamsModel;
 import org.isel.thesis.impads.metrics.Observable;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.io.WKBReader;
 
 import java.io.Serializable;
 

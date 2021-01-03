@@ -2,7 +2,11 @@ package org.isel.thesis.impads.flink.topology;
 
 import org.isel.thesis.impads.flink.topology.phases.Phases;
 
-public final class GiraTravelsTopologyConfiguration {
+import java.io.Serializable;
+
+public final class GiraTravelsTopologyConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final int parallelism;
     private final Phases untilPhase;

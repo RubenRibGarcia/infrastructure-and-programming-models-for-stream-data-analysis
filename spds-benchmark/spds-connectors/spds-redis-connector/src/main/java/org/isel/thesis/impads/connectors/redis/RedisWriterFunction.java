@@ -17,6 +17,8 @@ public class RedisWriterFunction<I>
 
     private RedisWriter<I> writer;
 
+    public RedisWriterFunction() { }
+
     private RedisWriterFunction(RedisConfigurationBase redisConfigurationBase
             , RedisWriter<I> writer) {
         super(redisConfigurationBase);

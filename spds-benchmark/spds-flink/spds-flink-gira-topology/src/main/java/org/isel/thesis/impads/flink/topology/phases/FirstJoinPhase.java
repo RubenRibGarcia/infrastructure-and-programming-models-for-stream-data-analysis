@@ -47,18 +47,8 @@ public class FirstJoinPhase implements Serializable {
             , DataStream<Observable<SimplifiedWazeJamsModel>> simplifiedWazeJamsStream) {
 
         return simplifiedGiraTravelsStream
-                .keyBy(new KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>() {
-                    @Override
-                    public Long getKey(Observable<SimplifiedGiraTravelsModel> tuple) throws Exception {
-                        return Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
-                    }
-                })
-                .intervalJoin(simplifiedWazeJamsStream.keyBy(new KeySelector<Observable<SimplifiedWazeJamsModel>, Long>() {
-                    @Override
-                    public Long getKey(Observable<SimplifiedWazeJamsModel> tuple) throws Exception {
-                        return Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
-                    }
-                }))
+                .keyBy((KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
+                .intervalJoin(simplifiedWazeJamsStream.keyBy((KeySelector<Observable<SimplifiedWazeJamsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
                 .between(Time.milliseconds(-5), Time.milliseconds(5))
                 .process(new ProcessJoinFunction<Observable<SimplifiedGiraTravelsModel>, Observable<SimplifiedWazeJamsModel>, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>>() {
                     @Override
