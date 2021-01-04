@@ -38,12 +38,12 @@ services:
         volumes:
 {% if service.properties is defined %}
 {% for property in service.properties %}
-            - ./{{ property.from }}:{{ property.to }}:ro
+            - ./{{ property.from }}:{{ property.to }}
 {% endfor %}
 {% endif %}
 {% if service.files is defined %}
 {% for file in service.files %}
-            - ./{{ file.from }}:{{ file.to }}:ro
+            - ./{{ file.from }}:{{ file.to }}
 {% endfor %}
 {% endif %}
 {% if service.volumes is defined %}

@@ -40,6 +40,7 @@ module "misc-infrastructure" {
   instance_type = "c5a.4xlarge"
   instance_count = 1
 
+  zone = "eu-west-1b"
   ssh_authorized_keys = local.ssh_authorized_keys
 
   aws_security_group_id = module.networking.aws_security_group_id
@@ -58,6 +59,9 @@ module "flink-job-manager" {
   instance_type = "c5a.large"
   instance_count = 1
 
+  zone = "eu-west-1b"
+  ssh_authorized_keys = local.ssh_authorized_keys
+
   aws_security_group_id = module.networking.aws_security_group_id
   key_pair_name = module.access.key_pair_name
 }
@@ -68,7 +72,10 @@ module "flink-task-manager" {
   name = "flink-task-manager"
 
   instance_type = "c5a.2xlarge"
-  instance_count = 1
+  instance_count = 2
+
+  zone = "eu-west-1b"
+  ssh_authorized_keys = local.ssh_authorized_keys
 
   aws_security_group_id = module.networking.aws_security_group_id
   key_pair_name = module.access.key_pair_name
@@ -85,6 +92,9 @@ module "metrics-dashboard" {
 
   instance_type = "c5a.large"
   instance_count = 1
+
+  zone = "eu-west-1b"
+  ssh_authorized_keys = local.ssh_authorized_keys
 
   aws_security_group_id = module.networking.aws_security_group_id
   key_pair_name = module.access.key_pair_name

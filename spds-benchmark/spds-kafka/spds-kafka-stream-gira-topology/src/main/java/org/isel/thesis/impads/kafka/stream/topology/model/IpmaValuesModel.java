@@ -1,7 +1,7 @@
 package org.isel.thesis.impads.kafka.stream.topology.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
+import org.isel.thesis.impads.connectors.redis.container.RedisHashReadCommandsContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class IpmaValuesModel implements Serializable {
         this.ipmaSensoresValues = ipmaSensoresValues;
     }
 
-    public static IpmaValuesModel fetchAndAddFromRedis(String hashField, RedisCommandsContainer container) {
+    public static IpmaValuesModel fetchAndAddFromRedis(String hashField, RedisHashReadCommandsContainer container) {
         Map<String, String> ipmaSensoresValues = new HashMap<>();
         LIST_OF_KEYS.forEach(key ->
                 ipmaSensoresValues.putIfAbsent(key, container.hget(key, hashField)));

@@ -29,14 +29,14 @@ public class FirstJoinPhase implements Serializable {
 
     public FirstJoinPhase(final TopologyBuilder topologyBuilder
             , final ConfigurationContainer configurationContainer
-            , final InitialTransformationPhase initialTransformationPhase) {
+            , final ParsePhase initialTransformationPhase) {
         this.topologyBuilder = topologyBuilder;
         this.configurationContainer = configurationContainer;
 
         initializePhase(initialTransformationPhase);
     }
 
-    private void initializePhase(final InitialTransformationPhase parsePhase) {
+    private void initializePhase(final ParsePhase parsePhase) {
         joinGiraTravelsWithWazeJams(parsePhase.getSimplifiedGiraTravelsStream()
                 , parsePhase.getSimplifiedWazeJamsStream());
 
@@ -74,7 +74,7 @@ public class FirstJoinPhase implements Serializable {
 
         topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_JAMS_STREAM, joinedGiraTravelsWithWazeJamsBolt
                 .withWindow(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
-                .withTimestampExtractor(tuple -> tuple.getLongByField("event_timestamp")))
+                .withTimestampExtractor(tuple -> tuple.getLongByField("event_timestamp")), configurationContainer.getTopologyConfiguration().getParallelism())
                 .fieldsGrouping(simplifiedGiraTravelsStream, new Fields("key"))
                 .fieldsGrouping(simplifiedWazeJamsStream, new Fields("key"));
     }

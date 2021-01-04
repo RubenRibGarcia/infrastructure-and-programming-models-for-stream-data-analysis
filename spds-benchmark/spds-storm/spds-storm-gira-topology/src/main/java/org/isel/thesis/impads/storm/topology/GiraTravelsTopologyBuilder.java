@@ -5,7 +5,7 @@ import org.apache.storm.generated.StormTopology;
 import org.apache.storm.topology.TopologyBuilder;
 import org.isel.thesis.impads.storm.topology.phases.FirstJoinPhase;
 import org.isel.thesis.impads.storm.topology.phases.IngestionPhase;
-import org.isel.thesis.impads.storm.topology.phases.InitialTransformationPhase;
+import org.isel.thesis.impads.storm.topology.phases.ParsePhase;
 import org.isel.thesis.impads.storm.topology.phases.OutputPhase;
 import org.isel.thesis.impads.storm.topology.phases.Phases;
 import org.isel.thesis.impads.storm.topology.phases.ResultPhase;
@@ -53,31 +53,31 @@ public final class GiraTravelsTopologyBuilder implements Serializable {
         if (untilPhase == Phases.INGESTION) {
             initializeIngestionPhase();
         }
-        else if (untilPhase == Phases.INITIAL_TRANSFORMATION) {
+        else if (untilPhase == Phases.PARSE) {
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            initializeInitialTransformationPhase(ingestionPhase);
+            initializeParsePhase(ingestionPhase);
         }
         else if (untilPhase == Phases.FIRST_JOIN) {
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            ParsePhase initialTransformationPhase = initializeParsePhase(ingestionPhase);
             initializeFirstJoinPhase(initialTransformationPhase);
         }
         else if (untilPhase == Phases.SECOND_JOIN){
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            ParsePhase initialTransformationPhase = initializeParsePhase(ingestionPhase);
             FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
             initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
         }
         else if (untilPhase == Phases.STATIC_JOIN) {
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            ParsePhase initialTransformationPhase = initializeParsePhase(ingestionPhase);
             FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
             SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
             initializeStaticJoinPhase(secondJoinPhase);
         }
         else if (untilPhase == Phases.RESULT) {
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            ParsePhase initialTransformationPhase = initializeParsePhase(ingestionPhase);
             FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
             SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
             StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
@@ -85,7 +85,7 @@ public final class GiraTravelsTopologyBuilder implements Serializable {
         }
         else if (untilPhase == Phases.OUTPUT) {
             IngestionPhase ingestionPhase = initializeIngestionPhase();
-            InitialTransformationPhase initialTransformationPhase = initializeInitialTransformationPhase(ingestionPhase);
+            ParsePhase initialTransformationPhase = initializeParsePhase(ingestionPhase);
             FirstJoinPhase firstJoinPhase = initializeFirstJoinPhase(initialTransformationPhase);
             SecondJoinPhase secondJoinPhase = initializeSecondJoinPhase(initialTransformationPhase, firstJoinPhase);
             StaticJoinPhase staticJoinPhase = initializeStaticJoinPhase(secondJoinPhase);
@@ -103,15 +103,15 @@ public final class GiraTravelsTopologyBuilder implements Serializable {
         return new IngestionPhase(topologyBuilder, configurationContainer, mapper);
     }
 
-    private InitialTransformationPhase initializeInitialTransformationPhase(IngestionPhase ingestionPhase) {
-        return new InitialTransformationPhase(topologyBuilder, configurationContainer, ingestionPhase);
+    private ParsePhase initializeParsePhase(IngestionPhase ingestionPhase) {
+        return new ParsePhase(topologyBuilder, configurationContainer, ingestionPhase);
     }
 
-    private FirstJoinPhase initializeFirstJoinPhase(InitialTransformationPhase initialTransformationPhase) {
+    private FirstJoinPhase initializeFirstJoinPhase(ParsePhase initialTransformationPhase) {
         return new FirstJoinPhase(topologyBuilder, configurationContainer, initialTransformationPhase);
     }
 
-    private SecondJoinPhase initializeSecondJoinPhase(InitialTransformationPhase initialTransformationPhase
+    private SecondJoinPhase initializeSecondJoinPhase(ParsePhase initialTransformationPhase
             , FirstJoinPhase firstJoinPhase) {
         return new SecondJoinPhase(topologyBuilder, configurationContainer, initialTransformationPhase, firstJoinPhase);
     }

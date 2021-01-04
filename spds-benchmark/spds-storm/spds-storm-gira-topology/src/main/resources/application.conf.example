@@ -1,3 +1,7 @@
+topology {
+    parallelism = 24
+    until_phase = OUTPUT
+}
 rabbitmq {
     host = "rabbitmq"
     port = 5672
@@ -5,11 +9,9 @@ rabbitmq {
     password = "admin"
 }
 redis {
+    mocked = false
     host = "redis"
     port = "6379"
-    min_idle = 0
-    max_idle = 10
-    max_total = 10
 }
 metrics {
     statsd {

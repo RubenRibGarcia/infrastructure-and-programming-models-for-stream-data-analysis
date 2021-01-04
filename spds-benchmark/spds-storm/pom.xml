@@ -20,7 +20,6 @@
     <modules>
         <module>spds-storm-gira-topology</module>
         <module>spds-storm-rabbitmq-connector</module>
-        <module>spds-storm-redis-connector</module>
     </modules>
 
     <dependencies>

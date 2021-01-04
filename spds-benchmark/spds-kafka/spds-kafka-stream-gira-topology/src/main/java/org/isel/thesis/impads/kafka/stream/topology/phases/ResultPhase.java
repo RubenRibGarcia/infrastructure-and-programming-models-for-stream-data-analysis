@@ -50,16 +50,17 @@ public class ResultPhase implements Serializable {
     private KStream<Long, ObservableGiraTravelsWithWazeResults> transformToResult(
             KStream<Long, ObservableJoinedGiraTravelsWithWazeAndIpma> enrichedJoinedGiraTravelsWithWazeAndIpma) {
 
+        final WKBReader reader = new WKBReader(geoFactory);
+
         return enrichedJoinedGiraTravelsWithWazeAndIpma
                 .map((k, v) -> {
                     try {
                         boolean jamAndIrrMatches = false;
 
-                        org.geotools.geometry.jts.WKBReader reader = new org.geotools.geometry.jts.WKBReader(geoFactory);
                         final Geometry giraGeo
-                                = reader.read(org.geotools.geometry.jts.WKBReader.hexToBytes(v.getData().getFirst().getGeometry()));
+                                = reader.read(WKBReader.hexToBytes(v.getData().getFirst().getGeometry()));
                         final Geometry wazeIrrGeo
-                                = reader.read(org.geotools.geometry.jts.WKBReader.hexToBytes(v.getData().getThird().getGeometry()));
+                                = reader.read(WKBReader.hexToBytes(v.getData().getThird().getGeometry()));
                         final Geometry wazeJamGeo
                                 = reader.read(WKBReader.hexToBytes(v.getData().getSecond().getGeometry()));
 

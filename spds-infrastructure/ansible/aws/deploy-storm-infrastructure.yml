@@ -5,6 +5,9 @@
   serial: 1
   roles:
     - storm-infrastructure/nimbus
+  vars:
+    storm_services:
+      storm_nimbus_address: "{{ hostvars['storm-nimbus-0']['network_interfaces'][0]['private_ip_address'] }}"
   tags:
     - storm-nimbus
 
@@ -15,11 +18,20 @@
     - storm-infrastructure/supervisor
     - metrics-monitor/agent
   vars:
+    storm_services:
+      storm_nimbus_address: "{{ hostvars['storm-nimbus-0']['network_interfaces'][0]['private_ip_address'] }}"
+      storm_supervisor_address: "{{ hostvars[ansible_hostname]['network_interfaces'][0]['private_ip_address'] }}"
     agent:
+      outputs:
+        influxdb:
+          host: "http://{{ hostvars['metrics-dashboard-0']['network_interfaces'][0]['private_ip_address'] }}:8086"
       statsd:
         enabled: true
       docker:
         enabled: true
+      jmx:
+        enabled: true
+        host: supervisor
   tags:
     - storm-supervisor
 

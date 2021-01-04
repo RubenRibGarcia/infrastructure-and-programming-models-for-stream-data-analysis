@@ -34,7 +34,7 @@ public final class ConfigurationContainer implements Serializable {
     }
 
     public static ConfigurationContainer setup(Config config) {
-        return new ConfigurationContainer( doInitializeGiraTravelsTopologyConfiguration(config)
+        return new ConfigurationContainer(doInitializeGiraTravelsTopologyConfiguration(config)
                 , doInitializeRabbitMQConfiguration(config)
                 , doInitializeRedisConfiguration(config)
                 , doInitializeMetricsCollectorConfiguration(config));

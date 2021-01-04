@@ -27,6 +27,6 @@
   when: docker_users | length > 0
 
 - name: Create Common Network
-  docker_network:
+  community.general.docker_network:
     name: spds-network
 

@@ -4,6 +4,7 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
 import org.isel.thesis.impads.storm.topology.ConfigurationContainer;
 import org.isel.thesis.impads.storm.topology.bolts.ParserBolt;
+import org.isel.thesis.impads.storm.topology.bolts.ResultMapBolt;
 import org.isel.thesis.impads.storm.topology.bolts.processor.GiraTravelsWithWazeAndIpmaResultProcessor;
 import org.locationtech.jts.geom.GeometryFactory;
 
@@ -31,7 +32,10 @@ public class ResultPhase implements Serializable {
     }
 
     private void initializePhase(StaticJoinPhase staticJoinPhase) {
-        transformToResult(topologyBuilder, geoFactory, staticJoinPhase.getJoinedGiraTravelsWithWazeAndIpmaStream());
+        transformToResult(configurationContainer
+                , topologyBuilder
+                , geoFactory
+                , staticJoinPhase.getJoinedGiraTravelsWithWazeAndIpmaStream());
 
         Phases untilPhase = configurationContainer.getTopologyConfiguration().getUntilPhase();
 
@@ -41,10 +45,13 @@ public class ResultPhase implements Serializable {
         }
     }
 
-    private static void transformToResult(TopologyBuilder topologyBuilder
+    private static void transformToResult(ConfigurationContainer configurationContainer
+            , TopologyBuilder topologyBuilder
             , GeometryFactory geoFactory
             , String joinedGiraTravelsWithWazeAndIpmaStream) {
-        topologyBuilder.setBolt(RESULT_STREAM, ParserBolt.parse(new GiraTravelsWithWazeAndIpmaResultProcessor(geoFactory)))
+        topologyBuilder.setBolt(RESULT_STREAM
+                , new ResultMapBolt(geoFactory)
+                , configurationContainer.getTopologyConfiguration().getParallelism())
                 .shuffleGrouping(joinedGiraTravelsWithWazeAndIpmaStream);
     }
 

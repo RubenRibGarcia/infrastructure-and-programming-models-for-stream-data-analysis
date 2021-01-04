@@ -29,7 +29,7 @@ public class FirstJoinPhase implements Serializable {
     public FirstJoinPhase(final ConfigurationContainer configurationContainer
             , final KafkaStreamObservableMetricsCollector collector
             , final ObjectMapper mapper
-            , final InitialTransformationPhase initialTransformationPhase) {
+            , final ParsePhase initialTransformationPhase) {
         this.configurationContainer = configurationContainer;
         this.collector = collector;
         this.mapper = mapper;
@@ -37,7 +37,7 @@ public class FirstJoinPhase implements Serializable {
         initializePhase(initialTransformationPhase);
     }
 
-    private void initializePhase(final InitialTransformationPhase parsePhase) {
+    private void initializePhase(final ParsePhase parsePhase) {
         this.joinedGiraTravelsWithWazeJamsStream = joinGiraTravelsWithWazeJams(parsePhase.getSimplifiedGiraTravelsStream()
                 , parsePhase.getSimplifiedWazeJamsStream());
 

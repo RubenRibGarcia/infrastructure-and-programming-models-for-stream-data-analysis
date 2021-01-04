@@ -1,11 +1,11 @@
 package org.isel.thesis.impads.storm.topology;
 
 import com.typesafe.config.Config;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfiguration;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfigurationFields;
 import org.isel.thesis.impads.metrics.collector.api.MetricsStatsDAgent;
-import org.isel.thesis.impads.storm.redis.common.RedisConfigurationFields;
-import org.isel.thesis.impads.storm.redis.common.config.JedisPoolConfig;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfiguration;
 import org.isel.thesis.impads.storm.spouts.rabbitmq.api.RabbitMQConfigurationFields;
 import org.isel.thesis.impads.storm.topology.GiraTravelsTopologyConfiguration.GiraTravelsTopologyConfigurationFields;
@@ -19,12 +19,12 @@ public final class ConfigurationContainer implements Serializable {
 
     private final GiraTravelsTopologyConfiguration topologyConfiguration;
     private final RabbitMQConfiguration rabbitMQConfiguration;
-    private final JedisPoolConfig redisConfiguration;
+    private final RedisConfiguration redisConfiguration;
     private final MetricsCollectorConfiguration metricsCollectorConfiguration;
 
     private ConfigurationContainer(GiraTravelsTopologyConfiguration topologyConfiguration
             , RabbitMQConfiguration rabbitMQConfiguration
-            , JedisPoolConfig redisConfiguration
+            , RedisConfiguration redisConfiguration
             , MetricsCollectorConfiguration metricsCollectorConfiguration) {
         this.topologyConfiguration = topologyConfiguration;
         this.rabbitMQConfiguration = rabbitMQConfiguration;
@@ -55,10 +55,11 @@ public final class ConfigurationContainer implements Serializable {
                 .build();
     }
 
-    private static JedisPoolConfig doInitializeRedisConfiguration(Config config) {
-        return new JedisPoolConfig.Builder()
-                .setHost(config.getString(RedisConfigurationFields.REDIS_HOST))
-                .setPort(config.getInt(RedisConfigurationFields.REDIS_PORT))
+    private static RedisConfiguration doInitializeRedisConfiguration(Config config) {
+        return RedisConfiguration.builder()
+                .isMocked(config.getBoolean(RedisConfigurationFields.REDIS_MOCKED))
+                .withHost(config.getString(RedisConfigurationFields.REDIS_HOST))
+                .withPort(config.getInt(RedisConfigurationFields.REDIS_PORT))
                 .build();
     }
 
@@ -76,7 +77,7 @@ public final class ConfigurationContainer implements Serializable {
         return rabbitMQConfiguration;
     }
 
-    public JedisPoolConfig getRedisConfiguration() {
+    public RedisConfiguration getRedisConfiguration() {
         return redisConfiguration;
     }
 

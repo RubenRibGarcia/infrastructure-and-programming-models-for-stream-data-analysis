@@ -10,8 +10,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainer;
-import org.isel.thesis.impads.kafka.stream.connectors.redis.common.container.RedisCommandsContainerBuilder;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.InstanteDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeDeserializer;
 import org.isel.thesis.impads.kafka.stream.fasterxml.jackson.deserializers.ObservableJoinedGiraTravelsWithWazeJamsDeserializer;
@@ -63,6 +61,7 @@ MainKafkaStreamGiraTopology {
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "at_least_once");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
+
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
         ObjectMapper mapper = newMapper();
         final GeometryFactory geoFactory = initGeometryFactory();
@@ -70,18 +69,16 @@ MainKafkaStreamGiraTopology {
         ConfigurationContainer configurationContainer =
                 ConfigurationContainer.setup(config);
 
+        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, configurationContainer.getTopologyConfiguration().getParallelism());
+
         final KafkaStreamObservableMetricsCollector collector =
                 new KafkaStreamObservableMetricsCollector(configurationContainer.getMetricsCollectorConfiguration());
-
-        final RedisCommandsContainer redisContainer =
-                RedisCommandsContainerBuilder.build(configurationContainer.getRedisConfiguration());
 
         Topology topology = GiraTravelsTopologyBuilder.build(streamsBuilder
                 , configurationContainer
                 , mapper
                 , geoFactory
-                , collector
-                , redisContainer);
+                , collector);
 
         logger.info("Topology description: {}", topology.describe());
         final KafkaStreams app = new KafkaStreams(topology, props);

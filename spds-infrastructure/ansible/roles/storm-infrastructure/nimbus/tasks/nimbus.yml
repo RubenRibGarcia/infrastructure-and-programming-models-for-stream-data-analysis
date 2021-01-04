@@ -10,8 +10,10 @@
         - name: zookeeper
           image: bitnami/zookeeper:3.6.1
           container_name: zookeeper
-          environments:
+          environment:
             - ALLOW_ANONYMOUS_LOGIN=yes
+          ports:
+            - "2181:2181"
         - name: nimbus
           image: impads/storm:2.2.0
           container_name: nimbus

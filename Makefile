@@ -49,6 +49,8 @@ remote-bootstrap-gcp-run-flink:
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook flink-job-submitter.yml;
+	sleep 5;
+	ansible-playbook deploy-giragen.yml;
 
 remote-bootstrap-gcp-stop-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
@@ -64,7 +66,9 @@ remote-bootstrap-aws-run-flink:
 	ansible-playbook deploy-flink-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook flink-job-submitter.yml;
+	ansible-playbook flink-job-submitter.yml; \
+	sleep 5; \
+	ansible-playbook deploy-giragen.yml;
 
 remote-bootstrap-aws-stop-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/flink; \
@@ -97,7 +101,9 @@ remote-bootstrap-aws-run-storm:
 	ansible-playbook deploy-storm-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook storm-job-submitter.yml;
+	ansible-playbook storm-job-submitter.yml; \
+	sleep 5; \
+	ansible-playbook deploy-giragen.yml;
 
 remote-bootstrap-aws-stop-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/storm; \
@@ -240,8 +246,12 @@ submit-storm-gira-topology:
 
 # ------------- SPDS KAFKA -----------------
 
-build-spds-kafka: ## Maven build spds-kafka module
-	mvn clean package -pl :spds-kafka -am
+build-spds-kafka-gira-topology: ## Maven build spds-kafka module
+	mvn clean compile package -pl :spds-kafka-stream-gira-topology -am
+
+build-kafka-connectors:
+	mvn clean compile package -pl :spds-kafka-redis-connector -am
+	mvn clean compile package -pl :spds-kafka-rabbit-connector -am
 
 docker-build-kafka-stream-gira-travels-pattern:
 	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-build.sh
@@ -267,10 +277,10 @@ docker-run-kafka-connectors:
 docker-stop-kafka-connectors:
 	docker-compose -f $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-compose.yml down
 
-docker-execute-kafka-stream-topology:
+submit-kafka-stream-gira-topology:
 	docker-compose -f $(SPDS_KAFKA_PATH)/docker-compose.yml up -d --build kafka-stream-topology
 
-docker-stop-kafka-stream-topology:
+stop-kafka-stream-gira-topology:
 	docker-compose -f $(SPDS_KAFKA_PATH)/docker-compose.yml stop kafka-stream-topology
 
 # ------------- MISC -----------------

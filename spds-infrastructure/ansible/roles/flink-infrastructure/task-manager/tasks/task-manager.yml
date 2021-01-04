@@ -8,7 +8,7 @@
       name: flink-task-manager
       services:
         - name: task-manager
-          image: flink:1.11.3-scala_2.12-java11
+          image: flink:1.11.1-scala_2.12-java11
           container_name: task-manager
           command: taskmanager
           ports:

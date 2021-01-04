@@ -23,6 +23,8 @@ resource "aws_instance" "default" {
     ebs_optimized               = true
     associate_public_ip_address = true
 
+    availability_zone = var.zone
+
     vpc_security_group_ids = [
         var.aws_security_group_id
     ]

@@ -1,19 +1,18 @@
 package org.isel.thesis.impads.storm.topology.phases;
 
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Values;
+import org.isel.thesis.impads.connectors.redis.RedisHashCacheableMapFunction;
+import org.isel.thesis.impads.connectors.redis.api.RedisKeyHashField;
 import org.isel.thesis.impads.metrics.Observable;
 import org.isel.thesis.impads.storm.metrics.ObservableBolt;
-import org.isel.thesis.impads.storm.redis.bolt.RedisBoltBuilder;
-import org.isel.thesis.impads.storm.redis.bolt.RedisMapperBolt;
 import org.isel.thesis.impads.storm.topology.ConfigurationContainer;
+import org.isel.thesis.impads.storm.topology.bolts.IpmaValuesCacheableMapBolt;
 import org.isel.thesis.impads.storm.topology.models.IpmaValuesModel;
 import org.isel.thesis.impads.storm.topology.models.SimplifiedGiraTravelsModel;
 import org.isel.thesis.impads.storm.topology.models.SimplifiedWazeIrregularitiesModel;
 import org.isel.thesis.impads.storm.topology.models.SimplifiedWazeJamsModel;
 import org.isel.thesis.impads.storm.topology.utils.IpmaUtils;
 import org.isel.thesis.impads.structures.Tuple3;
-import org.isel.thesis.impads.structures.Tuple4;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -48,21 +47,23 @@ public class StaticJoinPhase implements Serializable {
     }
 
     private void enrichJoinGiraTravelWithWazeWithIpma(String joinedGiraTravelsWithWazeStream) {
-        RedisMapperBolt<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>> joinedGiraTravelsWithWazeAndIpma =
-                RedisBoltBuilder.<Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>>mapper(configurationContainer.getRedisConfiguration())
-                        .tupleMapper(t -> (Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>) t.getValueByField("value"))
-                        .transform((redisCommandsContainer, t) -> {
-                            String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(t.getData().getFirst().getEventTimestamp()));
-                            IpmaValuesModel ipmaValues = IpmaValuesModel.fetchAndAddFromRedis(hashField, redisCommandsContainer);
 
-                            Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel> rvalue =
-                                    Tuple4.of(t.getData().getFirst(), t.getData().getSecond(), t.getData().getThird(), ipmaValues);
-                            return new Values(t.map(rvalue));
-                        })
-                        .outputFields("value")
-                        .build();
+        RedisHashCacheableMapFunction<SimplifiedGiraTravelsModel, IpmaValuesModel> mapFunction =
+            RedisHashCacheableMapFunction.newMapperMonitored(configurationContainer.getRedisConfiguration()
+                    , key -> {
+                        String hashField = IpmaUtils.instantToHashField(Instant.ofEpochMilli(key.getEventTimestamp()));
+                        return RedisKeyHashField.of("ipma_sensores_values" , hashField);
+                    }
+                    , (readCommands, keyHashField, tuple) -> IpmaValuesModel.fetchAndAddFromRedis(keyHashField.getHashField(), readCommands)
+                    , configurationContainer.getMetricsCollectorConfiguration());
 
-        topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_AND_IPMA_STREAM, joinedGiraTravelsWithWazeAndIpma)
+        IpmaValuesCacheableMapBolt bolt = new IpmaValuesCacheableMapBolt(mapFunction
+                , t -> (Observable<Tuple3<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel>>) t.getValueByField("value")
+                , "value");
+
+        topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_AND_IPMA_STREAM
+                , bolt
+                , configurationContainer.getTopologyConfiguration().getParallelism())
                 .shuffleGrouping(joinedGiraTravelsWithWazeStream);
     }
 

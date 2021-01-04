@@ -1,6 +1,6 @@
 storm.zookeeper.servers:
     - "zookeeper"
 
-nimbus.seeds: ["{{ hostvars['storm-nimbus-0']['networkInterfaces'][0]['networkIP'] }}"]
+nimbus.seeds: ["{{ storm_services.storm_nimbus_address }}"]
 
-storm.local.hostname: {{ hostvars['storm-nimbus-0']['networkInterfaces'][0]['networkIP'] }}
+storm.local.hostname: {{ storm_services.storm_nimbus_address }}
