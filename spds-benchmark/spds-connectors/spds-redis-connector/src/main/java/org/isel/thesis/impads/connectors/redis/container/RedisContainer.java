@@ -3,6 +3,7 @@ package org.isel.thesis.impads.connectors.redis.container;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import org.isel.thesis.impads.io.OpenCloseable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-public class RedisContainer implements RedisCommandsContainer, Closeable {
+public class RedisContainer implements RedisCommandsContainer, OpenCloseable {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,7 +29,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
 
     @Override
     public void close() throws IOException {
-
+        redisClient.shutdown();
     }
 
     @Override

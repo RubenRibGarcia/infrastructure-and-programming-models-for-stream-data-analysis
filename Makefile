@@ -205,7 +205,7 @@ docker-run-flink-infrastructure:
 docker-stop-flink-infrastructure:
 	docker-compose -f $(APACHE_FLINK_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-submit-flink-gira-topology:
+submit-spds-flink-gira-topology:
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/target/spds-flink-gira-topology-shaded.jar \
 	job-manager:/opt/flink/topology.jar
 	docker cp $(SPDS_FLINK_PATH)/spds-flink-gira-topology/src/main/resources/application.conf \
@@ -234,7 +234,7 @@ docker-run-storm-infrastructure:
 docker-stop-storm-infrastructure:
 	docker-compose -f $(APACHE_STORM_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-submit-storm-gira-topology:
+submit-spds-storm-gira-topology:
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/target/spds-storm-gira-topology-shaded.jar \
 	nimbus:/apache-storm-2.2.0/topology.jar
 	docker cp $(SPDS_STORM_PATH)/spds-storm-gira-topology/src/main/resources/application.conf \
@@ -246,12 +246,26 @@ submit-storm-gira-topology:
 
 # ------------- SPDS KAFKA -----------------
 
-build-spds-kafka-gira-topology: ## Maven build spds-kafka module
+build-spds-kafka-stream-gira-topology: ## Maven build spds-kafka module
 	mvn clean compile package -pl :spds-kafka-stream-gira-topology -am
+	$(MAKE) docker-build-kafka-stream-gira-travels-pattern
+
+submit-spds-kafka-stream-gira-topology:
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic gira_travels --partitions 1
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic waze_jams --partitions 1
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic waze_irregularities --partitions 1
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic kafka_result --partitions 1
+	docker-compose -f $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-compose.yml up -d --build kafka-stream-topology
+
+stop-spds-kafka-stream-gira-topology:
+	docker-compose -f $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-compose.yml stop kafka-stream-topology
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-streams-application-reset.sh --bootstrap-servers kafka:9092 --application-id gira-travels-pattern
+	docker exec kafka /opt/bitnami/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --all-groups --all-topics --reset-offsets --to-earliest --execute
+
 
 build-kafka-connectors:
 	mvn clean compile package -pl :spds-kafka-redis-connector -am
-	mvn clean compile package -pl :spds-kafka-rabbit-connector -am
+	mvn clean compile package -pl :spds-kafka-rabbitmq-connector -am
 
 docker-build-kafka-stream-gira-travels-pattern:
 	sh $(SPDS_KAFKA_PATH)/spds-kafka-stream-gira-topology/docker-build.sh
@@ -276,12 +290,6 @@ docker-run-kafka-connectors:
 
 docker-stop-kafka-connectors:
 	docker-compose -f $(APACHE_KAFKA_INFRASTRUCTURE_PATH)/kafka-connect/docker-compose.yml down
-
-submit-kafka-stream-gira-topology:
-	docker-compose -f $(SPDS_KAFKA_PATH)/docker-compose.yml up -d --build kafka-stream-topology
-
-stop-kafka-stream-gira-topology:
-	docker-compose -f $(SPDS_KAFKA_PATH)/docker-compose.yml stop kafka-stream-topology
 
 # ------------- MISC -----------------
 

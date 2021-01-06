@@ -4,12 +4,9 @@ tasks.max=1
 
 # the file from where the connector should read lines and publish to kafka, this is inside the docker container so we have this
 # mount in the compose file mapping this to an external file where we have rights to read and write and use that as input.
-redis.host = {{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}
+redis.host = {{ kafka_connectors.redis.host }}
 redis.port = 6379
-redis.connection_timeout_ms = 5000
-redis.max_idle = 50
-redis.max_total = 50
-redis.min_idle = 0
+redis.mocked = {{ kafka_connectors.redis.mocked }}
 redis.command = RPUSH
 redis.key = kafka_result
 

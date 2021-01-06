@@ -2,14 +2,13 @@ package org.isel.thesis.impads.kafka.connect.redis;
 
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
-import org.isel.thesis.impads.kafka.connect.redis.conf.RedisConfiguration;
-import org.isel.thesis.impads.kafka.connect.redis.container.RedisCommand;
-import org.isel.thesis.impads.kafka.connect.redis.container.RedisCommandsContainer;
-import org.isel.thesis.impads.kafka.connect.redis.container.RedisCommandsContainerBuilder;
+import org.isel.thesis.impads.connectors.redis.common.RedisConfiguration;
+import org.isel.thesis.impads.connectors.redis.container.RedisCommandsContainerBuilder;
+import org.isel.thesis.impads.connectors.redis.container.RedisWriteCommandsContainer;
+import org.isel.thesis.impads.kafka.connect.redis.conf.RedisSinkConnectorConfigurationFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -18,7 +17,9 @@ public class RedisSinkTask extends SinkTask {
     private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
 
     private RedisConfiguration config;
-    private RedisCommandsContainer commandsContainer;
+    private String key;
+    private RedisCommands command;
+    private RedisWriteCommandsContainer commandsContainer;
 
     @Override
     public String version() {
@@ -27,11 +28,22 @@ public class RedisSinkTask extends SinkTask {
 
     @Override
     public void start(Map<String, String> map) {
-        this.config = RedisConfiguration.load(map);
+        this.config = RedisConfiguration.builder()
+                .isMocked(Boolean.parseBoolean(map.get(RedisSinkConnectorConfigurationFields.REDIS_MOCKED)))
+                .withHost(map.get(RedisSinkConnectorConfigurationFields.REDIS_HOST))
+                .withPort(Integer.parseInt(map.get(RedisSinkConnectorConfigurationFields.REDIS_PORT)))
+                .build();
+
         this.commandsContainer = RedisCommandsContainerBuilder.build(config);
+
+        this.key = map.get(RedisSinkConnectorConfigurationFields.REDIS_KEY);
+        this.command = RedisCommands.valueOf(map.get(RedisSinkConnectorConfigurationFields.REDIS_COMMAND));
+
         try {
+            LOG.info("Opening Redis command container");
             this.commandsContainer.open();
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -42,46 +54,28 @@ public class RedisSinkTask extends SinkTask {
     }
 
     private void doPut(SinkRecord record) {
-        String key = this.config.getRedisKey();
         String value = (String) record.value();
-        RedisCommand redisCommand = RedisCommand.valueOf(this.config.getRedisCommand());
 
-        switch (redisCommand) {
+        switch (command) {
             case RPUSH:
                 this.commandsContainer.rpush(key, value);
                 break;
             case LPUSH:
                 this.commandsContainer.lpush(key, value);
                 break;
-            case SADD:
-                this.commandsContainer.sadd(key, value);
-                break;
-            case SET:
-                this.commandsContainer.set(key, value);
-                break;
-            case PFADD:
-                this.commandsContainer.pfadd(key, value);
-                break;
-            case PUBLISH:
-                this.commandsContainer.publish(key, value);
-                break;
-            case INCRBY:
-                this.commandsContainer.incrBy(key, Long.valueOf(value));
-                break;
-            case DECRBY:
-                this.commandsContainer.decrBy(key, Long.valueOf(value));
-                break;
             default:
-                throw new IllegalArgumentException("Cannot process such data type: " + redisCommand);
+                throw new IllegalArgumentException("Cannot process such data type: " + command);
         }
     }
 
     @Override
     public void stop() {
         try {
+            LOG.info("Closing Redis command container");
             this.commandsContainer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

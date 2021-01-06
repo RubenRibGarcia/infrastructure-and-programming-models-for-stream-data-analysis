@@ -6,5 +6,8 @@
   serial: 1
   roles:
     - kafka-infrastructure/kafka
+  vars:
+    kafka_services:
+      kafka_external_address: "{{ hostvars[ansible_hostname]['network_interfaces'][0]['private_ip_address'] }}"
   tags:
     - kafka

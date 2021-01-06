@@ -22,8 +22,8 @@
             - "6706:6706"
             - "6707:6707"
           environment:
-            - JAVA_TOOL_OPTIONS=-javaagent:/opt/flink/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0
+            - JAVA_TOOL_OPTIONS=-javaagent:/opt/storm/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0
           properties:
             - { src: storm.yaml.j2, from: storm.yaml, to: /conf/storm.yaml }
           files:
-            - { src: "{{ playbook_dir }}/../roles/metrics-monitor/agent/files/jolokia-jvm-1.6.2-agent.jar", from: jolokia-jvm-1.6.2-agent.jar, to: "/opt/flink/jolokia-jvm-1.6.2-agent.jar" }
+            - { src: "{{ playbook_dir }}/../roles/metrics-monitor/agent/files/jolokia-jvm-1.6.2-agent.jar", from: jolokia-jvm-1.6.2-agent.jar, to: "/opt/storm/jolokia-jvm-1.6.2-agent.jar" }

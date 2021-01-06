@@ -1,4 +1,4 @@
-FROM bitnami/kafka:2.6.0
+FROM bitnami/kafka:2.7.0
 
 COPY connectors/spds-kafka-redis-connector-shaded.jar /opt/bitnami/kafka/connectors/
 COPY connectors/spds-kafka-rabbitmq-connector-shaded.jar /opt/bitnami/kafka/connectors/

@@ -1,14 +1,3 @@
----
-- name: set kafka server list
-  set_fact:
-    kafka_server_list: "{{ kafka_server_list | default([]) + [ hostvars[item]['networkInterfaces'][0]['networkIP'] + ':' + '9092' ] }}"
-  with_items:
-    - "{{ groups['kafka_node'] }}"
-
-- name: set kafka boostrap server
-  set_fact:
-    kafka_bootstrap_server: "{{ kafka_server_list | join(',')}}"
-
 - name: Create Kafka Topics
   shell: "docker exec kafka /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server {{ kafka_bootstrap_server }} --create --if-not-exists --topic {{ item.name }} --partitions {{ item.partitions }}"
   with_items:

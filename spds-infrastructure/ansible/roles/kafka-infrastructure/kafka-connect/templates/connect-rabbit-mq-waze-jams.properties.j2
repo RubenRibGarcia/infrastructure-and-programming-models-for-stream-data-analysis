@@ -2,7 +2,7 @@ name=WazeJamsConnector
 connector.class=RabbitMQSourceConnector
 tasks.max=1
 
-rabbitmq.host={{ hostvars['misc-infrastructure-0']['networkInterfaces'][0]['networkIP'] }}
+rabbitmq.host={{ kafka_connectors.rabbitmq.host }}
 rabbitmq.port=5672
 rabbitmq.username=admin
 rabbitmq.password=admin

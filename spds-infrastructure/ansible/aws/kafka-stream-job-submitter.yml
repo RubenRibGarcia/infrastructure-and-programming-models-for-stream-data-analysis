@@ -5,6 +5,7 @@
   roles:
     - kafka-infrastructure/kafka-operations
   vars:
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
     kafka_operations:
       create_topics:
         topics:
@@ -29,6 +30,14 @@
   gather_facts: yes
   roles:
     - kafka-infrastructure/kafka-connect
+  vars:
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
+    kafka_connectors:
+      rabbitmq:
+        host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
+      redis:
+        mocked: false
+        host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
   tags:
     - kafka-connect
 
@@ -40,10 +49,23 @@
       - topology-submitter/kafka-stream-job-submitter
       - metrics-monitor/agent
   vars:
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
+    kafka_stream_configs_vars:
+      parallelism: 8
+      until_phase: OUTPUT
+      redis:
+        mocked: false
+        host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
     agent:
+      outputs:
+        influxdb:
+          host: "http://{{ hostvars['metrics-dashboard-0']['network_interfaces'][0]['private_ip_address'] }}:8086"
       statsd:
         enabled: true
       docker:
         enabled: true
+      jmx:
+        enabled: true
+        host: kafka-stream
   tags:
       - kafka-stream-job-submit-gira-topology

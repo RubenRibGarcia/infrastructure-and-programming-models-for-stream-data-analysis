@@ -15,42 +15,23 @@ public class RedisSinkConnectorConfiguration {
     }
 
     public String getRedisHost() {
-        return config.getString(RedisConfigurationFields.REDIS_HOST);
+        return config.getString(RedisSinkConnectorConfigurationFields.REDIS_HOST);
     }
 
     public int getRedisPort() {
-        return config.getInt(RedisConfigurationFields.REDIS_PORT);
-    }
-
-    public String getRedisDatabase() {
-        return config.getString(RedisConfigurationFields.REDIS_DATABASE);
-    }
-
-    public String getRedisPassword() {
-        return config.getString(RedisConfigurationFields.REDIS_PASSWORD);
-    }
-
-    public int getRedisMaxTotal() {
-        return config.getInt(RedisConfigurationFields.REDIS_MAX_TOTAL);
-    }
-
-    public int getRedisMaxIdle() {
-        return config.getInt(RedisConfigurationFields.REDIS_MAX_IDLE);
-    }
-
-    public int getRedisMinIdle() {
-        return config.getInt(RedisConfigurationFields.REDIS_MIN_IDLE);
+        return config.getInt(RedisSinkConnectorConfigurationFields.REDIS_PORT);
     }
 
     public String getRedisCommand() {
-        return config.getString(RedisConfigurationFields.REDIS_COMMAND);
+        return config.getString(RedisSinkConnectorConfigurationFields.REDIS_COMMAND);
     }
 
     public String getRedisKey() {
-        return config.getString(RedisConfigurationFields.REDIS_KEY);
+        return config.getString(RedisSinkConnectorConfigurationFields.REDIS_KEY);
     }
 
-    public int getRedisConnectionTimeoutMs() {
-        return config.getInt(RedisConfigurationFields.REDIS_CONNECTION_TIMEOUT_MS);
+    public boolean isMocked() {
+        return config.getBoolean(RedisSinkConnectorConfigurationFields.REDIS_MOCKED);
     }
+    
 }
