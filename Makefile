@@ -96,7 +96,7 @@ remote-bootstrap-aws-run-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/storm; \
 	terraform init; \
 	terraform apply -auto-approve
-	sleep 3
+	sleep 5
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
 	ansible-playbook deploy-storm-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
@@ -131,12 +131,14 @@ remote-bootstrap-aws-run-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
 	terraform init; \
 	terraform apply -auto-approve
-	sleep 3
+	sleep 5
 	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
 	ansible-playbook deploy-kafka-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook kafka-stream-job-submitter.yml;
+	ansible-playbook kafka-stream-job-submitter.yml; \
+	sleep 5; \
+	ansible-playbook deploy-giragen.yml;
 
 remote-bootstrap-aws-stop-kafka:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \

@@ -6,7 +6,7 @@
     - giragen
   vars:
     giragen:
-      throughput: 2000
+      throughput: 1000
       rabbitmq:
         host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
       telegraf:

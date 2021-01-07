@@ -11,7 +11,7 @@ kafka{
     }
 }
 redis {
-    mocked = {{ kafka_stream_configs_vars.redis.mocked }}
+    mocked = false
     host = {{ kafka_stream_configs_vars.redis.host }}
     port = 6379
 }

@@ -5,18 +5,18 @@
   roles:
     - kafka-infrastructure/kafka-operations
   vars:
-    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}:9092"
     kafka_operations:
       create_topics:
         topics:
           - name: "gira_travels"
-            partitions: 1
+            partitions: 2
           - name: "waze_jams"
-            partitions: 1
+            partitions: 2
           - name: "waze_irregularities"
-            partitions: 1
+            partitions: 2
           - name: "kafka_result"
-            partitions: 1
+            partitions: 2
       restart_consumer_groups:
         execute: true
       streams_applications_reset:
@@ -31,7 +31,7 @@
   roles:
     - kafka-infrastructure/kafka-connect
   vars:
-    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}:9092"
     kafka_connectors:
       rabbitmq:
         host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
@@ -49,12 +49,11 @@
       - topology-submitter/kafka-stream-job-submitter
       - metrics-monitor/agent
   vars:
-    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}"
+    kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}:9092"
     kafka_stream_configs_vars:
       parallelism: 8
       until_phase: OUTPUT
       redis:
-        mocked: false
         host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
     agent:
       outputs:

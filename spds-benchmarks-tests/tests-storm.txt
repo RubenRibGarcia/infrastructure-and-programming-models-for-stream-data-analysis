@@ -1,12 +1,12 @@
 Case Tests:
-N | Type | Parallelism | Phase | Max sustainable throughput
+N | Type | Parallelism | Phase | Max sustainable throughput (events/s)
 
-1 | C5a.2xlarge | 8 parallelism | Output | 4000 events/s
+1 | C5a.2xlarge | 8 parallelism | Output | 4000
 (
     Notes:
         - the Max Sustainable throughput for this case test could be much higher then
 )
 
-2 | C5a.2xlarge | 16 parallelism | Output | 8000 events/s (speculation)
+2 | C5a.2xlarge | 16 parallelism | Output | 8000 (speculation)
 
-4 | C5a.2xlarge | 32 parallelism | Output | 16000 events/s (speculation)
+4 | C5a.2xlarge | 32 parallelism | Output | 16000 (speculation)
