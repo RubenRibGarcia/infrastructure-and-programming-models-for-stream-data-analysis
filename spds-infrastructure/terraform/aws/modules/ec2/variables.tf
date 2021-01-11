@@ -7,6 +7,10 @@ variable "instance_count" {
 variable "instance_type" {
   description = "The instance type to use"
 }
+variable "volume_size" {
+  description = "Volume Size of root"
+  default = 20
+}
 variable "zone" {
   description = "AWS Availability Zone"
 }

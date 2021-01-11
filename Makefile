@@ -21,6 +21,7 @@ SPDS_BENCHMARK_PATH 		:= $(DIR)/spds-benchmark
 SPDS_INFRASTRUCTURE_PATH 	:= $(DIR)/spds-infrastructure
 DATA_ADAPTERS_PATH			:= $(DIR)/data-adapters
 DATA_GENERATOR_PATH 		:= $(DIR)/data-generator
+SCRIPTS_PATH				:= $(DIR)/scripts
 
 build-project:
 	mvn clean compile package -U
@@ -111,7 +112,7 @@ remote-bootstrap-aws-stop-storm:
 
 # ------------- Apache Kafka -------------------------
 # ------------- Google Cloud Platform ---------------
-remote-bootstrap-gcp-run-kafka:
+remote-bootstrap-gcp-run-kafka-streams:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
 	terraform init; \
 	terraform apply -auto-approve
@@ -122,12 +123,12 @@ remote-bootstrap-gcp-run-kafka:
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook kafka-stream-job-submitter.yml;
 
-remote-bootstrap-gcp-stop-kafka:
+remote-bootstrap-gcp-stop-kafka-streams:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
 	terraform destroy -auto-approve
 
 # ------------- Amazon Web Services ------------------
-remote-bootstrap-aws-run-kafka:
+remote-bootstrap-aws-run-kafka-streams:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
 	terraform init; \
 	terraform apply -auto-approve
@@ -140,7 +141,7 @@ remote-bootstrap-aws-run-kafka:
 	sleep 5; \
 	ansible-playbook deploy-giragen.yml;
 
-remote-bootstrap-aws-stop-kafka:
+remote-bootstrap-aws-stop-kafka-streams:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
 	terraform destroy -auto-approve
 
@@ -307,7 +308,19 @@ docker-run-metrics-monitor: ## Runs Metrics Dashboard (Grafana+InfluxDB) and Met
 docker-stop-metrics-monitor: ## Stops Metrics Dashboard and Metrics Agent
 	docker-compose -f $(METRICS_MONITOR_INFRASTRUCTURE_PATH)/docker-compose.yml down
 
-docker-migrate-ipma-data:
+docker-build-ipma-data-to-redis:
+	sh $(SCRIPTS_PATH)/ipma-data-to-redis/docker-build.sh
+
+docker-push-ipma-data-to-redis:
+	sh $(SCRIPTS_PATH)/ipma-data-to-redis/docker-push.sh
+
+docker-build-redis-list-consumer:
+	sh $(SCRIPTS_PATH)/redis-list-consumer/docker-build.sh
+
+docker-push-redis-list-consumer:
+	sh $(SCRIPTS_PATH)/redis-list-consumer/docker-push.sh
+
+docker-run-ipma-data-to-redis:
 	docker run --rm --network container:redis impads/ipma-data-to-redis:0.0.1 -rh localhost
 
 # ------------- SERVICES NETWORK -----------------

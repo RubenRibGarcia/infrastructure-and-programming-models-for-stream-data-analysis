@@ -1,0 +1,3 @@
+
+# Running IPMA Redis data migration on CE on Google Cloud plataform by stacking network of redis container
+docker run --rm --network container:redis impads/redis-list-consumer:0.0.1 -rh localhost -rk flink_output

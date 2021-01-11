@@ -47,6 +47,7 @@ public class FirstJoinPhase implements Serializable {
             , DataStream<Observable<SimplifiedWazeJamsModel>> simplifiedWazeJamsStream) {
 
         return simplifiedGiraTravelsStream
+                .rebalance()
                 .keyBy((KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
                 .intervalJoin(simplifiedWazeJamsStream.keyBy((KeySelector<Observable<SimplifiedWazeJamsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
                 .between(Time.milliseconds(-5), Time.milliseconds(5))

@@ -47,6 +47,7 @@ public class ParsePhase implements Serializable {
 
     private DataStream<Observable<SimplifiedGiraTravelsModel>> parseGiraTravels(DataStream<Observable<GiraTravelsSourceModel>> giraTravelsSource) {
         return giraTravelsSource
+                        .rebalance()
                         .filter(model -> model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty()
                                 || model.getData().getNumberOfVertices() != null && model.getData().getNumberOfVertices() > 1
                                 || model.getData().getDistance() != null && model.getData().getDistance() > 0)
@@ -65,6 +66,7 @@ public class ParsePhase implements Serializable {
 
     private DataStream<Observable<SimplifiedWazeJamsModel>> parseWazeJams(DataStream<Observable<WazeJamsSourceModel>> wazeJamsSource) {
         return wazeJamsSource
+                        .rebalance()
                         .filter(model ->
                                 model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
                         .map(new MapFunction<Observable<WazeJamsSourceModel>
@@ -82,6 +84,7 @@ public class ParsePhase implements Serializable {
 
     private DataStream<Observable<SimplifiedWazeIrregularitiesModel>> parseWazeIrregularities(DataStream<Observable<WazeIrregularitiesSourceModel>> wazeIrregularitiesSource) {
         return wazeIrregularitiesSource
+                        .rebalance()
                         .filter(model ->
                                 model.getData().getGeometry() != null && !model.getData().getGeometry().isEmpty())
                         .map(new MapFunction<Observable<WazeIrregularitiesSourceModel>

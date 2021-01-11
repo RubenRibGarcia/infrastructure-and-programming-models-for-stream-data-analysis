@@ -24,6 +24,9 @@
             - KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://kafka:29092,OUTSIDE://{{ kafka_services.kafka_external_address }}:9092
             - KAFKA_CFG_LISTENERS=INSIDE://:29092,OUTSIDE://:9092
             - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+            - JAVA_TOOL_OPTIONS=-javaagent:/opt/kafka/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0
+          files:
+            - { src: "{{ playbook_dir }}/../roles/metrics-monitor/agent/files/jolokia-jvm-1.6.2-agent.jar", from: jolokia-jvm-1.6.2-agent.jar, to: "/opt/kafka/jolokia-jvm-1.6.2-agent.jar" }
         - name: kafka-drop
           image: obsidiandynamics/kafdrop:3.27.0
           container_name: kafka-web-ui

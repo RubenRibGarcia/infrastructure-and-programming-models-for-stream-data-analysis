@@ -10,13 +10,13 @@
       create_topics:
         topics:
           - name: "gira_travels"
-            partitions: 2
+            partitions: 1
           - name: "waze_jams"
-            partitions: 2
+            partitions: 1
           - name: "waze_irregularities"
-            partitions: 2
+            partitions: 1
           - name: "kafka_result"
-            partitions: 2
+            partitions: 1
       restart_consumer_groups:
         execute: true
       streams_applications_reset:

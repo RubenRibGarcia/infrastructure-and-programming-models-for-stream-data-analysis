@@ -7,15 +7,8 @@ storm.local.hostname: {{ storm_services.storm_supervisor_address }}
 
 supervisor.slots.ports:
     - 6700
-    - 6701
-    - 6702
-    - 6703
-    - 6704
-    - 6705
-    - 6706
-    - 6707
 
-worker.childopts: "-Xmx14g"
+worker.childopts: "-Xmx10g -javaagent:/opt/storm/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0"
 
-worker.heap.memory.mb: 14000
-topology.worker.max.heap.size.mb: 14000
+worker.heap.memory.mb: 10000
+topology.worker.max.heap.size.mb: 10000

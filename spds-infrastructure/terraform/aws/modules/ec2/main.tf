@@ -35,7 +35,7 @@ resource "aws_instance" "default" {
 
     root_block_device {
         volume_type = "gp2"
-        volume_size = 20
+        volume_size = var.volume_size
         encrypted   = false
     }
 
