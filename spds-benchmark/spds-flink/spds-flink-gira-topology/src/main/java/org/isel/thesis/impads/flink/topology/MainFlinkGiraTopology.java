@@ -35,7 +35,6 @@ public class MainFlinkGiraTopology {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setParallelism(configurationContainer.getTopologyConfiguration().getParallelism());
-        env.enableCheckpointing(10000, CheckpointingMode.AT_LEAST_ONCE);
 
         ExecutionConfig executionConfig = env.getConfig();
         executionConfig.enableObjectReuse();
