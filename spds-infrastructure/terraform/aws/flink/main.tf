@@ -71,7 +71,7 @@ module "flink-task-manager" {
 
   name = "flink-task-manager"
 
-  instance_type = "c5a.2xlarge"
+  instance_type = "c5ad.2xlarge"
   instance_count = 2
 
   zone = "eu-west-1b"

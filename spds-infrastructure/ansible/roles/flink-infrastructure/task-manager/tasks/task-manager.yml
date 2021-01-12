@@ -17,7 +17,7 @@
             - "6124:6124"
             - "6125:6125"
             - "40100:40100"
-            - "50100:50100"
+            - "50200:50200"
           environment:
             - JOB_MANAGER_RPC_ADDRESS={{ flink_services.flink_job_manager_address }}
             - JAVA_TOOL_OPTIONS=-javaagent:/opt/flink/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0

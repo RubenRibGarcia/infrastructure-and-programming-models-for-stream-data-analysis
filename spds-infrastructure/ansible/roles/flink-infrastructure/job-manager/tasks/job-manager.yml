@@ -16,6 +16,7 @@
             - "6123:6123"
             - "6124:6124"
             - "6125:6125"
+            - "50200:50200"
           environment:
             - JOB_MANAGER_RPC_ADDRESS={{ flink_services.flink_job_manager_address }}
           properties:

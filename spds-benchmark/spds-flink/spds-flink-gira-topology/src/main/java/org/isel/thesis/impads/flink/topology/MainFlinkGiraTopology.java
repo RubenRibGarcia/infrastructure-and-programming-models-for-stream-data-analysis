@@ -6,6 +6,7 @@ import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.geotools.geometry.jts.JTSFactoryFinder;
@@ -34,11 +35,11 @@ public class MainFlinkGiraTopology {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setParallelism(configurationContainer.getTopologyConfiguration().getParallelism());
+        env.enableCheckpointing(10000, CheckpointingMode.AT_LEAST_ONCE);
 
         ExecutionConfig executionConfig = env.getConfig();
         executionConfig.enableObjectReuse();
         executionConfig.setAutoWatermarkInterval(50);
-        executionConfig.setExecutionMode(ExecutionMode.PIPELINED);
 
         final ObjectMapper mapper = initMapper();
         final GeometryFactory geoFactory = initGeometryFactory();

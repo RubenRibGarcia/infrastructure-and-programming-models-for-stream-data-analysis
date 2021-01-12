@@ -30,4 +30,29 @@
     - name: Populate Redis with IPMA Values
       command:
         cmd: "docker run --rm --network container:redis impads/ipma-data-to-redis:0.0.1 -rh localhost"
+  tags:
+    - ipma-data-to-redis
+
+- hosts: misc_infrastructure
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Defined Key for Flink Output data
+      set_fact:
+        redis_key: flink_output
+      when: hostvars['flink-job-manager-0'] is defined
+    - name: Defined Key for Storm Output data
+      set_fact:
+        redis_key: storm_output
+      when: hostvars['storm-nimbus-0'] is defined
+    - name: Defined Key for Kafka Streams Output data
+      set_fact:
+        redis_key: kafka_result
+      when: hostvars['kafka-node-0'] is defined
+    - name: Run Redis List Consumer for Flink output data
+      command:
+        cmd: "docker run -d --rm --name redis-list-consumer-{{ redis_key }} --network container:redis impads/redis-list-consumer:0.0.1 -rh localhost -rk {{ redis_key }}"
+      when: redis_key is defined
+  tags:
+    - redis-list-consumer
 

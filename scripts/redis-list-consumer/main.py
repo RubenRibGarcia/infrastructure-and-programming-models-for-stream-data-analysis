@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+import time
 
 import redis
 import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
 
 def main(args):
@@ -9,9 +13,11 @@ def main(args):
 
     while True:
         list_size = r.llen(args.redis_key)
-        print(f"Removing {list_size} elements from {args.redis_key}")
+
+        logging.info(f"Removing {list_size} elements from {args.redis_key}")
         for i in range(0, r.llen(args.redis_key)):
-            r.rpop(args.redis_key)
+            r.ltrim(args.redis_key, -1, 0)
+        time.sleep(5)
 
 
 if __name__ == '__main__':

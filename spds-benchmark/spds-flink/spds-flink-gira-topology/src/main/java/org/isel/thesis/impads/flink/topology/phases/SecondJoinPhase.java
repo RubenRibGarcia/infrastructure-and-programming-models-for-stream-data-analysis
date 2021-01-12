@@ -53,7 +53,6 @@ public class SecondJoinPhase implements Serializable {
             , DataStream<Observable<SimplifiedWazeIrregularitiesModel>> simplifiedWazeIrregularitiesStream) {
 
         return joinedGiraTravelsWithWazeJamsStream
-                .rebalance()
                 .keyBy(k -> Instant.ofEpochMilli(k.getData().f0.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
                 .intervalJoin(simplifiedWazeIrregularitiesStream.keyBy(k -> Instant.ofEpochMilli(k.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
                 .between(Time.milliseconds(-5), Time.milliseconds(5))

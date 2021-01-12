@@ -56,7 +56,9 @@ public class StaticJoinPhase implements Serializable {
                         , (readCommands, keyHashField, tuple) -> IpmaValuesModel.fetchAndAddFromRedis(keyHashField.getHashField(), readCommands)
                         , configurationContainer.getMetricsCollectorConfiguration());
 
-        return joinedGiraTravelsWithWazeStream.map(IpmaValuesCacheableMapFunction.function(mapper));
+        return joinedGiraTravelsWithWazeStream
+                .rebalance()
+                .map(IpmaValuesCacheableMapFunction.function(mapper));
     }
 
     public DataStream<Observable<Tuple4<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel, SimplifiedWazeIrregularitiesModel, IpmaValuesModel>>> getEnrichedJoinedGiraTravelsWithWazeAndIpma() {

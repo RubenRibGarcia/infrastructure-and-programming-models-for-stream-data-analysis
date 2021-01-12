@@ -35,12 +35,3 @@
   tags:
     - storm-supervisor
 
-
-- hosts: misc_infrastructure
-  become: yes
-  gather_facts: yes
-  tasks:
-    - name: Run Redis List Consumer for Kafka Streams output data
-      command:
-        cmd: "docker run -d --rm --network container:redis impads/redis-list-consumer:0.0.1 -rh localhost -rk storm_output"
-
