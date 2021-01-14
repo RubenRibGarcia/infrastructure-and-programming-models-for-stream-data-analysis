@@ -10,13 +10,13 @@
       create_topics:
         topics:
           - name: "gira_travels"
-            partitions: 1
+            partitions: 4
           - name: "waze_jams"
-            partitions: 1
+            partitions: 4
           - name: "waze_irregularities"
-            partitions: 1
+            partitions: 4
           - name: "kafka_result"
-            partitions: 1
+            partitions: 4
       restart_consumer_groups:
         execute: true
       streams_applications_reset:
@@ -44,14 +44,13 @@
 - hosts: kafka_stream
   become: yes
   gather_facts: yes
-  serial: 1
   roles:
       - topology-submitter/kafka-stream-job-submitter
       - metrics-monitor/agent
   vars:
     kafka_bootstrap_server: "{{ hostvars['kafka-node-0']['network_interfaces'][0]['private_ip_address'] }}:9092"
     kafka_stream_configs_vars:
-      parallelism: 8
+      parallelism: 32
       until_phase: OUTPUT
       redis:
         host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"

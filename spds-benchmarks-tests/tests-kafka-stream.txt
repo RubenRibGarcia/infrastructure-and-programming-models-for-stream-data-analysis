@@ -1,8 +1,20 @@
 Case Tests:
+
+Kafka Note
+N | Type | vCPUs | Memory
+
+1 | C5ad.xlarge | 4 | 8GB
+
+2 | C5ad.xlarge | 4 | 8GB |
+
+2 | C5ad.2xlarge | 8 | 16GB |
+
+
+Kafka Streams
 N | Type | Parallelism | Phase | Max sustainable throughput (events/s)
 
-1 | C5a.2xlarge | 8 parallelism | Output | 1000 (speculation)
+1 | C5a.2xlarge | 8 parallelism | Output | 1300
 
-2 | C5a.2xlarge | 16 parallelism | Output | 2000 (speculation)
+2 | C5a.2xlarge | 16 parallelism | Output | 1500
 
-4 | C5a.2xlarge | 32 parallelism | Output | 3000 (speculation)
+4 | C5a.2xlarge | 32 parallelism | Output | 1800 (with upgrade on kafka node)

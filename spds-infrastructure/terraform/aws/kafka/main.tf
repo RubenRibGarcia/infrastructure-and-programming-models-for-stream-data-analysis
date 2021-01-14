@@ -57,7 +57,7 @@ module "kafka-node" {
 
   name = "kafka-node"
 
-  instance_type = "c5ad.xlarge"
+  instance_type = "c5ad.2xlarge"
   instance_count = 1
 
   volume_size = 100
@@ -75,7 +75,7 @@ module "kafka-stream" {
   name = "kafka-stream"
 
   instance_type = "c5a.2xlarge"
-  instance_count = 1
+  instance_count = 4
 
   zone = "eu-west-1b"
   ssh_authorized_keys = local.ssh_authorized_keys
