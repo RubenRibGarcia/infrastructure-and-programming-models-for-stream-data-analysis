@@ -28,13 +28,13 @@ build-project:
 
 # ------------- LOCAL BOOTSTRAP ---------------------
 
-local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-migrate-ipma-data
+local-bootstrap-run-flink: docker-run-flink-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-run-ipma-data-to-redis
 local-bootstrap-stop-flink: docker-stop-flink-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-migrate-ipma-data
+local-bootstrap-run-storm: docker-run-storm-infrastructure docker-run-misc-infrastructure docker-run-metrics-monitor docker-run-ipma-data-to-redis
 local-bootstrap-stop-storm: docker-stop-storm-infrastructure docker-stop-misc-infrastructure docker-stop-metrics-monitor
 
-local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-misc-infrastructure docker-run-kafka-connectors docker-run-metrics-monitor docker-migrate-ipma-data
+local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-misc-infrastructure docker-run-kafka-connectors docker-run-metrics-monitor docker-run-ipma-data-to-redis
 local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-misc-infrastructure docker-stop-kafka-connectors docker-stop-metrics-monitor
 
 # ------------- REMOTE BOOTSTRAP ---------------------

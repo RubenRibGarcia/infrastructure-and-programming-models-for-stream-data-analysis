@@ -71,7 +71,7 @@ module "storm-supervisor" {
   name = "storm-supervisor"
 
   instance_type = "c5a.2xlarge"
-  instance_count = 1
+  instance_count = 4
 
   zone = "eu-west-1b"
   ssh_authorized_keys = local.ssh_authorized_keys

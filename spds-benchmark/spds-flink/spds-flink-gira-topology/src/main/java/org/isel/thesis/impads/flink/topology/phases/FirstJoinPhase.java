@@ -1,9 +1,11 @@
 package org.isel.thesis.impads.flink.topology.phases;
 
+import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.isel.thesis.impads.flink.metrics.ObservableSinkFunction;
@@ -47,20 +49,20 @@ public class FirstJoinPhase implements Serializable {
             , DataStream<Observable<SimplifiedWazeJamsModel>> simplifiedWazeJamsStream) {
 
         return simplifiedGiraTravelsStream
-                .keyBy((KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
-                .intervalJoin(simplifiedWazeJamsStream.keyBy((KeySelector<Observable<SimplifiedWazeJamsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()))
-                .between(Time.milliseconds(-5), Time.milliseconds(5))
-                .process(new ProcessJoinFunction<Observable<SimplifiedGiraTravelsModel>, Observable<SimplifiedWazeJamsModel>, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>>() {
+                .join(simplifiedWazeJamsStream)
+                .where((KeySelector<Observable<SimplifiedGiraTravelsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
+                .equalTo((KeySelector<Observable<SimplifiedWazeJamsModel>, Long>) tuple -> Instant.ofEpochMilli(tuple.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli())
+                .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(5)))
+                .apply(new JoinFunction<Observable<SimplifiedGiraTravelsModel>, Observable<SimplifiedWazeJamsModel>, Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>>() {
                     @Override
-                    public void processElement(Observable<SimplifiedGiraTravelsModel> left
-                            , Observable<SimplifiedWazeJamsModel> right
-                            , Context context
-                            , Collector<Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>>> collector) throws Exception {
+                    public Observable<Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel>> join(
+                            Observable<SimplifiedGiraTravelsModel> left
+                            , Observable<SimplifiedWazeJamsModel> right) throws Exception {
 
                         final Tuple2<SimplifiedGiraTravelsModel, SimplifiedWazeJamsModel> tuple =
                                 Tuple2.of(left.getData(), right.getData());
 
-                        collector.collect(left.join(tuple, right));
+                        return left.join(tuple, right);
                     }
                 });
     }

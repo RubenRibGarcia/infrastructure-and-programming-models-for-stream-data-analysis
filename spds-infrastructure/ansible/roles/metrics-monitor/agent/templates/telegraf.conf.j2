@@ -304,17 +304,25 @@
 {% endif %}
 
 {% if agent.jmx.enabled | default (false) %}
-
+{% set list_urls=[] %}
+{% if agent.jmx.multi_agents.enabled | default(false) %}
+{% for port in agent.jmx.multi_agents.ports %}
+{{ list_urls.append("http://" + agent.jmx.host + ":" + port | string + "/jolokia") }}
+{% endfor %}
+{% else %}
+{{ list_urls.append("http://" + agent.jmx.host + ":8778/jolokia") }}
+{% endif %}
 # # Read JMX metrics from a Jolokia REST agent endpoint
 [[inputs.jolokia2_agent]]
 
-    urls = ["http://{{ agent.jmx.host }}:8778/jolokia"]
+    urls = ["{{ list_urls | join('", "') }}"]
 
     [[inputs.jolokia2_agent.metric]]
-    name  = "java_memory"
-    mbean = "java.lang:type=Memory"
-    paths = ["HeapMemoryUsage", "NonHeapMemoryUsage", "ObjectPendingFinalizationCount"]
-
+        name  = "java_memory"
+        mbean = "java.lang:type=Memory"
+        paths = ["HeapMemoryUsage", "NonHeapMemoryUsage", "ObjectPendingFinalizationCount"]
+    [inputs.jolokia2_agent.tags]
+        named_host = "{{ agent.jmx.host }}"
 {% endif %}
 
 {% if agent.rabbitmq.enabled | default(false) %}

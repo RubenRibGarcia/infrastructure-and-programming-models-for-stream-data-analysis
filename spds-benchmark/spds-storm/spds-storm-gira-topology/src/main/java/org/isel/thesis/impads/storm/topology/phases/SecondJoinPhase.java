@@ -70,7 +70,7 @@ public class SecondJoinPhase implements Serializable {
                             from.join(Tuple3.of(from.getData().getFirst(), from.getData().getSecond(), join.getData()), join);
 
                     Values values = new Values(Instant.ofEpochMilli(obs.getEventTimestamp()).truncatedTo(ChronoUnit.SECONDS).toEpochMilli()
-                            , obs.getEventTimestamp()
+                            , obs.getData().getFirst().getEventTimestamp()
                             , obs);
 
                     return values;
@@ -80,7 +80,8 @@ public class SecondJoinPhase implements Serializable {
 
         topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_STREAM, joinedGiraTravelsWithWazeBolt
                 .withWindow(BaseWindowedBolt.Duration.of(30), BaseWindowedBolt.Duration.of(30))
-                .withTimestampExtractor(tuple -> tuple.getLongByField("event_timestamp")), configurationContainer.getTopologyConfiguration().getParallelism())
+                .withTimestampField("event_timestamp")
+                .withWatermarkInterval(BaseWindowedBolt.Duration.of(30)), configurationContainer.getTopologyConfiguration().getParallelism())
                 .fieldsGrouping(joinedGiraTravelsWithWazeJamsStream, new Fields("key"))
                 .fieldsGrouping(simplifiedWazeIrregularitiesStream, new Fields("key"));
     }

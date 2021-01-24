@@ -15,8 +15,8 @@
   become: yes
   gather_facts: yes
   roles:
-    - storm-infrastructure/supervisor
-    - metrics-monitor/agent
+    - { role: storm-infrastructure/supervisor, tags: supervisor }
+    - { role: metrics-monitor/agent, tags: agent }
   vars:
     storm_services:
       storm_nimbus_address: "{{ hostvars['storm-nimbus-0']['network_interfaces'][0]['private_ip_address'] }}"
@@ -32,6 +32,17 @@
       jmx:
         enabled: true
         host: supervisor
+        multi_agents:
+          enabled: true
+          ports:
+            - 16700
+            - 16701
+            - 16702
+            - 16703
+            - 16704
+            - 16705
+            - 16706
+            - 16707
   tags:
     - storm-supervisor
 

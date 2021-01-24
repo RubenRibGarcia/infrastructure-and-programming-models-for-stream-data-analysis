@@ -14,7 +14,7 @@
     storm_job_config_files:
       - { from: "{{ playbook_dir }}/../files/spds-storm/jobs/storm-gira-topology.conf", to: "/opt/impads/storm/jobs/storm-gira-topology.conf"}
     storm_job_configs_vars:
-      parallelism: 8
+      parallelism: 32
       until_phase: OUTPUT
       rabbitmq:
         host: "{{ hostvars['misc-infrastructure-0']['network_interfaces'][0]['private_ip_address'] }}"
