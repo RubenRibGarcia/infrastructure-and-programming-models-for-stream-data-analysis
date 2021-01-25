@@ -75,7 +75,7 @@ public class FirstJoinPhase implements Serializable {
         topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_JAMS_STREAM, joinedGiraTravelsWithWazeJamsBolt
                 .withWindow(BaseWindowedBolt.Duration.of(5), BaseWindowedBolt.Duration.of(5))
                 .withTimestampField("event_timestamp")
-                .withWatermarkInterval(BaseWindowedBolt.Duration.of(5)), configurationContainer.getTopologyConfiguration().getParallelism())
+                .withWatermarkInterval(BaseWindowedBolt.Duration.of(50)), configurationContainer.getTopologyConfiguration().getParallelism())
                 .fieldsGrouping(simplifiedGiraTravelsStream, new Fields("key"))
                 .fieldsGrouping(simplifiedWazeJamsStream, new Fields("key"));
     }

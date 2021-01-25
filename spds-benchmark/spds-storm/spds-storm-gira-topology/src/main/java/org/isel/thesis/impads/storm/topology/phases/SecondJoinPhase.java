@@ -81,7 +81,7 @@ public class SecondJoinPhase implements Serializable {
         topologyBuilder.setBolt(JOINED_GIRA_TRAVELS_WITH_WAZE_STREAM, joinedGiraTravelsWithWazeBolt
                 .withWindow(BaseWindowedBolt.Duration.of(30), BaseWindowedBolt.Duration.of(30))
                 .withTimestampField("event_timestamp")
-                .withWatermarkInterval(BaseWindowedBolt.Duration.of(30)), configurationContainer.getTopologyConfiguration().getParallelism())
+                .withWatermarkInterval(BaseWindowedBolt.Duration.of(50)), configurationContainer.getTopologyConfiguration().getParallelism())
                 .fieldsGrouping(joinedGiraTravelsWithWazeJamsStream, new Fields("key"))
                 .fieldsGrouping(simplifiedWazeIrregularitiesStream, new Fields("key"));
     }

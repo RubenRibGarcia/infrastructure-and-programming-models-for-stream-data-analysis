@@ -7,7 +7,7 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 public class StormObservableMetricsCollector
         extends ObservableMetricsCollector {
 
-    public StormObservableMetricsCollector(MetricsCollectorConfiguration config) {
-        super(config, SPDS.STORM);
+    public StormObservableMetricsCollector(MetricsCollectorConfiguration config, String... tags) {
+        super(config, SPDS.STORM, tags);
     }
 }

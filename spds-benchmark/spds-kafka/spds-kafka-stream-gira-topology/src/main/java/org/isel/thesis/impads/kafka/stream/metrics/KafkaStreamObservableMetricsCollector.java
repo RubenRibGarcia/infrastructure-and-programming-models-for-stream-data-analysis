@@ -7,7 +7,7 @@ import org.isel.thesis.impads.metrics.collector.MetricsCollectorConfiguration;
 public class KafkaStreamObservableMetricsCollector
         extends ObservableMetricsCollector {
 
-    public KafkaStreamObservableMetricsCollector(MetricsCollectorConfiguration config) {
-        super(config, SPDS.KAFKA_STREAM);
+    public KafkaStreamObservableMetricsCollector(MetricsCollectorConfiguration config, String... tags) {
+        super(config, SPDS.KAFKA_STREAM, tags);
     }
 }

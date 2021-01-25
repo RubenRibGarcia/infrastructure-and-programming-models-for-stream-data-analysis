@@ -2,7 +2,6 @@ package org.isel.thesis.impads.kafka.stream.topology.phases;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
-import org.geotools.geometry.jts.WKBReader;
 import org.isel.thesis.impads.kafka.stream.metrics.KafkaStreamObservableMetricsCollector;
 import org.isel.thesis.impads.kafka.stream.topology.ConfigurationContainer;
 import org.isel.thesis.impads.kafka.stream.topology.model.GiraTravelsWithWazeAndIpmaResult;
@@ -11,6 +10,7 @@ import org.isel.thesis.impads.kafka.stream.topology.model.ObservableJoinedGiraTr
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.io.WKBReader;
 
 import java.io.Serializable;
 
@@ -50,11 +50,13 @@ public class ResultPhase implements Serializable {
     private KStream<Long, ObservableGiraTravelsWithWazeResults> transformToResult(
             KStream<Long, ObservableJoinedGiraTravelsWithWazeAndIpma> enrichedJoinedGiraTravelsWithWazeAndIpma) {
 
-        final WKBReader reader = new WKBReader(geoFactory);
+
 
         return enrichedJoinedGiraTravelsWithWazeAndIpma
                 .map((k, v) -> {
                     try {
+                        final WKBReader reader = new WKBReader(geoFactory);
+
                         boolean jamAndIrrMatches = false;
 
                         final Geometry giraGeo
@@ -84,7 +86,14 @@ public class ResultPhase implements Serializable {
                         return KeyValue.pair(k, new ObservableGiraTravelsWithWazeResults(v.map(rvalue)));
                     }
                     catch(Exception e) {
-                        throw new RuntimeException(e.getMessage(), e);
+                        GiraTravelsWithWazeAndIpmaResult rvalue = new GiraTravelsWithWazeAndIpmaResult(v.getData().getFirst()
+                                , v.getData().getSecond()
+                                , v.getData().getThird()
+                                , v.getData().getFourth()
+                                , false
+                                , false
+                                , false);
+                        return KeyValue.pair(k, new ObservableGiraTravelsWithWazeResults(v.map(rvalue)));
                     }
                 });
     }

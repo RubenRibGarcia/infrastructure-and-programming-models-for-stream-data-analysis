@@ -9,7 +9,7 @@ public class FlinkObservableMetricsCollector
 
     private static final long serialVersionUID = 1L;
 
-    public FlinkObservableMetricsCollector(MetricsCollectorConfiguration config) {
-        super(config, SPDS.FLINK);
+    public FlinkObservableMetricsCollector(MetricsCollectorConfiguration config, String... tags) {
+        super(config, SPDS.FLINK, tags);
     }
 }

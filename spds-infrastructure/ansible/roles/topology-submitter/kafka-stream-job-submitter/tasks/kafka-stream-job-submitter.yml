@@ -11,7 +11,7 @@
           image: impads/kafka-streams-gira-travels-pattern:0.0.1
           container_name: kafka-stream
           environment:
-            - JAVA_TOOL_OPTIONS=-javaagent:/opt/kafka-stream/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0
+            - JAVA_TOOL_OPTIONS=-javaagent:/opt/kafka-stream/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0 -Xmx10G -XX:+PrintGCDetails
           properties:
             - { src: gira-travels-pattern-topology.conf.j2, from: gira-travels-pattern-topology.conf.conf, to: /opt/isel/thesis/impads/spds-kafka/topology/conf/topology.conf }
           files:

@@ -11,23 +11,29 @@ public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFun
 
     private final MetricsCollectorConfiguration config;
     private final RichSinkFunction<T> sinkFunction;
+    private final String[] tags;
 
     private FlinkObservableMetricsCollector collector;
 
     private ObservableSinkFunction(final MetricsCollectorConfiguration config
-            , final RichSinkFunction<T> sinkFunction) {
+            , final RichSinkFunction<T> sinkFunction
+            , final String... tags) {
         this.config = config;
         this.sinkFunction = sinkFunction;
-    }
-
-    public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config) {
-        return observe(config, null);
+        this.tags = tags;
     }
 
     public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config
-            , RichSinkFunction<T> sinkFunction) {
+            , String... tags) {
+        return observe(config, tags);
+    }
+
+    public static <T extends Observable<?>> ObservableSinkFunction<T> observe(MetricsCollectorConfiguration config
+            , RichSinkFunction<T> sinkFunction
+            , String... tags) {
         return new ObservableSinkFunction<>(config
-                , sinkFunction);
+                , sinkFunction
+                , tags);
     }
 
     @Override
@@ -43,7 +49,7 @@ public class ObservableSinkFunction<T extends Observable<?>> extends RichSinkFun
     @Override
     public void open(Configuration parameters) throws Exception {
 
-        collector = new FlinkObservableMetricsCollector(config);
+        collector = new FlinkObservableMetricsCollector(config, tags);
 
         if (sinkFunction != null) {
             sinkFunction.open(parameters);

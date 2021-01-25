@@ -18,6 +18,8 @@ public class ObservableMetricsCollector {
     private Timer eventLatencyTimer;
     private Timer processingLatencyTimer;
 
+    private String[] tags;
+
     public ObservableMetricsCollector(MetricsCollectorConfiguration config
             , SPDS spds) {
         this.config = config;
@@ -25,12 +27,21 @@ public class ObservableMetricsCollector {
         this.initMetricsCollector();
     }
 
+    public ObservableMetricsCollector(MetricsCollectorConfiguration config
+            , SPDS spds
+            , String... tags) {
+        this.config = config;
+        this.spds = spds;
+        this.tags = tags;
+        this.initMetricsCollector();
+    }
+
     private void initMetricsCollector() {
         IMetrics metrics = FactoryMetrics.newMetrics(config);
 
         if (metrics != null && spds != null) {
-            this.eventLatencyTimer = metrics.registerTimer(spds.getName().concat(EVENT_TIME_LATENCY_METRIC_SUFFIX));
-            this.processingLatencyTimer = metrics.registerTimer(spds.getName().concat(PROCESSING_TIME_LATENCY_METRIC_SUFFIX));
+            this.eventLatencyTimer = metrics.registerTimer(spds.getName().concat(EVENT_TIME_LATENCY_METRIC_SUFFIX), tags);
+            this.processingLatencyTimer = metrics.registerTimer(spds.getName().concat(PROCESSING_TIME_LATENCY_METRIC_SUFFIX), tags);
         }
     }
 

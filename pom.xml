@@ -32,7 +32,7 @@
         <apache.flink.version>1.11.1</apache.flink.version>
         <apache.kafka.version>2.7.0</apache.kafka.version>
         <apache.storm.version>2.2.0</apache.storm.version>
-        <geotools.version>23.1</geotools.version>
+        <geotools.version>24.1</geotools.version>
         <typesafe.version>1.4.0</typesafe.version>
         <jackson.version>2.10.2</jackson.version>
         <micrometer.version>1.6.2</micrometer.version>
