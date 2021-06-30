@@ -11,7 +11,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
   #Set Kafka
   kafka:
-    image: bitnami/kafka:2.6.0
+    image: bitnami/kafka:2.7.0
     container_name: kafka
     ports:
       - "9092:9092"

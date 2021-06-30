@@ -17,6 +17,8 @@ services:
     restart: always
     ports:
       - 6627:6627
+    volumes:
+          - path/to/storm-nimbus.yaml:/conf/storm.yaml
 
   nimbus-ui:
     image: impads/storm:2.2.0
@@ -43,6 +45,9 @@ services:
       - nimbus-ui
       - zookeeper
     restart: always
+    volumes:
+      - path/to/storm-supervisor.yaml:/conf/storm.yaml
+      - path/to/jolokia-jvm-1.6.2-agent.jar:/opt/flink/jolokia-jvm-1.6.2-agent.jar
 
 networks:
   default:

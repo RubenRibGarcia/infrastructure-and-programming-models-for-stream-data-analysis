@@ -48,6 +48,8 @@ log4j2.xml
 !spds-infrastructure/ansible/**
 spds-infrastructure/ansible/files/**
 !.travis.yml
+!spds-infrastructure/components/metrics-monitor/*.json
+!spds-infrastructure/components/metrics-monitor/jolokia-jvm-1.6.2-agent.jar
 
 /spds-data
 

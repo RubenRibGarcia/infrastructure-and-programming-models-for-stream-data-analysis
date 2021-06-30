@@ -7,14 +7,5 @@ storm.local.hostname: "supervisor"
 
 supervisor.slots.ports:
     - 6700
-    - 6701
-    - 6702
-    - 6703
-    - 6704
-    - 6705
-    - 6706
-    - 6707
-    - 6708
-    - 6709
 
-worker.childopts: "-XX:+UseG1GC -Xmx8g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5%ID%"
+worker.childopts: "-XX:+UseG1GC -Xmx8g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5%ID% -javaagent:/opt/flink/jolokia-jvm-1.6.2-agent.jar=port=8778,host=0.0.0.0"
