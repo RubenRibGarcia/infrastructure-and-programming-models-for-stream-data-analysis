@@ -38,26 +38,28 @@ local-bootstrap-run-kafka-stream: docker-run-kafka-infrastructure docker-run-mis
 local-bootstrap-stop-kafka-stream: docker-stop-kafka-infrastructure docker-stop-misc-infrastructure docker-stop-kafka-connectors docker-stop-metrics-monitor
 
 # ------------- REMOTE BOOTSTRAP ---------------------
-# ------------- Apache Flink -------------------------
-# ------------- Google Cloud Platform ---------------
-remote-bootstrap-gcp-run-flink:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
+# ------------- Amazon Web Services ------------------
+remote-bootstrap-aws-run-all:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/all; \
 	terraform init; \
-	terraform apply -auto-approve
-	sleep 5
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
+	terraform apply -auto-approve;
+	sleep 5;
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
 	ansible-playbook deploy-flink-infrastructure.yml; \
+	ansible-playbook deploy-storm-infrastructure.yml; \
+	ansible-playbook deploy-kafka-infrastructure.yml; \
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook flink-job-submitter.yml;
-	sleep 5;
+	ansible-playbook flink-job-submitter.yml; \
+	ansible-playbook storm-job-submitter.yml; \
+	ansible-playbook kafka-stream-job-submitter.yml; \
+	sleep 5; \
 	ansible-playbook deploy-giragen.yml;
 
-remote-bootstrap-gcp-stop-flink:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/flink; \
+remote-bootstrap-aws-stop-all:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/all; \
 	terraform destroy -auto-approve
-
-# ------------- Amazon Web Services ------------------
+# ------------- Apache Flink -------------------------
 remote-bootstrap-aws-run-flink:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/flink; \
 	terraform init; \
@@ -68,6 +70,7 @@ remote-bootstrap-aws-run-flink:
 	ansible-playbook deploy-metrics-dashboard.yml; \
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook flink-job-submitter.yml; \
+	ansible-playbook kafka-stream-job-submitter.yml; \
 	sleep 5; \
 	ansible-playbook deploy-giragen.yml;
 
@@ -76,23 +79,6 @@ remote-bootstrap-aws-stop-flink:
 	terraform destroy -auto-approve
 
 # ------------- Apache Storm -------------------------
-# ------------- Google Cloud Platform ---------------
-remote-bootstrap-gcp-run-storm:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
-	terraform init; \
-	terraform apply -auto-approve
-	sleep 5
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
-	ansible-playbook deploy-storm-infrastructure.yml; \
-	ansible-playbook deploy-metrics-dashboard.yml; \
-	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook storm-job-submitter.yml;
-
-remote-bootstrap-gcp-stop-storm:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/storm; \
-	terraform destroy -auto-approve
-
-# ------------- Amazon Web Services ------------------
 remote-bootstrap-aws-run-storm:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/storm; \
 	terraform init; \
@@ -111,23 +97,6 @@ remote-bootstrap-aws-stop-storm:
 	terraform destroy -auto-approve
 
 # ------------- Apache Kafka -------------------------
-# ------------- Google Cloud Platform ---------------
-remote-bootstrap-gcp-run-kafka-streams:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
-	terraform init; \
-	terraform apply -auto-approve
-	sleep 3
-	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/gcp; \
-	ansible-playbook deploy-kafka-infrastructure.yml; \
-	ansible-playbook deploy-metrics-dashboard.yml; \
-	ansible-playbook deploy-misc-infrastructure.yml; \
-	ansible-playbook kafka-stream-job-submitter.yml;
-
-remote-bootstrap-gcp-stop-kafka-streams:
-	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/gcp/kafka; \
-	terraform destroy -auto-approve
-
-# ------------- Amazon Web Services ------------------
 remote-bootstrap-aws-run-kafka-streams:
 	cd $(SPDS_INFRASTRUCTURE_PATH)/terraform/aws/kafka; \
 	terraform init; \
