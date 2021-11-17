@@ -12,5 +12,6 @@
     "enabled": false
   },
   "reviewers": ["RubenRibGarcia"],
-  "schedule": ["every weekday"]
+  "schedule": ["every weekday"],
+  "prConcurrentLimit": 4
 }
