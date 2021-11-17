@@ -52,8 +52,10 @@ remote-bootstrap-aws-run-all:
 	ansible-playbook deploy-misc-infrastructure.yml; \
 	ansible-playbook flink-job-submitter.yml; \
 	ansible-playbook storm-job-submitter.yml; \
-	ansible-playbook kafka-stream-job-submitter.yml; \
-	sleep 5; \
+	ansible-playbook kafka-stream-job-submitter.yml;
+
+remote-bootstrap-aws-run-giragen:
+	cd $(SPDS_INFRASTRUCTURE_PATH)/ansible/aws; \
 	ansible-playbook deploy-giragen.yml;
 
 remote-bootstrap-aws-stop-all:
