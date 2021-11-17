@@ -12,5 +12,5 @@
     "enabled": false
   },
   "reviewers": ["RubenRibGarcia"],
-  "schedule": ["every 30 minutes"]
+  "schedule": ["every weekday"]
 }
