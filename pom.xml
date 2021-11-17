@@ -27,7 +27,7 @@
         <dagger.version>2.26</dagger.version>
         <slf4j.version>1.7.26</slf4j.version>
         <apache.common.csv.version>1.8</apache.common.csv.version>
-        <vavr.version>0.10.2</vavr.version>
+        <vavr.version>0.10.4</vavr.version>
         <guava.version>29.0-jre</guava.version>
         <apache.flink.version>1.11.1</apache.flink.version>
         <apache.kafka.version>2.7.0</apache.kafka.version>
