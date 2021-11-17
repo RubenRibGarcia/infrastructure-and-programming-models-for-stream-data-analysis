@@ -7,15 +7,10 @@
   "automerge": false,
   "automergeStrategy": "auto",
   "versioning": "maven",
-  "packageRules": [
-    {
-      "matchDatasources": []
-
-    }
-  ],
   "rangeStrategy": "bump",
   "major": {
     "enabled": false
   },
-  "reviewers": ["RubenRibGarcia"]
+  "reviewers": ["RubenRibGarcia"],
+  "schedule": ["every 30 minutes"]
 }
