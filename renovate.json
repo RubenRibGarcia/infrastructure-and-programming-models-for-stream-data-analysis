@@ -1,5 +1,21 @@
 {
   "extends": [
-    "config:base"
-  ]
+    "config:base",
+    ":dependencyDashboard"
+  ],
+  "timezone": "UTC",
+  "automerge": false,
+  "automergeStrategy": "auto",
+  "versioning": "maven",
+  "packageRules": [
+    {
+      "matchDatasources": []
+
+    }
+  ],
+  "rangeStrategy": "bump",
+  "major": {
+    "enabled": false
+  },
+  "reviewers": ["RubenRibGarcia"]
 }
