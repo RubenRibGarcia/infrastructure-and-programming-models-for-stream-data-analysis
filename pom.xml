@@ -30,7 +30,7 @@
         <vavr.version>0.10.4</vavr.version>
         <guava.version>29.0-jre</guava.version>
         <apache.flink.version>1.11.1</apache.flink.version>
-        <apache.kafka.version>2.7.0</apache.kafka.version>
+        <apache.kafka.version>2.8.2</apache.kafka.version>
         <apache.storm.version>2.2.0</apache.storm.version>
         <geotools.version>24.1</geotools.version>
         <typesafe.version>1.4.1</typesafe.version>
