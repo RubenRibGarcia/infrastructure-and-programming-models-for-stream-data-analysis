@@ -24,7 +24,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         
         <amqp.version>5.9.0</amqp.version>
-        <dagger.version>2.26</dagger.version>
+        <dagger.version>2.52</dagger.version>
         <slf4j.version>1.7.26</slf4j.version>
         <apache.common.csv.version>1.8</apache.common.csv.version>
         <vavr.version>0.10.4</vavr.version>
